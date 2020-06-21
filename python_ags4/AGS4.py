@@ -1,7 +1,7 @@
 # Copyright Asitha Senanayake
 
 from __future__ import unicode_literals
-import pandas as pd
+from pandas import DataFrame, to_numeric
 
 
 def AGS4_to_dict(filepath):
@@ -25,14 +25,15 @@ def AGS4_to_dict(filepath):
                  i.e. input for 'dataframe_to_AGS4()' function)
     """
 
-    with open(filepath, "r") as f:
+    # Read file with errors="replace" to catch UnicodeDecodeErrors
+    with open(filepath, "r", errors="replace") as f:
         data = {}
 
         # dict to save and output the headings. This is not really necessary
         # for the read AGS4 function but will be needed to write the columns
         # of pandas dataframes when writing them back to AGS4 files.
         # (The HEADING column needs to be the first column in order to preserve
-        # the AGS data format. Other columns in certain groups such as have a i
+        # the AGS data format. Other columns in certain groups have a
         # preferred order as well)
 
         headings = {}
@@ -94,9 +95,9 @@ def AGS4_to_dataframe(filepath, set_index_to_heading=False):
     df = {}
     for key in data:
         if set_index_to_heading is True:
-            df[key] = pd.DataFrame(data[key]).set_index('HEADING')
+            df[key] = DataFrame(data[key]).set_index('HEADING')
         else:
-            df[key] = pd.DataFrame(data[key])
+            df[key] = DataFrame(data[key])
 
     return df, headings
 
@@ -160,7 +161,7 @@ def convert_to_numeric(dataframe):
     df = dataframe.copy()
 
     # Convert to appropriate columns to numeric
-    numeric_df = df.loc[:, df.iloc[1].str.contains('DP|MC|SF|SCI')].apply(pd.to_numeric, errors='coerce')
+    numeric_df = df.loc[:, df.iloc[1].str.contains('DP|MC|SF|SCI')].apply(to_numeric, errors='coerce')
 
     # Replace columns in input dataframe with numeric columns
     df[numeric_df.columns] = numeric_df
