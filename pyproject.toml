@@ -2,7 +2,7 @@
 name = "python-AGS4"
 version = "0.1.0"
 description = ""
-authors = ["Asitha Senanayake <asitha_sena@yahoo.com>"]
+authors = ["Asitha Senanayake <asitha.senanayake@utexas.edu>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
