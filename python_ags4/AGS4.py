@@ -1,6 +1,5 @@
 # Copyright Asitha Senanayake
 
-from __future__ import unicode_literals
 from pandas import DataFrame, to_numeric
 
 
