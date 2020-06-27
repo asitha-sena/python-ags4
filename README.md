@@ -27,7 +27,7 @@ tables, headings = AGS4.AGS4_to_dataframe('/home/asitha/Projects/python-AGS4/tes
 All data are imported as text so they cannot be analyzed or plotted immediately. You can use the following code to convert all the numerical data in a DataFrame from text to numeric.
 
 ```python
-LOCA = AGS4.convert_to_numeric(data['LOCA'])
+LOCA = AGS4.convert_to_numeric(tables['LOCA'])
 ```
 
 The `AGS4.convert_to_numeric()` function automatically converts all columns in the input DataFrame with the a numeric *TYPE* to a float.
