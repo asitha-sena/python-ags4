@@ -12,12 +12,12 @@ pip install python-ags4
 
 ## Examples
 
-Import module:
+#### Import module:
 ```python
 from python_ags4 import AGS4
 ```
 
-Import data file:
+#### Import data from an AG4 file:
 ```python
 tables, headings = AGS4.AGS4_to_dataframe('/home/asitha/Projects/python-AGS4/tests/test_data.ags')
 ```
@@ -32,7 +32,7 @@ LOCA = AGS4.convert_to_numeric(tables['LOCA'])
 
 The `AGS4.convert_to_numeric()` function automatically converts all columns in the input DataFrame with the a numeric *TYPE* to a float.
 
-Export data back to a .ags file:
+#### Export data back to an AGS4 file:
 
 ``` python
 AGS4.dataframe_to_AGS4(tables, headings, '/home/asitha/Documents/output.ags')
