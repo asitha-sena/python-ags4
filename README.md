@@ -8,7 +8,7 @@ pip install python-ags4
 ```
 
 ## Introduction
-'python-ags4' is a library of functions that let allows a user import [AGS4](http://www.agsdataformat.com/datatransferv4/intro.php) files to a collection of Pandas DataFrames. 
+`python-ags4` is a library of functions that lets a user import [AGS4](http://www.agsdataformat.com/datatransferv4/intro.php) files to a collection of Pandas DataFrames. The data can be analyzed, manipulated, and updated using Pandas and then exported back to an AGS4 file.
 
 ## Examples
 
@@ -31,3 +31,9 @@ LOCA = AGS4.convert_to_numeric(tables['LOCA'])
 ```
 
 The `AGS4.convert_to_numeric()` function automatically converts all columns in the input DataFrame with the a numeric *TYPE* to a float.
+
+Export data back to a .ags file:
+
+``` python
+AGS4.dataframe_to_AGS4(tables, headings, '/home/asitha/Documents/output.ags')
+```
