@@ -122,7 +122,7 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False):
     """
 
     # Open file and write/append data
-    with open(filepath, mode) as f:
+    with open(filepath, mode, newline='') as f:
         for key in data:
             f.write('"GROUP"'+","+'"'+key+'"'+'\n')
             data[key].to_csv(f, index=index, quoting=1, columns=headings[key])
