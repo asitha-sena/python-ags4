@@ -61,7 +61,7 @@ def AGS4_to_dict(filepath):
     return data, headings
 
 
-def AGS4_to_dataframe(filepath, set_index_to_heading=False):
+def AGS4_to_dataframe(filepath):
     """Load all the tables in a AGS4 file to a Pandas dataframes. The output is
     a Python dictionary of dataframes with the name of each AGS4 table (i.e.
     GROUP) as the primary key.
@@ -69,12 +69,6 @@ def AGS4_to_dataframe(filepath, set_index_to_heading=False):
     Input:
     -----
     filepath    - Path to AGS4 file
-    set_index_to_heading - Convert the "HEADING" columns (i.e. "UNIT","TYPE",
-                           "DATA"...) to headings in the DataFrame. (False by
-                           default). If this option is set to "True" and
-                           'dataframe_to_AGS4' function is used then the
-                           results AGS4 file will have a blank or extra
-                           "HEADING" column.
 
     Output:
     ------
@@ -93,9 +87,6 @@ def AGS4_to_dataframe(filepath, set_index_to_heading=False):
     # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
     df = {}
     for key in data:
-        if set_index_to_heading is True:
-            df[key] = DataFrame(data[key]).set_index('HEADING')
-        else:
             df[key] = DataFrame(data[key])
 
     return df, headings
