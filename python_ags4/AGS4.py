@@ -104,8 +104,8 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False):
                     (output from 'AGS4_to_dataframe()')
     filepath    - Path to output file
     mode        - Option to write ('w') or append ('a') data ('w' by default)
-    index       - Include the index column when writing to file
-                  (False by default)
+    index       - Include the index column when writing to file. (False by default)
+                  WARNING: The output will not be a valid AGS4 file if set to True.
 
     Output:
     ------
@@ -115,9 +115,9 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False):
     # Open file and write/append data
     with open(filepath, mode, newline='') as f:
         for key in data:
-            f.write('"GROUP"'+","+'"'+key+'"'+'\n')
-            data[key].to_csv(f, index=index, quoting=1, columns=headings[key])
-            f.write("\n")
+            f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
+            data[key].to_csv(f, index=index, quoting=1, columns=headings[key], line_terminator='\r\n')
+            f.write("\r\n")
 
 
 def convert_to_numeric(dataframe):
