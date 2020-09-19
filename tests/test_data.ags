@@ -9,7 +9,7 @@
 "HEADING","TRAN_ISNO","TRAN_DATE","TRAN_PROD","TRAN_STAT","TRAN_DESC","TRAN_AGS","TRAN_RECV","TRAN_DLIM","TRAN_RCON","TRAN_REM"
 "UNIT","","yyyy-mm-dd","","","","","","","",""
 "TYPE","X","DT","X","X","X","X","X","X","X","X"
-"DATA","1","2020-01-01","Contractor_Name","DRAFT","Example_Test_Results","4.0.4","Client_Name","|","+",""
+"DATA","1","2020-01-01","Contractor_NameµA","DRAFT","Example_Test_Results","4.0.4","Client_Name","|","+",""
 
 "GROUP","TYPE"
 "HEADING","TYPE_TYPE","TYPE_DESC"

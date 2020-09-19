@@ -3,7 +3,7 @@
 from pandas import DataFrame, to_numeric
 
 
-def AGS4_to_dict(filepath):
+def AGS4_to_dict(filepath, encoding='utf-8'):
     """Load all the data in a AGS4 file to a dictionary of dictionaries.
     This GROUP in the AGS4 file is assigned its own dictionary.
 
@@ -25,7 +25,7 @@ def AGS4_to_dict(filepath):
     """
 
     # Read file with errors="replace" to catch UnicodeDecodeErrors
-    with open(filepath, "r", errors="replace") as f:
+    with open(filepath, "r", encoding=encoding, errors="replace") as f:
         data = {}
 
         # dict to save and output the headings. This is not really necessary
@@ -61,7 +61,7 @@ def AGS4_to_dict(filepath):
     return data, headings
 
 
-def AGS4_to_dataframe(filepath):
+def AGS4_to_dataframe(filepath, encoding='utf-8'):
     """Load all the tables in a AGS4 file to a Pandas dataframes. The output is
     a Python dictionary of dataframes with the name of each AGS4 table (i.e.
     GROUP) as the primary key.
@@ -82,17 +82,17 @@ def AGS4_to_dataframe(filepath):
     """
 
     # Extract AGS4 file into a dictionary of dictionaries
-    data, headings = AGS4_to_dict(filepath)
+    data, headings = AGS4_to_dict(filepath, encoding=encoding)
 
     # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
     df = {}
     for key in data:
-            df[key] = DataFrame(data[key])
+        df[key] = DataFrame(data[key])
 
     return df, headings
 
 
-def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False):
+def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding='utf-8'):
     """Write Pandas dataframes that have been extracted using
     'AGS4_to_dataframe()' function back to an AGS4 file.
 
@@ -116,7 +116,7 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False):
     with open(filepath, mode, newline='') as f:
         for key in data:
             f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
-            data[key].to_csv(f, index=index, quoting=1, columns=headings[key], line_terminator='\r\n')
+            data[key].to_csv(f, index=index, quoting=1, columns=headings[key], line_terminator='\r\n', encoding=encoding)
             f.write("\r\n")
 
 
