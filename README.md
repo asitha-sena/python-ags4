@@ -37,3 +37,24 @@ The `AGS4.convert_to_numeric()` function automatically converts all columns in t
 ``` python
 AGS4.dataframe_to_AGS4(tables, headings, '/home/asitha/Documents/output.ags')
 ```
+
+## Graphical User Interface using *pandasgui*
+
+The output from *python-ags4* can be directly used with the *pandasgui* library to view and edit AGS4 files using an interactive graphical user interface. It also provides funtionality to plot and visualize the data.
+
+```python
+from pandasgui import show
+
+tables, headings = AGS4.AGS4_to_dataframe('/home/asitha/Projects/python-AGS4/tests/test_data.ags')
+gui = show(**tables)
+```
+
+Any edits made in the GUI can be saved and exported back to an AGS4 file as follows:
+
+*(Note: The code should be run before closing the GUI window)*
+
+```python
+updated_tables = gui.get_dataframes()
+
+AGS4.dataframe_to_AGS4(updated_tables, headings, '/home/asitha/Documents/output.ags')
+```
