@@ -40,7 +40,7 @@ AGS4.dataframe_to_AGS4(tables, headings, '/home/asitha/Documents/output.ags')
 
 ## Graphical User Interface using *pandasgui*
 
-The output from *python-ags4* can be directly used with the *pandasgui* library (https://github.com/adamerose/pandasgui) to view and edit AGS4 files using an interactive graphical user interface. It also provides funtionality to plot and visualize the data.
+The output from `python-ags4` can be directly used with [`pandasgui`](https://github.com/adamerose/pandasgui) to view and edit AGS4 files using an interactive graphical user interface. It also provides funtionality to plot and visualize the data.
 
 ```python
 from pandasgui import show
