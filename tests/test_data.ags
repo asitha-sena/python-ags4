@@ -57,8 +57,7 @@
 "HEADING","LOCA_ID","LOCA_TYPE","LOCA_STAT","LOCA_NATE","LOCA_NATN","LOCA_GREF","LOCA_REM","LOCA_FDEP","LOCA_STAR","LOCA_PURP","LOCA_TERM","LOCA_ENDD"
 "UNIT","","","","m","m","","","m","yyyy-mm-dd","","","yyyy-mm-dd"
 "TYPE","ID","PA","PA","2DP","2DP","PA","X","2DP","DT","X","X","DT"
-"DATA","Location_1","Boring","Draft","100000.0","5000000.0","","","50.0","2019-01-01","Geotechnical Investigation","","2019-01-01"
-"DATA","Location_2","Boring","Draft","101000.0","5000000.0","","","50.0","2019-01-07","Geotechnical Investigation","","2019-01-07"
-"DATA","Location_3","Boring","Draft","102000.0","5000000.0","","","50.0","2019-01-14","Geotechnical Investigation","","2019-01-14"
-"DATA","Location_4","Boring","Draft","103000.0","5000000.0","","","50.0","2019-01-21","Geotechnical Investigation","","2019-01-21"
-
+"DATA","Location_1","Boring","Draft","100000.01","5000000.20","","","50.11","2019-01-01","Geotechnical Investigation","","2019-01-01"
+"DATA","Location_2","Boring","Draft","101000.01","5000000.20","","","50.22","2019-01-07","Geotechnical Investigation","","2019-01-07"
+"DATA","Location_3","Boring","Draft","102000.01","5000000.20","","","50.33","2019-01-14","Geotechnical Investigation","","2019-01-14"
+"DATA","Location_4","Boring","Draft","103000.01","5000000.20","","","50.44","2019-01-21","Geotechnical Investigation","","2019-01-21"

@@ -100,8 +100,11 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
     -----
     data        - Dictionary of Pandas dataframes (output from
                     'AGS4_to_dataframe()')
-    headings    - Dictionary of AGS4 headings in the correct order
-                    (output from 'AGS4_to_dataframe()')
+    headings -    Dictionary of lists containing AGS4 headings in the correct order
+                  (e.g. output from 'AGS4_to_dataframe()')
+                  Columns can be dropped as well from the exported file using
+                  this option. An empty dictionary {} can be passed to export
+                  data without explicitly ensuring column order.
     filepath    - Path to output file
     mode        - Option to write ('w') or append ('a') data ('w' by default)
     index       - Include the index column when writing to file. (False by default)
@@ -115,9 +118,22 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
     # Open file and write/append data
     with open(filepath, mode, newline='') as f:
         for key in data:
-            f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
-            data[key].to_csv(f, index=index, quoting=1, columns=headings[key], line_terminator='\r\n', encoding=encoding)
-            f.write("\r\n")
+
+            try:
+                columns = headings[key]
+
+                f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
+                data[key].to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
+                f.write("\r\n")
+
+            except KeyError:
+                print(f"*Warning*: Input 'headings' dictionary does not have a entry named {key}.")
+                print(f"           All columns in the {key} table will be exported in the default order.")
+                print("           Please check column order and ensure AGS4 Rule 7 is still satisfied.")
+
+                f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
+                data[key].to_csv(f, index=index, quoting=1, line_terminator='\r\n', encoding=encoding)
+                f.write("\r\n")
 
 
 def convert_to_numeric(dataframe):
@@ -139,7 +155,7 @@ def convert_to_numeric(dataframe):
     removed, and the index reset.
 
     e.g.
-    >>from AGS4 import AGS4
+    >>from python_ags4 import AGS4
     >>
     >>data, headings = AGS4.AGS4_to_dataframe(filepath)
     >>
@@ -160,3 +176,61 @@ def convert_to_numeric(dataframe):
     df = df.iloc[2:, :].reset_index(drop=True)
 
     return df
+
+
+def convert_to_text(dataframe, dictionary):
+    """Convert AGS4 DataFrame with numeric columns back to formatted text ready for exporting.
+
+    Input:
+    -----
+    dataframe  - Pandas DataFrame with numeric columns. e.g. output from AGS4.convert_to_numeric()
+    dictionary - AGS4 dictionary file from which to get UNIT and TYPE rows and to convert to
+                 numeric fields to required precision
+
+    Output:
+    ------
+    Pandas DataFrame.
+
+    e.g.
+    >>from python_ags4 import AGS4
+    >>
+    >>tables, headings = AGS4.AGS4_to_dataframe('Data.ags')
+    >>LOCA_numeric = AGS4.convert_to_numeric(tables['LOCA])
+    >>
+    >>LOCA_text = convert_to_text(LOCA, 'DICT.ags')
+    """
+
+    # Reindex input dataframe
+    df = dataframe.copy().reset_index(drop=True)
+
+    # Read dictionary file
+    temp, _ = AGS4_to_dataframe(dictionary)
+    DICT = temp['DICT']
+
+    for col in df.columns:
+
+        if col == 'HEADING':
+            df.loc[-2, 'HEADING'] = 'UNIT'
+            df.loc[-1, 'HEADING'] = 'TYPE'
+
+        else:
+
+            try:
+                TYPE = DICT.loc[DICT.DICT_HDNG == col, 'DICT_DTYP'].iloc[0]
+                UNIT = DICT.loc[DICT.DICT_HDNG == col, 'DICT_UNIT'].iloc[0]
+
+                if 'DP' in TYPE:
+                    i = int(TYPE[0])
+                    df.loc[0:, col] = df.loc[0:, col].apply(lambda x: f"{x:.{i}f}")
+
+                elif 'SCI' in TYPE:
+                    i = int(TYPE[0])
+                    df.loc[0:, col] = df.loc[0:, col].apply(lambda x: f"{x:.{i}e}")
+
+                df.loc[-2, col] = UNIT
+                df.loc[-1, col] = TYPE
+
+            except IndexError:
+                print(f"*WARNING*:{col} not found in the dictionary file.")
+
+    return df.sort_index()

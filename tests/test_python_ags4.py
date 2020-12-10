@@ -1,15 +1,12 @@
-#from python_ags4 import __version__
-#
-#
-#def test_version():
-#    assert __version__ == '0.1.0'
-
-
 import unittest
 
 import sys
-sys.path.append('../')
+# Prepend path so that AGS4.py is loaded from project file
+# instead of current installation
+sys.path.insert(0, '../')
+
 from python_ags4 import AGS4
+
 
 class Test_AGS4(unittest.TestCase):
 
@@ -33,7 +30,7 @@ class Test_AGS4(unittest.TestCase):
         data, headings = AGS4.AGS4_to_dataframe('test_data.ags')
         LOCA = AGS4.convert_to_numeric(data['LOCA'])
 
-        self.assertEqual(LOCA.loc[0, 'LOCA_NATE'], 100000.0)
+        self.assertEqual(LOCA.loc[0, 'LOCA_NATE'], 100000.01)
 
 
 if __name__ == '__main__':
