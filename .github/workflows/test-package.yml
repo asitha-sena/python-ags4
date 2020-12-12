@@ -29,5 +29,5 @@ jobs:
         python -m pip install pandas pytest
     - name: Test with pytest
       run: |
-        cd /home/runner/work/python-ags4/tests
+        echo "::set-env name=PYTHONPATH::home/runner/work/python-ags4"
         pytest
