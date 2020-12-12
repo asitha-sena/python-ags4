@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.7', '3.8']
+        python-version: ['3.7']
 
     steps:
     - uses: actions/checkout@v2
@@ -29,8 +29,9 @@ jobs:
         python -m pip install pandas pytest
     - name: Update system path
       run: |
-        pwd
         echo "/home/runner/work/python-ags4" >> $GITHUB_PATH
+        echo $GITHUB_PATH
     - name: Test with pytest
       run: |
+        echo "/home/runner/work/python-ags4" >> $GITHUB_PATH
         pytest
