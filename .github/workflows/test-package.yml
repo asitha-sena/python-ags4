@@ -31,10 +31,13 @@ jobs:
       run: |
         echo $GITHUB_PATH
         echo $GITHUB_ENV
+        echo $PATH
     - name: Update system path
       run: |
         echo "/home/runner/work/python-ags4" >> $GITHUB_PATH
         echo $GITHUB_PATH
+        echo $PATH
     - name: Test with pytest
       run: |
         echo $GITHUB_PATH
+        echo $PATH
