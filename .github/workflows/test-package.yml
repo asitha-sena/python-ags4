@@ -41,4 +41,4 @@ jobs:
       run: |
         echo $GITHUB_PATH
         echo $PATH
-        pytest
+        python -m pytest
