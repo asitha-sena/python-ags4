@@ -27,6 +27,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install pandas pytest python-ags4
+    - name: Echo path
+      run: |
+        echo $GITHUB_PATH
+        echo $GITHUB_ENV
     - name: Update system path
       run: |
         echo "/home/runner/work/python-ags4" >> $GITHUB_PATH
@@ -34,4 +38,3 @@ jobs:
     - name: Test with pytest
       run: |
         echo $GITHUB_PATH
-        pytest
