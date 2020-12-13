@@ -30,13 +30,20 @@ All data are imported as text so they cannot be analyzed or plotted immediately.
 LOCA = AGS4.convert_to_numeric(tables['LOCA'])
 ```
 
-The `AGS4.convert_to_numeric()` function automatically converts all columns in the input DataFrame with the a numeric *TYPE* to a float.
+The `AGS4.convert_to_numeric()` function automatically converts all columns in the input DataFrame with the a numeric *TYPE* to a float. (*Note: The UNIT and TYPE rows are removed during this operation as they are non-numeric.*)
 
 #### Export data back to an AGS4 file:
 
 ``` python
 AGS4.dataframe_to_AGS4(tables, headings, '/home/asitha/Documents/output.ags')
 ```
+
+A DataFrame with numeric columns may not get exported with the correct precision so they should be converted back to formatted text. The ```AGS4.convert_to_text()``` function will do this automatically if an AGS4 dictionary file is provided with the necessary UNIT and TYPE information. Numeric fields in the DataFrame that are not described in the dictionary file will be skipped with a warning.
+```python
+LOCA_txt = AGS4.convert_to_text(LOCA, 'DICT.ags')
+```
+
+Tables converted to numeric using the ```AGS4.convert_to_numeric()``` function should always be converted back to text before exporting to an AGS4 file. (*Note: The UNIT and TYPE rows will be added back in addition to formatting the numeric columns.*) 
 
 ## Graphical User Interface using *pandasgui*
 
