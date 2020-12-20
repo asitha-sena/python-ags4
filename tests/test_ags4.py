@@ -36,8 +36,8 @@ def test_convert_to_numeric():
 def test_dataframe_to_AGS4():
     tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
 
-    AGS4.dataframe_to_AGS4(tables, headings, 'test.out')
-    AGS4.dataframe_to_AGS4(tables, {}, 'test.out')
+    AGS4.dataframe_to_AGS4(tables, headings, 'tests/test.out')
+    AGS4.dataframe_to_AGS4(tables, {}, 'tests/test.out')
 
 
 def test_convert_to_text():
@@ -49,3 +49,11 @@ def test_convert_to_text():
     assert LOCA_txt.loc[0, 'LOCA_NATE'] == "100000.01"
     assert LOCA_txt.loc[2, 'LOCA_NATN'] == "5000000.20"
     assert LOCA_txt.loc[3, 'LOCA_FDEP'] == "50.44"
+
+
+def test_check_file():
+    error_list = AGS4.rule_1_2a_3('tests/test_data.ags')
+
+    assert error_list == ['Rule 1\t Line 12:\t Has one or more non-ASCII characters.',
+                          'Rule 3\t Line 37:\t Consists only of spaces.',
+                          'Rule 3\t Line 54:\t Does not start with a valid tag (i.e. GROUP, HEADING, TYPE, UNIT, or DATA).']

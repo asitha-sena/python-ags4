@@ -250,3 +250,84 @@ def convert_to_text(dataframe, dictionary):
                 print(f"*WARNING*:{col} not found in the dictionary file.")
 
     return df.sort_index()
+
+
+def check_file(input_file, output_file, print_errors=False):
+    """This function checks whether this AGS4 Rules 1, 2a, and are satisfied.
+
+    Input:
+    -----
+    input_file  - AGS4 file (*.ags) to be checked
+    output_file - File to save error list
+    print_errors - Print error list to screen (True or False)
+
+    Output:
+    ------
+    File with a list of errors.
+    """
+
+    error_list = rule_1_2a_3(input_file)
+
+
+    with open(output_file, mode='w') as f:
+        f.writelines('\n'.join(error_list))
+
+    if print_errors == True:
+        print(error_list)
+
+
+def rule_1_2a_3(input_file):
+    """This function checks whether this AGS4 Rules 1, 2a, and are satisfied.
+
+    Input:
+    -----
+    input_file - AGS4 file (*.ags) to be checked
+
+    Output:
+    ------
+    List of lines that do not compy with Rules 1, 2a, and 3.
+    """
+
+    #Initialize list to store lines with errors
+    error_list = []
+
+    with open(input_file, mode='r', newline='') as f:
+        for i,line in enumerate(f, start=1):
+
+            #Rule 2a
+            try:
+                assert line[-2:] == '\r\n'
+            except AssertionError:
+                #print(f"Rule 2a\t Line {i}: Does not end with '\\r\\n'.")
+                error_list.append(f'Rule 2a\t Line {i}:\t Does not end with "\\r\\n".')
+
+
+            #Check non-blank lines
+            if not line.isspace():
+                temp = line.rstrip().split('","')
+                temp = [item.strip('"') for item in temp]
+
+                #Rule 1
+                try:
+                    assert line.isascii() is True
+                except AssertionError:
+                    #print(f"Rule 1\t Line {i}: Has one or more non-ASCII characters.")
+                    error_list.append(f"Rule 1\t Line {i}:\t Has one or more non-ASCII characters.")
+
+                #Rules 3
+                try:
+                    assert temp[0] in ["GROUP", "HEADING", "TYPE", "UNIT", "DATA"]
+                except AssertionError:
+                    #print(f"Rule 3\t Line {i}: Does not start with a valid tag (i.e. GROUP, HEADING, TYPE, UNIT, or DATA).")
+                    error_list.append(f"Rule 3\t Line {i}:\t Does not start with a valid tag (i.e. GROUP, HEADING, TYPE, UNIT, or DATA).")
+
+            #Check blank lines
+            else:
+                #Catch lines with only spaces (Rule 3)
+                try:
+                    assert line[0:2] == '\r\n'
+                except AssertionError:
+                    #print(f"Rule 3\t Line {i}: Consists only of spaces.\t")
+                    error_list.append(f"Rule 3\t Line {i}:\t Consists only of spaces.")
+
+    return error_list
