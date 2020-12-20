@@ -34,7 +34,7 @@
 "DATA","2SCI","Scientific notation with 2 decimal places"
 "DATA","YN","Yes or No"
 "DATA","XN","Text/Numeric"
-
+  
 "GROUP","UNIT"
 "HEADING","UNIT_UNIT","UNIT_DESC"
 "UNIT","",""
@@ -51,7 +51,7 @@
 "DATA","mg/kg","milligram per kilogram"
 "DATA","MPa","megapascal"
 "DATA","Mg/m3","megagrams per cubic metre"
-"DATA","kPa","kiloPascal"
+"DATAx","kPa","kiloPascal"
 
 "GROUP","LOCA"
 "HEADING","LOCA_ID","LOCA_TYPE","LOCA_STAT","LOCA_NATE","LOCA_NATN","LOCA_GREF","LOCA_REM","LOCA_FDEP","LOCA_STAR","LOCA_PURP","LOCA_TERM","LOCA_ENDD"
