@@ -16,7 +16,7 @@
 # https://github.com/asitha-sena/python-ags4
 
 
-from pandas import DataFrame, to_numeric
+from pandas import DataFrame
 
 
 def AGS4_to_dict(filepath, encoding='utf-8'):
@@ -183,6 +183,8 @@ def convert_to_numeric(dataframe):
     >>
     >>LNMC = AGS4.convert_to_numeric(data['LNMC'])
     """
+
+    from pandas import to_numeric
 
     # First create a copy of the DataFrame to avoid overwriting the
     # original data
