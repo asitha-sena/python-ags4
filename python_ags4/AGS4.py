@@ -16,9 +16,6 @@
 # https://github.com/asitha-sena/python-ags4
 
 
-from pandas import DataFrame
-
-
 # Read functions #
 
 def AGS4_to_dict(filepath, encoding='utf-8'):
@@ -104,6 +101,9 @@ def AGS4_to_dataframe(filepath, encoding='utf-8'):
                    i.e. input for 'dataframe_to_AGS4()' function)
 
     """
+
+    from pandas import DataFrame
+
 
     # Extract AGS4 file into a dictionary of dictionaries
     data, headings = AGS4_to_dict(filepath, encoding=encoding)
