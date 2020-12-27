@@ -306,8 +306,23 @@ def convert_to_text(dataframe, dictionary):
                     i = int(TYPE[0])
                     df.loc[0:, col] = df.loc[0:, col].apply(lambda x: f"{x:.{i}e}")
 
-                # TODO: Add formatting for data type 'nSF'
-                # elif 'SF' in TYPE:
+                elif 'SF' in TYPE:
+
+                    def format_SF(value, TYPE):
+                        '''Format a value to specified number of significant figures
+                        and return a string.'''
+
+                        from numpy import round, log10
+
+                        i = int(TYPE[0]) - 1 - int(log10(abs(value)))
+
+                        if i < 0:
+                            return f"{round(value, i):.0f}"
+
+                        else:
+                            return f"{value:.{i}f}"
+
+                    df.loc[df[col].notna(), [col]] = df.loc[df[col].notna(), [col]].applymap(lambda x: format_SF(x, TYPE))
 
                 df.loc[-2, col] = UNIT
                 df.loc[-1, col] = TYPE

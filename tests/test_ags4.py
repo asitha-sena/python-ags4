@@ -44,12 +44,19 @@ def test_dataframe_to_AGS4():
 def test_convert_to_text():
     tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
     LOCA_num = AGS4.convert_to_numeric(tables['LOCA'])
+    LLPL_num = AGS4.convert_to_numeric(tables['LLPL'])
 
     LOCA_txt = AGS4.convert_to_text(LOCA_num, 'tests/DICT.ags')
+    LLPL_txt = AGS4.convert_to_text(LLPL_num, 'tests/DICT.ags')
 
+    # Decimal Points
     assert LOCA_txt.loc[0, 'LOCA_NATE'] == "100000.01"
     assert LOCA_txt.loc[2, 'LOCA_NATN'] == "5000000.20"
     assert LOCA_txt.loc[3, 'LOCA_FDEP'] == "50.44"
+
+    # Siginificant Figgures
+    assert LLPL_txt.loc[0, 'LLPL_LL'] == "55"
+    assert LLPL_txt.loc[1, 'LLPL_PI'] == "130"
 
 
 def test_AGS4_to_excel():
