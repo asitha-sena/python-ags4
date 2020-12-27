@@ -304,14 +304,14 @@ def convert_to_text(dataframe, dictionary):
                 df.loc[-1, col] = TYPE
 
                 if 'DP' in TYPE:
-                    i = int(TYPE[0])
+                    i = int(TYPE.strip('DP'))
                     # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
                     # as "" rather than "nan"
                     mask = (df.HEADING == "DATA") & df[col].notna()
                     df.loc[mask, col] = df.loc[mask, col].apply(lambda x: f"{x:.{i}f}")
 
                 elif 'SCI' in TYPE:
-                    i = int(TYPE[0])
+                    i = int(TYPE.strip('SCI'))
                     # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
                     # as "" rather than "nan"
                     mask = (df.HEADING == "DATA") & df[col].notna()
@@ -325,7 +325,7 @@ def convert_to_text(dataframe, dictionary):
 
                         from numpy import round, log10
 
-                        i = int(TYPE[0]) - 1 - int(log10(abs(value)))
+                        i = int(TYPE.strip('SF')) - 1 - int(log10(abs(value)))
 
                         if i < 0:
                             return f"{round(value, i):.0f}"
