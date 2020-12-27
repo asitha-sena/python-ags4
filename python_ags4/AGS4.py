@@ -53,7 +53,7 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
 
         headings = {}
 
-        for line in f:
+        for i, line in enumerate(f, start=1):
             temp = line.rstrip().split('","')
             temp = [item.strip('"') for item in temp]
 
@@ -68,6 +68,12 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
                     data[group][item] = []
 
             elif temp[0] in ['TYPE', 'UNIT', 'DATA']:
+
+                try:
+                    assert len(temp) == len(headings[group])
+                except AssertionError:
+                    print(f"Error: Line {i} does not have the same number of entries as the HEADING row.")
+
                 for i in range(0, len(temp)):
                     data[group][headings[group][i]].append(temp[i])
 
