@@ -19,6 +19,8 @@
 from pandas import DataFrame
 
 
+# Read functions #
+
 def AGS4_to_dict(filepath, encoding='utf-8'):
     """Load all the data in a AGS4 file to a dictionary of dictionaries.
     This GROUP in the AGS4 file is assigned its own dictionary.
@@ -114,6 +116,32 @@ def AGS4_to_dataframe(filepath, encoding='utf-8'):
     return df, headings
 
 
+def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
+    """Load all the tables in a AGS4 file to an Excel spreasheet.
+
+    Input:
+    -----
+    input_file    - Path to AGS4 file
+    output_file   - Path to Excel file
+
+    Output:
+    ------
+    Excel file populated with data from the input AGS4 file.
+    """
+
+    from pandas import ExcelWriter
+
+    # Extract AGS4 file into a dictionary of dictionaries
+    tables, headings = AGS4_to_dataframe(input_file, encoding=encoding)
+
+    # Write to Excel file
+    with ExcelWriter(output_file) as writer:
+        for key in tables:
+            tables[key].to_excel(writer, sheet_name=key, index=False)
+
+
+# Write functions #
+
 def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding='utf-8'):
     """Write Pandas dataframes that have been extracted using
     'AGS4_to_dataframe()' function back to an AGS4 file.
@@ -157,6 +185,33 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
                 data[key].to_csv(f, index=index, quoting=1, line_terminator='\r\n', encoding=encoding)
                 f.write("\r\n")
 
+
+def excel_to_AGS4(input_file, output_file):
+    """Export AGS4 data in Excel file to .ags file.
+
+    Input:
+    -----
+    input_file    - Path to Excel file
+                    (Note: Each GROUP should be in a separate worksheet.
+                     e.g. output from AGS4.AGS4_to_excel)
+    output_file   - Path to AGS4 file
+
+    Output:
+    ------
+    AGS4 file with data from the input Excel file.
+    """
+
+    from pandas import read_excel
+
+    # Read data from Excel file in to DataFrames
+    tables = read_excel(input_file, sheet_name=None, engine='openpyxl')
+
+    # Export dictionary of DataFrames to AGS4 file
+    # TODO: Add column formatting and ordering
+    dataframe_to_AGS4(tables, {}, output_file)
+
+
+# Formatting functions #
 
 def convert_to_numeric(dataframe):
     """The AGS4_to_dataframe() function extracts the data from an AGS4 file and
@@ -261,52 +316,3 @@ def convert_to_text(dataframe, dictionary):
                 print(f"*WARNING*:{col} not found in the dictionary file.")
 
     return df.sort_index()
-
-
-def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
-    """Load all the tables in a AGS4 file to an Excel spreasheet.
-
-    Input:
-    -----
-    input_file    - Path to AGS4 file
-    output_file   - Path to Excel file
-
-    Output:
-    ------
-    Excel file populated with data from the input AGS4 file.
-    """
-
-    from pandas import ExcelWriter
-
-    # Extract AGS4 file into a dictionary of dictionaries
-    tables, headings = AGS4_to_dataframe(input_file, encoding=encoding)
-
-    # Write to Excel file
-    with ExcelWriter(output_file) as writer:
-        for key in tables:
-            tables[key].to_excel(writer, sheet_name=key, index=False)
-
-
-def excel_to_AGS4(input_file, output_file):
-    """Export AGS4 data in Excel file to .ags file.
-
-    Input:
-    -----
-    input_file    - Path to Excel file
-                    (Note: Each GROUP should be in a separate worksheet.
-                     e.g. output from AGS4.AGS4_to_excel)
-    output_file   - Path to AGS4 file
-
-    Output:
-    ------
-    AGS4 file with data from the input Excel file.
-    """
-
-    from pandas import read_excel
-
-    # Read data from Excel file in to DataFrames
-    tables = read_excel(input_file, sheet_name=None, engine='openpyxl')
-
-    # Export dictionary of DataFrames to AGS4 file
-    # TODO: Add column formatting and ordering
-    dataframe_to_AGS4(tables, {}, output_file)
