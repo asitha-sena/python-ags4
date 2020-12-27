@@ -295,16 +295,27 @@ def convert_to_text(dataframe, dictionary):
         else:
 
             try:
+                # Get type and unit from dictionary
                 TYPE = DICT.loc[DICT.DICT_HDNG == col, 'DICT_DTYP'].iloc[0]
                 UNIT = DICT.loc[DICT.DICT_HDNG == col, 'DICT_UNIT'].iloc[0]
 
+                # Add type and unit values from dictionary to the current dataframe
+                df.loc[-2, col] = UNIT
+                df.loc[-1, col] = TYPE
+
                 if 'DP' in TYPE:
                     i = int(TYPE[0])
-                    df.loc[0:, col] = df.loc[0:, col].apply(lambda x: f"{x:.{i}f}")
+                    # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
+                    # as "" rather than "nan"
+                    mask = (df.HEADING == "DATA") & df[col].notna()
+                    df.loc[mask, col] = df.loc[mask, col].apply(lambda x: f"{x:.{i}f}")
 
                 elif 'SCI' in TYPE:
                     i = int(TYPE[0])
-                    df.loc[0:, col] = df.loc[0:, col].apply(lambda x: f"{x:.{i}e}")
+                    # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
+                    # as "" rather than "nan"
+                    mask = (df.HEADING == "DATA") & df[col].notna()
+                    df.loc[mask, col] = df.loc[mask, col].apply(lambda x: f"{x:.{i}e}")
 
                 elif 'SF' in TYPE:
 
@@ -322,12 +333,13 @@ def convert_to_text(dataframe, dictionary):
                         else:
                             return f"{value:.{i}f}"
 
-                    df.loc[df[col].notna(), [col]] = df.loc[df[col].notna(), [col]].applymap(lambda x: format_SF(x, TYPE))
-
-                df.loc[-2, col] = UNIT
-                df.loc[-1, col] = TYPE
+                    mask = (df.HEADING == "DATA") & df[col].notna()
+                    df.loc[mask, [col]] = df.loc[mask, [col]].applymap(lambda x: format_SF(x, TYPE))
 
             except IndexError:
                 print(f"*WARNING*:{col} not found in the dictionary file.")
+
+            except ValueError:
+                print(f"*ERROR*: {col} could not be formatted as it had one or more non-numeric entries.")
 
     return df.sort_index()
