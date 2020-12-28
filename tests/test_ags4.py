@@ -58,6 +58,15 @@ def test_convert_to_text():
     assert LLPL_txt.loc[0, 'LLPL_LL'] == "55"
     assert LLPL_txt.loc[1, 'LLPL_PI'] == "130"
 
+    # Should return None when called without a dictionary
+    assert AGS4.convert_to_text(LOCA_num) == None
+
+    # Should return input entry without formatting if the data
+    # is not numeric
+    LLPL_txt = AGS4.convert_to_text(tables['LLPL'], 'tests/DICT.ags')
+    assert LLPL_txt.loc[2, 'LLPL_LL'] == "55.1"
+    assert LLPL_txt.loc[3, 'LLPL_PI'] == "134.8"
+
 
 def test_AGS4_to_excel():
     AGS4.AGS4_to_excel('tests/test_data.ags', 'tests/test_data.xlsx')

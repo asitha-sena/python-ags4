@@ -257,14 +257,16 @@ def convert_to_numeric(dataframe):
     return df
 
 
-def convert_to_text(dataframe, dictionary):
-    """Convert AGS4 DataFrame with numeric columns back to formatted text ready for exporting.
+def convert_to_text(dataframe, dictionary=None):
+    """Convert AGS4 DataFrame with numeric columns back to formatted text ready for exporting
+    back to a csv file.
 
     Input:
     -----
     dataframe  - Pandas DataFrame with numeric columns. e.g. output from AGS4.convert_to_numeric()
-    dictionary - AGS4 dictionary file from which to get UNIT and TYPE rows and to convert to
-                 numeric fields to required precision
+    dictionary - Path to AGS4 dictionary file from which to get UNIT and TYPE rows and to convert to
+                 numeric fields to required precision. The values from the dictionary will override
+                 those already in the UNIT and TYPE rows in the dataframe.
 
     Output:
     ------
@@ -282,64 +284,131 @@ def convert_to_text(dataframe, dictionary):
     # Reindex input dataframe
     df = dataframe.copy().reset_index(drop=True)
 
-    # Read dictionary file
-    temp, _ = AGS4_to_dataframe(dictionary)
-    DICT = temp['DICT']
+    # Check whether to use UNIT and TYPE rows in dataframe or to
+    # retrieve values from the dictionary file
+    if dictionary == None:
+        try:
+            # Check whether dataframe has "UNIT" and "TYPE" rows
+            assert 'UNIT' in df.HEADING.values
+            assert 'TYPE' in df.HEADING.values
 
-    for col in df.columns:
+            for col in df.columns:
+                TYPE = df.loc[df.HEADING == 'TYPE', col].values[0]
+                df = format_numeric_column(df, col, TYPE)
 
-        if col == 'HEADING':
-            df.loc[-2, 'HEADING'] = 'UNIT'
-            df.loc[-1, 'HEADING'] = 'TYPE'
+        except AssertionError:
+            print("ERROR: Cannot convert to text as UNIT and/or TYPE row(s) missing from dataframe.")
+            print("       Please provide dicitonary file to proceed.")
 
-        else:
+            return None
 
-            try:
-                # Get type and unit from dictionary
-                TYPE = DICT.loc[DICT.DICT_HDNG == col, 'DICT_DTYP'].iloc[0]
-                UNIT = DICT.loc[DICT.DICT_HDNG == col, 'DICT_UNIT'].iloc[0]
+    else:
+        # Read dictionary file
+        temp, _ = AGS4_to_dataframe(dictionary)
+        DICT = temp['DICT']
 
-                # Add type and unit values from dictionary to the current dataframe
-                df.loc[-2, col] = UNIT
-                df.loc[-1, col] = TYPE
+        # Check whether UNIT and TYPE rows are already in dataframe
+        UNIT_row_present = 'UNIT' in df.HEADING.values
+        TYPE_row_present = 'TYPE' in df.HEADING.values
 
-                if 'DP' in TYPE:
-                    i = int(TYPE.strip('DP'))
-                    # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
-                    # as "" rather than "nan"
-                    mask = (df.HEADING == "DATA") & df[col].notna()
-                    df.loc[mask, col] = df.loc[mask, col].apply(lambda x: f"{x:.{i}f}")
+        # Format columns and add UNIT/TYPE rows if necessary
+        for col in df.columns:
 
-                elif 'SCI' in TYPE:
-                    i = int(TYPE.strip('SCI'))
-                    # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
-                    # as "" rather than "nan"
-                    mask = (df.HEADING == "DATA") & df[col].notna()
-                    df.loc[mask, col] = df.loc[mask, col].apply(lambda x: f"{x:.{i}e}")
+            if col == 'HEADING':
 
-                elif 'SF' in TYPE:
+                if not UNIT_row_present: df.loc[-2, 'HEADING'] = 'UNIT'
+                if not TYPE_row_present: df.loc[-1, 'HEADING'] = 'TYPE'
 
-                    def format_SF(value, TYPE):
-                        '''Format a value to specified number of significant figures
-                        and return a string.'''
+            else:
 
-                        from numpy import round, log10
+                try:
+                    # Get type and unit from dictionary
+                    TYPE = DICT.loc[DICT.DICT_HDNG == col, 'DICT_DTYP'].iloc[0]
+                    UNIT = DICT.loc[DICT.DICT_HDNG == col, 'DICT_UNIT'].iloc[0]
 
-                        i = int(TYPE.strip('SF')) - 1 - int(log10(abs(value)))
+                    if UNIT_row_present:
+                        # Overwrite existing UNIT with one from the dictionary
+                        df.loc[df.HEADING == 'UNIT', col] = UNIT
+                    else:
+                        # Add UNIT row if one is not already there
+                        df.loc[-2, col] = UNIT
 
-                        if i < 0:
-                            return f"{round(value, i):.0f}"
+                    if TYPE_row_present:
+                        # Overwrite existing TYPE with one from the dictionary
+                        df.loc[df.HEADING == 'TYPE', col] = TYPE
+                    else:
+                        # Add TYPE row if one is not already there
+                        df.loc[-1, col] = TYPE
 
-                        else:
-                            return f"{value:.{i}f}"
+                    df = format_numeric_column(df, col, TYPE)
 
-                    mask = (df.HEADING == "DATA") & df[col].notna()
-                    df.loc[mask, [col]] = df.loc[mask, [col]].applymap(lambda x: format_SF(x, TYPE))
+                except IndexError:
+                    print(f"WARNING: {col} not found in the dictionary file.")
 
-            except IndexError:
-                print(f"*WARNING*:{col} not found in the dictionary file.")
-
-            except ValueError:
-                print(f"*ERROR*: {col} could not be formatted as it had one or more non-numeric entries.")
 
     return df.sort_index()
+
+
+def format_numeric_column(dataframe, column_name, TYPE):
+    '''Format column in dataframe to specified TYPE and convert to string.
+
+    Input:
+    -----
+    dataframe   - Pandas DataFrame with AGS4 data
+    column_name - Name of column to be formatted
+    TYPE        - AGS4 TYPE for specified column
+
+    Output:
+    ------
+    Pandas DataFrame with formatted data.
+    '''
+
+    df = dataframe.copy()
+    col = column_name
+
+    try:
+        if 'DP' in TYPE:
+            i = int(TYPE.strip('DP'))
+            # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
+            # as "" rather than "nan"
+            mask = (df.HEADING=="DATA") & df[col].notna()
+            df.loc[mask, col] = df.loc[mask, col].apply(lambda x: f"{x:.{i}f}")
+
+        elif 'SCI' in TYPE:
+            i = int(TYPE.strip('SCI'))
+            # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
+            # as "" rather than "nan"
+            mask = (df.HEADING=="DATA") & df[col].notna()
+            df.loc[mask, col] = df.loc[mask, col].apply(lambda x: f"{x:.{i}e}")
+
+        elif 'SF' in TYPE:
+
+            def format_SF(value, TYPE):
+                '''Format a value to specified number of significant figures
+                and return a string.'''
+
+                from numpy import round, log10
+
+                i = int(TYPE.strip('SF')) - 1 - int(log10(abs(value)))
+
+                if i < 0:
+                    return f"{round(value, i):.0f}"
+
+                else:
+                    return f"{value:.{i}f}"
+
+            # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
+            # as "" rather than "nan"
+            mask = (df.HEADING=="DATA") & df[col].notna()
+            df.loc[mask, [col]] = df.loc[mask, [col]].applymap(lambda x: format_SF(x, TYPE))
+
+        else:
+            pass
+
+    except ValueError:
+        print(f"ERROR: {col} could not be formatted as it had one or more non-numeric entries.")
+
+    except TypeError:
+        print(f"ERROR: {col} could not be formatted as it had one or more non-numeric entries.")
+
+    return df
