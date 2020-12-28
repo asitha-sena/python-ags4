@@ -79,4 +79,17 @@ def test_AGS4_to_excel():
 
 
 def test_excel_to_AGS4():
-    AGS4.excel_to_AGS4('tests/test_data.xlsx', 'tests/test.out')
+    AGS4.excel_to_AGS4('tests/test.xlsx', 'tests/test.out')
+
+    tables, _ = AGS4.AGS4_to_dataframe('tests/test.out')
+
+    assert tables['LOCA'].loc[2, 'LOCA_NATN'] == '5000000.001'
+    assert tables['LOCA'].loc[4, 'LOCA_NATN'] == '5000000.100'
+
+    # Call function with dictionary file
+    AGS4.excel_to_AGS4('tests/test.xlsx', 'tests/test.out', dictionary='tests/DICT.ags')
+
+    tables, _ = AGS4.AGS4_to_dataframe('tests/test.out')
+
+    assert tables['LOCA'].loc[2, 'LOCA_NATN'] == '5000000.00'
+    assert tables['LOCA'].loc[4, 'LOCA_NATN'] == '5000000.10'

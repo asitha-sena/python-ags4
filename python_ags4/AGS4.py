@@ -186,7 +186,7 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
                 f.write("\r\n")
 
 
-def excel_to_AGS4(input_file, output_file):
+def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictionary=None):
     """Export AGS4 data in Excel file to .ags file.
 
     Input:
@@ -195,6 +195,10 @@ def excel_to_AGS4(input_file, output_file):
                     (Note: Each GROUP should be in a separate worksheet.
                      e.g. output from AGS4.AGS4_to_excel)
     output_file   - Path to AGS4 file
+    reformat_numeric_columns - Format numeric columns to match specified
+                               TYPE
+    dictionary    - Filepath to dictionary if the UNIT and TYPE data in
+                    tables need to be overridden.
 
     Output:
     ------
@@ -206,8 +210,12 @@ def excel_to_AGS4(input_file, output_file):
     # Read data from Excel file in to DataFrames
     tables = read_excel(input_file, sheet_name=None, engine='openpyxl')
 
+    # Format numeric columns
+    if format_numeric_columns == True:
+        for key in tables:
+            tables[key] = convert_to_text(tables[key], dictionary=dictionary)
+
     # Export dictionary of DataFrames to AGS4 file
-    # TODO: Add column formatting and ordering
     dataframe_to_AGS4(tables, {}, output_file)
 
 
