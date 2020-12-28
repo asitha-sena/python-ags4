@@ -104,7 +104,6 @@ def AGS4_to_dataframe(filepath, encoding='utf-8'):
 
     from pandas import DataFrame
 
-
     # Extract AGS4 file into a dictionary of dictionaries
     data, headings = AGS4_to_dict(filepath, encoding=encoding)
 
@@ -177,9 +176,9 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
                 f.write("\r\n")
 
             except KeyError:
-                print(f"*Warning*: Input 'headings' dictionary does not have a entry named {key}.")
-                print(f"           All columns in the {key} table will be exported in the default order.")
-                print("           Please check column order and ensure AGS4 Rule 7 is still satisfied.")
+                print(f"WARNING: Input 'headings' dictionary does not have a entry named {key}.")
+                print(f"         All columns in the {key} table will be exported in the default order.")
+                print("          Please check column order and ensure AGS4 Rule 7 is still satisfied.")
 
                 f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
                 data[key].to_csv(f, index=index, quoting=1, line_terminator='\r\n', encoding=encoding)
@@ -211,7 +210,7 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
     tables = read_excel(input_file, sheet_name=None, engine='openpyxl')
 
     # Format numeric columns
-    if format_numeric_columns == True:
+    if format_numeric_columns is True:
         for key in tables:
             tables[key] = convert_to_text(tables[key], dictionary=dictionary)
 
@@ -294,7 +293,7 @@ def convert_to_text(dataframe, dictionary=None):
 
     # Check whether to use UNIT and TYPE rows in dataframe or to
     # retrieve values from the dictionary file
-    if dictionary == None:
+    if dictionary is None:
         try:
             # Check whether dataframe has "UNIT" and "TYPE" rows
             assert 'UNIT' in df.HEADING.values
@@ -324,8 +323,11 @@ def convert_to_text(dataframe, dictionary=None):
 
             if col == 'HEADING':
 
-                if not UNIT_row_present: df.loc[-2, 'HEADING'] = 'UNIT'
-                if not TYPE_row_present: df.loc[-1, 'HEADING'] = 'TYPE'
+                if not UNIT_row_present:
+                    df.loc[-2, 'HEADING'] = 'UNIT'
+
+                if not TYPE_row_present:
+                    df.loc[-1, 'HEADING'] = 'TYPE'
 
             else:
 
@@ -353,7 +355,6 @@ def convert_to_text(dataframe, dictionary=None):
                 except IndexError:
                     print(f"WARNING: {col} not found in the dictionary file.")
 
-
     return df.sort_index()
 
 
@@ -379,14 +380,14 @@ def format_numeric_column(dataframe, column_name, TYPE):
             i = int(TYPE.strip('DP'))
             # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
             # as "" rather than "nan"
-            mask = (df.HEADING=="DATA") & df[col].notna()
+            mask = (df.HEADING == "DATA") & df[col].notna()
             df.loc[mask, col] = df.loc[mask, col].apply(lambda x: f"{x:.{i}f}")
 
         elif 'SCI' in TYPE:
             i = int(TYPE.strip('SCI'))
             # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
             # as "" rather than "nan"
-            mask = (df.HEADING=="DATA") & df[col].notna()
+            mask = (df.HEADING == "DATA") & df[col].notna()
             df.loc[mask, col] = df.loc[mask, col].apply(lambda x: f"{x:.{i}e}")
 
         elif 'SF' in TYPE:
@@ -407,7 +408,7 @@ def format_numeric_column(dataframe, column_name, TYPE):
 
             # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
             # as "" rather than "nan"
-            mask = (df.HEADING=="DATA") & df[col].notna()
+            mask = (df.HEADING == "DATA") & df[col].notna()
             df.loc[mask, [col]] = df.loc[mask, [col]].applymap(lambda x: format_SF(x, TYPE))
 
         else:
