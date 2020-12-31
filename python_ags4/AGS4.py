@@ -136,12 +136,13 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
     # Write to Excel file
     with ExcelWriter(output_file) as writer:
         for key in tables:
+            print(f'Writing data from... {key}')
             tables[key].to_excel(writer, sheet_name=key, index=False)
 
 
 # Write functions #
 
-def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding='utf-8'):
+def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding='utf-8', warnings=True):
     """Write Pandas dataframes that have been extracted using
     'AGS4_to_dataframe()' function back to an AGS4 file.
 
@@ -171,14 +172,17 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
             try:
                 columns = headings[key]
 
+                print(f'Writing data from... {key}')
                 f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
                 data[key].to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
                 f.write("\r\n")
 
             except KeyError:
-                print(f"WARNING: Input 'headings' dictionary does not have a entry named {key}.")
-                print(f"         All columns in the {key} table will be exported in the default order.")
-                print("          Please check column order and ensure AGS4 Rule 7 is still satisfied.")
+
+                if warnings is True:
+                    print(f"  WARNING: Input 'headings' dictionary does not have a entry named {key}.")
+                    print(f"           All columns in the {key} table will be exported in the default order.")
+                    print("            Please check column order and ensure AGS4 Rule 7 is still satisfied.")
 
                 f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
                 data[key].to_csv(f, index=index, quoting=1, line_terminator='\r\n', encoding=encoding)
@@ -212,10 +216,11 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
     # Format numeric columns
     if format_numeric_columns is True:
         for key in tables:
+            print(f'Formatting columns in... {key}')
             tables[key] = convert_to_text(tables[key], dictionary=dictionary)
 
     # Export dictionary of DataFrames to AGS4 file
-    dataframe_to_AGS4(tables, {}, output_file)
+    dataframe_to_AGS4(tables, {}, output_file, warnings=False)
 
 
 # Formatting functions #
@@ -304,8 +309,8 @@ def convert_to_text(dataframe, dictionary=None):
                 df = format_numeric_column(df, col, TYPE)
 
         except AssertionError:
-            print("ERROR: Cannot convert to text as UNIT and/or TYPE row(s) missing from dataframe.")
-            print("       Please provide dicitonary file to proceed.")
+            print("  ERROR: Cannot convert to text as UNIT and/or TYPE row(s) missing from dataframe.")
+            print("         Please provide dicitonary file to proceed.")
 
             return None
 
@@ -353,7 +358,7 @@ def convert_to_text(dataframe, dictionary=None):
                     df = format_numeric_column(df, col, TYPE)
 
                 except IndexError:
-                    print(f"WARNING: {col} not found in the dictionary file.")
+                    print(f"  WARNING: {col} not found in the dictionary file.")
 
     return df.sort_index()
 
@@ -415,9 +420,9 @@ def format_numeric_column(dataframe, column_name, TYPE):
             pass
 
     except ValueError:
-        print(f"ERROR: {col} could not be formatted as it had one or more non-numeric entries.")
+        print(f"  WARNING: Numeric data in {col} exported without reformatting as it had one or more non-numeric entries.")
 
     except TypeError:
-        print(f"ERROR: {col} could not be formatted as it had one or more non-numeric entries.")
+        print(f"  WARNING: Numeric data in {col} exported without reformatting as it had one or more non-numeric entries.")
 
     return df
