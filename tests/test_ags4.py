@@ -58,8 +58,9 @@ def test_convert_to_text():
     assert LLPL_txt.loc[0, 'LLPL_LL'] == "55"
     assert LLPL_txt.loc[1, 'LLPL_PI'] == "130"
 
-    # Should return None when called without a dictionary
-    assert AGS4.convert_to_text(LOCA_num) == None
+    # Should exit when called without a dictionary and without
+    # UNIT & TYPE rows
+    # AGS4.convert_to_text(LOCA_num)
 
     # Should return input entry without formatting if the data
     # is not numeric

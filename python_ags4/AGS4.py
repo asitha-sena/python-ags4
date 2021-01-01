@@ -39,6 +39,8 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
                  i.e. input for 'dataframe_to_AGS4()' function)
     """
 
+    from rich import print as rprint
+
     # Read file with errors="replace" to catch UnicodeDecodeErrors
     with open(filepath, "r", encoding=encoding, errors="replace") as f:
         data = {}
@@ -49,6 +51,8 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
         # (The HEADING column needs to be the first column in order to preserve
         # the AGS data format. Other columns in certain groups have a
         # preferred order as well)
+
+        import sys
 
         headings = {}
 
@@ -71,7 +75,8 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
                 try:
                     assert len(temp) == len(headings[group])
                 except AssertionError:
-                    print(f"Error: Line {i} does not have the same number of entries as the HEADING row.")
+                    rprint(f"[red]  Error: Line {i} does not have the same number of entries as the HEADING row in [bold]{group}[/bold].[/red]")
+                    sys.exit()
 
                 for i in range(0, len(temp)):
                     data[group][headings[group][i]].append(temp[i])
@@ -129,6 +134,7 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
     """
 
     from pandas import ExcelWriter
+    from rich import print as rprint
 
     # Extract AGS4 file into a dictionary of dictionaries
     tables, headings = AGS4_to_dataframe(input_file, encoding=encoding)
@@ -136,12 +142,13 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
     # Write to Excel file
     with ExcelWriter(output_file) as writer:
         for key in tables:
+            rprint(f'[green]Writing data from... [bold]{key}[/bold][/green]')
             tables[key].to_excel(writer, sheet_name=key, index=False)
 
 
 # Write functions #
 
-def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding='utf-8'):
+def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding='utf-8', warnings=True):
     """Write Pandas dataframes that have been extracted using
     'AGS4_to_dataframe()' function back to an AGS4 file.
 
@@ -164,21 +171,28 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
     AGS4 file with data in the dictionary of dataframes that is input.
     """
 
+    from rich import print as rprint
+
     # Open file and write/append data
-    with open(filepath, mode, newline='') as f:
+    with open(filepath, mode, newline='', encoding=encoding) as f:
         for key in data:
 
             try:
                 columns = headings[key]
 
+                rprint(f'[green]Writing data from... [bold]{key}[/bold][green]')
                 f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
                 data[key].to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
                 f.write("\r\n")
 
             except KeyError:
-                print(f"WARNING: Input 'headings' dictionary does not have a entry named {key}.")
-                print(f"         All columns in the {key} table will be exported in the default order.")
-                print("          Please check column order and ensure AGS4 Rule 7 is still satisfied.")
+
+                rprint(f'[green]Writing data from... [bold]{key}[/bold][green]')
+
+                if warnings is True:
+                    rprint(f"[yellow]  WARNING: Input 'headings' dictionary does not have a entry named [bold]{key}[/bold].[/yellow]")
+                    rprint(f"[italic yellow]           All columns in the {key} table will be exported in the default order.[/italic yellow]")
+                    rprint("[italic yellow]           Please check column order and ensure AGS4 Rule 7 is still satisfied.[/italic yellow]")
 
                 f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
                 data[key].to_csv(f, index=index, quoting=1, line_terminator='\r\n', encoding=encoding)
@@ -205,6 +219,7 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
     """
 
     from pandas import read_excel
+    from rich import print as rprint
 
     # Read data from Excel file in to DataFrames
     tables = read_excel(input_file, sheet_name=None, engine='openpyxl')
@@ -212,10 +227,11 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
     # Format numeric columns
     if format_numeric_columns is True:
         for key in tables:
+            rprint(f'[green]Formatting columns in... [bold]{key}[/bold][/green]')
             tables[key] = convert_to_text(tables[key], dictionary=dictionary)
 
     # Export dictionary of DataFrames to AGS4 file
-    dataframe_to_AGS4(tables, {}, output_file)
+    dataframe_to_AGS4(tables, {}, output_file, warnings=False)
 
 
 # Formatting functions #
@@ -288,7 +304,11 @@ def convert_to_text(dataframe, dictionary=None):
     >>LOCA_text = convert_to_text(LOCA, 'DICT.ags')
     """
 
-    # Reindex input dataframe
+    import sys
+    from rich import print as rprint
+
+    # Make copy of dataframe and reset index to make sure numbering
+    # starts from zero
     df = dataframe.copy().reset_index(drop=True)
 
     # Check whether to use UNIT and TYPE rows in dataframe or to
@@ -304,10 +324,9 @@ def convert_to_text(dataframe, dictionary=None):
                 df = format_numeric_column(df, col, TYPE)
 
         except AssertionError:
-            print("ERROR: Cannot convert to text as UNIT and/or TYPE row(s) missing from dataframe.")
-            print("       Please provide dicitonary file to proceed.")
-
-            return None
+            rprint("[red]  ERROR: Cannot convert to text as UNIT and/or TYPE row(s) are missing.")
+            rprint("[red]         Please provide dictonary file or add UNIT & TYPE rows to input file to proceed.[/red]")
+            sys.exit()
 
     else:
         # Read dictionary file
@@ -353,7 +372,7 @@ def convert_to_text(dataframe, dictionary=None):
                     df = format_numeric_column(df, col, TYPE)
 
                 except IndexError:
-                    print(f"WARNING: {col} not found in the dictionary file.")
+                    print(f"  WARNING: {col} not found in the dictionary file.")
 
     return df.sort_index()
 
@@ -371,6 +390,8 @@ def format_numeric_column(dataframe, column_name, TYPE):
     ------
     Pandas DataFrame with formatted data.
     '''
+
+    from rich import print as rprint
 
     df = dataframe.copy()
     col = column_name
@@ -415,9 +436,9 @@ def format_numeric_column(dataframe, column_name, TYPE):
             pass
 
     except ValueError:
-        print(f"ERROR: {col} could not be formatted as it had one or more non-numeric entries.")
+        rprint(f"[yellow]  WARNING: Numeric data in [bold]{col}[/bold] exported without reformatting as it had one or more non-numeric entries.[/yellow]")
 
     except TypeError:
-        print(f"ERROR: {col} could not be formatted as it had one or more non-numeric entries.")
+        rprint(f"[yellow]  WARNING: Numeric data in [bold]{col}[/bold] exported without reformatting as it had one or more non-numeric entries.[/yellow]")
 
     return df
