@@ -187,6 +187,8 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
 
             except KeyError:
 
+                rprint(f'[green]Writing data from... [bold]{key}[/bold][green]')
+
                 if warnings is True:
                     rprint(f"[yellow]  WARNING: Input 'headings' dictionary does not have a entry named [bold]{key}[/bold].[/yellow]")
                     rprint(f"[italic yellow]           All columns in the {key} table will be exported in the default order.[/italic yellow]")
