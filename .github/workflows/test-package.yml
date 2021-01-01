@@ -28,7 +28,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install pandas pytest openpyxl defusedxml
+        python -m pip install pandas pytest openpyxl defusedxml rich
         python -m pip install python-ags4
     - name: Update system path
       run: |
