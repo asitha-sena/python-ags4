@@ -174,7 +174,7 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
     from rich import print as rprint
 
     # Open file and write/append data
-    with open(filepath, mode, newline='') as f:
+    with open(filepath, mode, newline='', encoding=encoding) as f:
         for key in data:
 
             try:
