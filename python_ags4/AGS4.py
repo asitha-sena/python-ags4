@@ -135,6 +135,7 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
 
     from pandas import ExcelWriter
     from rich import print as rprint
+    import sys
 
     # Extract AGS4 file into a dictionary of dictionaries
     tables, headings = AGS4_to_dataframe(input_file, encoding=encoding)
@@ -143,6 +144,20 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
     with ExcelWriter(output_file) as writer:
         for key in tables:
             rprint(f'[green]Writing data from... [bold]{key}[/bold][/green]')
+
+            # Check table size and issue warning for large files that could crash the program
+            if 20000 < tables[key].shape[0] < 50000:
+                rprint(f'[blue]  INFO: {key} has {tables[key].shape[0]} rows, so it will take about a minute to export.[/blue]')
+            elif tables[key].shape[0] > 50000:
+                rprint(f'[yellow]  WARNING: {key} has {tables[key].shape[0]} rows, so it may take a few minutes to export.[/yellow]')
+                rprint(f'[yellow]           The program will terminate if it runs out of memory in the process.[/yellow]')
+
+                user_input = input('  Do you want to continue (Yes/No) ?')
+
+                if user_input not in ['Yes','YES','yes','y','Y']:
+                    rprint('[red]  File conversion aborted![/red]')
+                    sys.exit()
+
             tables[key].to_excel(writer, sheet_name=key, index=False)
 
 
@@ -226,7 +241,26 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
 
     # Format numeric columns
     if format_numeric_columns is True:
+
         for key in tables:
+            # First drop columns with non-compliant names (AGS Rule 19)
+            columns_to_drop = []
+
+            for col_name in tables[key].columns:
+                if col_name == 'HEADING':
+                    pass
+                elif col_name.isupper() & (len(col_name) <= 9) & (len(col_name.split('_')[0]) <= 4):
+                    pass
+                else:
+                    columns_to_drop.append(col_name)
+                    rprint(f'[yellow]  WARNING: Column [bold]{col_name}[/bold] dropped as name does not conform to AGS4 Rule 19.[/yellow]')
+
+            tables[key].drop(columns=columns_to_drop, inplace=True)
+
+            # Then drop rows without a proper HEADING
+            tables[key] = tables[key].loc[tables[key].HEADING.isin(['UNIT','TYPE','DATA']), :]
+
+            # Finally format numeric column
             rprint(f'[green]Formatting columns in... [bold]{key}[/bold][/green]')
             tables[key] = convert_to_text(tables[key], dictionary=dictionary)
 
@@ -374,7 +408,7 @@ def convert_to_text(dataframe, dictionary=None):
                 except IndexError:
                     print(f"  WARNING: {col} not found in the dictionary file.")
 
-    return df.sort_index()
+    return df.sort_index().reset_index(drop=True)
 
 
 def format_numeric_column(dataframe, column_name, TYPE):
