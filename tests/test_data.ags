@@ -64,7 +64,7 @@
 
 "GROUP","LLPL"
 "HEADING","LOCA_ID","SAMP_TOP","SAMP_REF","SAMP_TYPE","SAMP_ID","SPEC_REF","SPEC_DPTH","LLPL_LL","LLPL_PL","LLPL_PI"
-"UNIT","","m","","","","","m","%","%","%"
+"UNIT","","m","","","","","m","%","%",""
 "TYPE","ID","2DP","X","PA","ID","X","2DP","2SF","XN","2SF"
 "DATA","Location_1","1.00","1a","Bag","","","1.05","55.1","20.3","34.8"
 "DATA","Location_1","2.00","2a","Bag","","","2.05","155.1","20.3","134.8"
