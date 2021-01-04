@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "python-AGS4"
-version = "0.1.8a"
+version = "0.2.0"
 description = "A library to read and write AGS4 files using Pandas DataFrames"
 authors = ["Asitha Senanayake <asitha.senanayake@utexas.edu>"]
 license = "GPL-3.0"
