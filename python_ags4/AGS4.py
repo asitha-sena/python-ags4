@@ -146,15 +146,15 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
             rprint(f'[green]Writing data from... [bold]{key}[/bold][/green]')
 
             # Check table size and issue warning for large files that could crash the program
-            if 20000 < tables[key].shape[0] < 50000:
+            if 25000 < tables[key].shape[0] < 100000:
                 rprint(f'[blue]  INFO: {key} has {tables[key].shape[0]} rows, so it will take about a minute to export.[/blue]')
-            elif tables[key].shape[0] > 50000:
+            elif tables[key].shape[0] > 100000:
                 rprint(f'[yellow]  WARNING: {key} has {tables[key].shape[0]} rows, so it may take a few minutes to export.[/yellow]')
-                rprint(f'[yellow]           The program will terminate if it runs out of memory in the process.[/yellow]')
+                rprint('[yellow]           The program will terminate if it runs out of memory in the process.[/yellow]')
 
                 user_input = input('  Do you want to continue (Yes/No) ?')
 
-                if user_input not in ['Yes','YES','yes','y','Y']:
+                if user_input.lower() not in ['yes', 'y']:
                     rprint('[red]  File conversion aborted![/red]')
                     sys.exit()
 
@@ -258,7 +258,7 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
             tables[key].drop(columns=columns_to_drop, inplace=True)
 
             # Then drop rows without a proper HEADING
-            tables[key] = tables[key].loc[tables[key].HEADING.isin(['UNIT','TYPE','DATA']), :]
+            tables[key] = tables[key].loc[tables[key].HEADING.isin(['UNIT', 'TYPE', 'DATA']), :]
 
             # Finally format numeric column
             rprint(f'[green]Formatting columns in... [bold]{key}[/bold][/green]')
@@ -406,7 +406,7 @@ def convert_to_text(dataframe, dictionary=None):
                     df = format_numeric_column(df, col, TYPE)
 
                 except IndexError:
-                    print(f"  WARNING: {col} not found in the dictionary file.")
+                    rprint(f"[yellow]  WARNING: [bold]{col}[/bold] not found in the dictionary file.[/yellow]")
 
     return df.sort_index().reset_index(drop=True)
 
