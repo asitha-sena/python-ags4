@@ -65,6 +65,37 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
                 data[group] = {}
 
             elif temp[0] == 'HEADING':
+
+                # Catch HEADER rows with duplicate entries as it will result in a dictionary with
+                # arrays of unequal lengths and cause a ValueError when trying to convert to a
+                # Pandas DataFrame
+                try:
+                    assert len(temp) == len(set(temp))
+                except AssertionError:
+                    rprint(f"[red]  ERROR: HEADER row in [bold]{group}[/bold] (Line {i}) has duplicate entries.[/red]")
+
+                    user_input = input('  Do you want to automatically rename columns and continue (Yes/No) ?')
+
+                    if user_input.lower() not in ['yes', 'y']:
+                        rprint('[red]  File conversion aborted![/red]')
+                        sys.exit()
+                    else:
+                        rprint('[blue]  INFO: Duplicate columns were renamed by appending a number (e.g "_1").[/blue]')
+                        rprint('[yellow]  WARNING: Automatically renamed columns do not conform to AGS4 Rules 19a and 19b.[/yellow]')
+                        rprint('[yellow]           Please review the data and rename or drop duplicate columns as appropriate.[/yellow]')
+
+                        # Rename duplicates by appending a number
+                        item_count = {}
+
+                        for i, item in enumerate(temp):
+                            if item not in item_count:
+                                item_count[item] = {'i':i, 'count':0}
+                            else:
+                                item_count[item]['i'] = i
+                                item_count[item]['count'] += 1
+
+                                temp[i] = temp[i]+'_'+str(item_count[item]['count'])
+
                 headings[group] = temp
 
                 for item in temp:
