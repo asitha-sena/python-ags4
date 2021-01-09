@@ -16,8 +16,7 @@
 # https://github.com/asitha-sena/python-ags4
 
 
-from pandas import DataFrame, to_numeric
-
+# Read functions #
 
 def AGS4_to_dict(filepath, encoding='utf-8'):
     """Load all the data in a AGS4 file to a dictionary of dictionaries.
@@ -40,6 +39,8 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
                  i.e. input for 'dataframe_to_AGS4()' function)
     """
 
+    from rich import print as rprint
+
     # Read file with errors="replace" to catch UnicodeDecodeErrors
     with open(filepath, "r", encoding=encoding, errors="replace") as f:
         data = {}
@@ -51,9 +52,11 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
         # the AGS data format. Other columns in certain groups have a
         # preferred order as well)
 
+        import sys
+
         headings = {}
 
-        for line in f:
+        for i, line in enumerate(f, start=1):
             temp = line.rstrip().split('","')
             temp = [item.strip('"') for item in temp]
 
@@ -62,12 +65,50 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
                 data[group] = {}
 
             elif temp[0] == 'HEADING':
+
+                # Catch HEADER rows with duplicate entries as it will result in a dictionary with
+                # arrays of unequal lengths and cause a ValueError when trying to convert to a
+                # Pandas DataFrame
+                try:
+                    assert len(temp) == len(set(temp))
+                except AssertionError:
+                    rprint(f"[red]  ERROR: HEADER row in [bold]{group}[/bold] (Line {i}) has duplicate entries.[/red]")
+
+                    user_input = input('  Do you want to automatically rename columns and continue (Yes/No) ?')
+
+                    if user_input.lower() not in ['yes', 'y']:
+                        rprint('[red]  File conversion aborted![/red]')
+                        sys.exit()
+                    else:
+                        rprint('[blue]  INFO: Duplicate columns were renamed by appending a number (e.g "_1").[/blue]')
+                        rprint('[yellow]  WARNING: Automatically renamed columns do not conform to AGS4 Rules 19a and 19b.[/yellow]')
+                        rprint('[yellow]           Please review the data and rename or drop duplicate columns as appropriate.[/yellow]')
+
+                        # Rename duplicates by appending a number
+                        item_count = {}
+
+                        for i, item in enumerate(temp):
+                            if item not in item_count:
+                                item_count[item] = {'i':i, 'count':0}
+                            else:
+                                item_count[item]['i'] = i
+                                item_count[item]['count'] += 1
+
+                                temp[i] = temp[i]+'_'+str(item_count[item]['count'])
+
                 headings[group] = temp
 
                 for item in temp:
                     data[group][item] = []
 
             elif temp[0] in ['TYPE', 'UNIT', 'DATA']:
+
+                try:
+                    assert len(temp) == len(headings[group])
+                except AssertionError:
+                    rprint(f"[red]  Error: Line {i} does not have the same number of entries as the HEADING row in [bold]{group}[/bold].[/red]")
+                    sys.exit()
+
                 for i in range(0, len(temp)):
                     data[group][headings[group][i]].append(temp[i])
 
@@ -97,6 +138,8 @@ def AGS4_to_dataframe(filepath, encoding='utf-8'):
 
     """
 
+    from pandas import DataFrame
+
     # Extract AGS4 file into a dictionary of dictionaries
     data, headings = AGS4_to_dict(filepath, encoding=encoding)
 
@@ -108,7 +151,50 @@ def AGS4_to_dataframe(filepath, encoding='utf-8'):
     return df, headings
 
 
-def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding='utf-8'):
+def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
+    """Load all the tables in a AGS4 file to an Excel spreasheet.
+
+    Input:
+    -----
+    input_file    - Path to AGS4 file
+    output_file   - Path to Excel file
+
+    Output:
+    ------
+    Excel file populated with data from the input AGS4 file.
+    """
+
+    from pandas import ExcelWriter
+    from rich import print as rprint
+    import sys
+
+    # Extract AGS4 file into a dictionary of dictionaries
+    tables, headings = AGS4_to_dataframe(input_file, encoding=encoding)
+
+    # Write to Excel file
+    with ExcelWriter(output_file) as writer:
+        for key in tables:
+            rprint(f'[green]Writing data from... [bold]{key}[/bold][/green]')
+
+            # Check table size and issue warning for large files that could crash the program
+            if 25000 < tables[key].shape[0] < 100000:
+                rprint(f'[blue]  INFO: {key} has {tables[key].shape[0]} rows, so it will take about a minute to export.[/blue]')
+            elif tables[key].shape[0] > 100000:
+                rprint(f'[yellow]  WARNING: {key} has {tables[key].shape[0]} rows, so it may take a few minutes to export.[/yellow]')
+                rprint('[yellow]           The program will terminate if it runs out of memory in the process.[/yellow]')
+
+                user_input = input('  Do you want to continue (Yes/No) ?')
+
+                if user_input.lower() not in ['yes', 'y']:
+                    rprint('[red]  File conversion aborted![/red]')
+                    sys.exit()
+
+            tables[key].to_excel(writer, sheet_name=key, index=False)
+
+
+# Write functions #
+
+def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding='utf-8', warnings=True):
     """Write Pandas dataframes that have been extracted using
     'AGS4_to_dataframe()' function back to an AGS4 file.
 
@@ -131,26 +217,89 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
     AGS4 file with data in the dictionary of dataframes that is input.
     """
 
+    from rich import print as rprint
+
     # Open file and write/append data
-    with open(filepath, mode, newline='') as f:
+    with open(filepath, mode, newline='', encoding=encoding) as f:
         for key in data:
 
             try:
                 columns = headings[key]
 
+                rprint(f'[green]Writing data from... [bold]{key}[/bold][green]')
                 f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
                 data[key].to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
                 f.write("\r\n")
 
             except KeyError:
-                print(f"*Warning*: Input 'headings' dictionary does not have a entry named {key}.")
-                print(f"           All columns in the {key} table will be exported in the default order.")
-                print("           Please check column order and ensure AGS4 Rule 7 is still satisfied.")
+
+                rprint(f'[green]Writing data from... [bold]{key}[/bold][green]')
+
+                if warnings is True:
+                    rprint(f"[yellow]  WARNING: Input 'headings' dictionary does not have a entry named [bold]{key}[/bold].[/yellow]")
+                    rprint(f"[italic yellow]           All columns in the {key} table will be exported in the default order.[/italic yellow]")
+                    rprint("[italic yellow]           Please check column order and ensure AGS4 Rule 7 is still satisfied.[/italic yellow]")
 
                 f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
                 data[key].to_csv(f, index=index, quoting=1, line_terminator='\r\n', encoding=encoding)
                 f.write("\r\n")
 
+
+def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictionary=None):
+    """Export AGS4 data in Excel file to .ags file.
+
+    Input:
+    -----
+    input_file    - Path to Excel file
+                    (Note: Each GROUP should be in a separate worksheet.
+                     e.g. output from AGS4.AGS4_to_excel)
+    output_file   - Path to AGS4 file
+    reformat_numeric_columns - Format numeric columns to match specified
+                               TYPE
+    dictionary    - Filepath to dictionary if the UNIT and TYPE data in
+                    tables need to be overridden.
+
+    Output:
+    ------
+    AGS4 file with data from the input Excel file.
+    """
+
+    from pandas import read_excel
+    from rich import print as rprint
+
+    # Read data from Excel file in to DataFrames
+    tables = read_excel(input_file, sheet_name=None, engine='openpyxl')
+
+    # Format numeric columns
+    if format_numeric_columns is True:
+
+        for key in tables:
+            # First drop columns with non-compliant names (AGS Rule 19)
+            columns_to_drop = []
+
+            for col_name in tables[key].columns:
+                if col_name == 'HEADING':
+                    pass
+                elif col_name.isupper() & (len(col_name) <= 9) & (len(col_name.split('_')[0]) <= 4):
+                    pass
+                else:
+                    columns_to_drop.append(col_name)
+                    rprint(f'[yellow]  WARNING: Column [bold]{col_name}[/bold] dropped as name does not conform to AGS4 Rule 19.[/yellow]')
+
+            tables[key].drop(columns=columns_to_drop, inplace=True)
+
+            # Then drop rows without a proper HEADING
+            tables[key] = tables[key].loc[tables[key].HEADING.isin(['UNIT', 'TYPE', 'DATA']), :]
+
+            # Finally format numeric column
+            rprint(f'[green]Formatting columns in... [bold]{key}[/bold][/green]')
+            tables[key] = convert_to_text(tables[key], dictionary=dictionary)
+
+    # Export dictionary of DataFrames to AGS4 file
+    dataframe_to_AGS4(tables, {}, output_file, warnings=False)
+
+
+# Formatting functions #
 
 def convert_to_numeric(dataframe):
     """The AGS4_to_dataframe() function extracts the data from an AGS4 file and
@@ -178,6 +327,8 @@ def convert_to_numeric(dataframe):
     >>LNMC = AGS4.convert_to_numeric(data['LNMC'])
     """
 
+    from pandas import to_numeric
+
     # First create a copy of the DataFrame to avoid overwriting the
     # original data
     df = dataframe.copy()
@@ -194,14 +345,16 @@ def convert_to_numeric(dataframe):
     return df
 
 
-def convert_to_text(dataframe, dictionary):
-    """Convert AGS4 DataFrame with numeric columns back to formatted text ready for exporting.
+def convert_to_text(dataframe, dictionary=None):
+    """Convert AGS4 DataFrame with numeric columns back to formatted text ready for exporting
+    back to a csv file.
 
     Input:
     -----
     dataframe  - Pandas DataFrame with numeric columns. e.g. output from AGS4.convert_to_numeric()
-    dictionary - AGS4 dictionary file from which to get UNIT and TYPE rows and to convert to
-                 numeric fields to required precision
+    dictionary - Path to AGS4 dictionary file from which to get UNIT and TYPE rows and to convert to
+                 numeric fields to required precision. The values from the dictionary will override
+                 those already in the UNIT and TYPE rows in the dataframe.
 
     Output:
     ------
@@ -216,40 +369,144 @@ def convert_to_text(dataframe, dictionary):
     >>LOCA_text = convert_to_text(LOCA, 'DICT.ags')
     """
 
-    # Reindex input dataframe
+    import sys
+    from rich import print as rprint
+
+    # Make copy of dataframe and reset index to make sure numbering
+    # starts from zero
     df = dataframe.copy().reset_index(drop=True)
 
-    # Read dictionary file
-    temp, _ = AGS4_to_dataframe(dictionary)
-    DICT = temp['DICT']
+    # Check whether to use UNIT and TYPE rows in dataframe or to
+    # retrieve values from the dictionary file
+    if dictionary is None:
+        try:
+            # Check whether dataframe has "UNIT" and "TYPE" rows
+            assert 'UNIT' in df.HEADING.values
+            assert 'TYPE' in df.HEADING.values
 
-    for col in df.columns:
+            for col in df.columns:
+                TYPE = df.loc[df.HEADING == 'TYPE', col].values[0]
+                df = format_numeric_column(df, col, TYPE)
 
-        if col == 'HEADING':
-            df.loc[-2, 'HEADING'] = 'UNIT'
-            df.loc[-1, 'HEADING'] = 'TYPE'
+        except AssertionError:
+            rprint("[red]  ERROR: Cannot convert to text as UNIT and/or TYPE row(s) are missing.")
+            rprint("[red]         Please provide dictonary file or add UNIT & TYPE rows to input file to proceed.[/red]")
+            sys.exit()
+
+    else:
+        # Read dictionary file
+        temp, _ = AGS4_to_dataframe(dictionary)
+        DICT = temp['DICT']
+
+        # Check whether UNIT and TYPE rows are already in dataframe
+        UNIT_row_present = 'UNIT' in df.HEADING.values
+        TYPE_row_present = 'TYPE' in df.HEADING.values
+
+        # Format columns and add UNIT/TYPE rows if necessary
+        for col in df.columns:
+
+            if col == 'HEADING':
+
+                if not UNIT_row_present:
+                    df.loc[-2, 'HEADING'] = 'UNIT'
+
+                if not TYPE_row_present:
+                    df.loc[-1, 'HEADING'] = 'TYPE'
+
+            else:
+
+                try:
+                    # Get type and unit from dictionary
+                    TYPE = DICT.loc[DICT.DICT_HDNG == col, 'DICT_DTYP'].iloc[0]
+                    UNIT = DICT.loc[DICT.DICT_HDNG == col, 'DICT_UNIT'].iloc[0]
+
+                    if UNIT_row_present:
+                        # Overwrite existing UNIT with one from the dictionary
+                        df.loc[df.HEADING == 'UNIT', col] = UNIT
+                    else:
+                        # Add UNIT row if one is not already there
+                        df.loc[-2, col] = UNIT
+
+                    if TYPE_row_present:
+                        # Overwrite existing TYPE with one from the dictionary
+                        df.loc[df.HEADING == 'TYPE', col] = TYPE
+                    else:
+                        # Add TYPE row if one is not already there
+                        df.loc[-1, col] = TYPE
+
+                    df = format_numeric_column(df, col, TYPE)
+
+                except IndexError:
+                    rprint(f"[yellow]  WARNING: [bold]{col}[/bold] not found in the dictionary file.[/yellow]")
+
+    return df.sort_index().reset_index(drop=True)
+
+
+def format_numeric_column(dataframe, column_name, TYPE):
+    '''Format column in dataframe to specified TYPE and convert to string.
+
+    Input:
+    -----
+    dataframe   - Pandas DataFrame with AGS4 data
+    column_name - Name of column to be formatted
+    TYPE        - AGS4 TYPE for specified column
+
+    Output:
+    ------
+    Pandas DataFrame with formatted data.
+    '''
+
+    from rich import print as rprint
+
+    df = dataframe.copy()
+    col = column_name
+
+    try:
+        if 'DP' in TYPE:
+            i = int(TYPE.strip('DP'))
+            # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
+            # as "" rather than "nan"
+            mask = (df.HEADING == "DATA") & df[col].notna()
+            df.loc[mask, col] = df.loc[mask, col].apply(lambda x: f"{x:.{i}f}")
+
+        elif 'SCI' in TYPE:
+            i = int(TYPE.strip('SCI'))
+            # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
+            # as "" rather than "nan"
+            mask = (df.HEADING == "DATA") & df[col].notna()
+            df.loc[mask, col] = df.loc[mask, col].apply(lambda x: f"{x:.{i}e}")
+
+        elif 'SF' in TYPE:
+
+            def format_SF(value, TYPE):
+                '''Format a value to specified number of significant figures
+                and return a string.'''
+
+                from numpy import round, log10
+
+                i = int(TYPE.strip('SF')) - 1 - int(log10(abs(value)))
+
+                if i < 0:
+                    return f"{round(value, i):.0f}"
+
+                else:
+                    return f"{value:.{i}f}"
+
+            # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
+            # as "" rather than "nan"
+            mask = (df.HEADING == "DATA") & df[col].notna()
+            df.loc[mask, [col]] = df.loc[mask, [col]].applymap(lambda x: format_SF(x, TYPE))
 
         else:
+            pass
 
-            try:
-                TYPE = DICT.loc[DICT.DICT_HDNG == col, 'DICT_DTYP'].iloc[0]
-                UNIT = DICT.loc[DICT.DICT_HDNG == col, 'DICT_UNIT'].iloc[0]
+    except ValueError:
+        rprint(f"[yellow]  WARNING: Numeric data in [bold]{col}[/bold] exported without reformatting as it had one or more non-numeric entries.[/yellow]")
 
-                if 'DP' in TYPE:
-                    i = int(TYPE[0])
-                    df.loc[0:, col] = df.loc[0:, col].apply(lambda x: f"{x:.{i}f}")
+    except TypeError:
+        rprint(f"[yellow]  WARNING: Numeric data in [bold]{col}[/bold] exported without reformatting as it had one or more non-numeric entries.[/yellow]")
 
-                elif 'SCI' in TYPE:
-                    i = int(TYPE[0])
-                    df.loc[0:, col] = df.loc[0:, col].apply(lambda x: f"{x:.{i}e}")
-
-                df.loc[-2, col] = UNIT
-                df.loc[-1, col] = TYPE
-
-            except IndexError:
-                print(f"*WARNING*:{col} not found in the dictionary file.")
-
-    return df.sort_index()
+    return df
 
 
 def check_file(input_file, output_file, print_errors=False):
