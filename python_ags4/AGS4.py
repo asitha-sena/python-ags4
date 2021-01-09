@@ -89,7 +89,7 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
 
                         for i, item in enumerate(temp):
                             if item not in item_count:
-                                item_count[item] = {'i':i, 'count':0}
+                                item_count[item] = {'i': i, 'count': 0}
                             else:
                                 item_count[item]['i'] = i
                                 item_count[item]['count'] += 1
@@ -509,82 +509,60 @@ def format_numeric_column(dataframe, column_name, TYPE):
     return df
 
 
-def check_file(input_file, output_file, print_errors=False):
-    """This function checks whether this AGS4 Rules 1, 2a, and are satisfied.
+def check_file(input_file, output_file=None):
+    """This function checks the input AGS4 file for errors.
 
-    Input:
-    -----
-    input_file  - AGS4 file (*.ags) to be checked
-    output_file - File to save error list
-    print_errors - Print error list to screen (True or False)
+    Parameters
+    ----------
+    input_file : str
+        Path to AGS4 file (*.ags) to be checked
+    output_file : str, optional
+        Path to file in which to save error list
 
-    Output:
-    ------
-    File with a list of errors.
+    Returns
+    -------
+    dict
+        Dictionary contains AGS4 error in input file.
     """
 
-    error_list = rule_1_2a_3(input_file)
+    from python_ags4 import check
 
+    ags_errors = {}
 
-    with open(output_file, mode='w') as f:
-        f.writelines('\n'.join(error_list))
+    with open(input_file, 'r', newline='', encoding='utf-8', errors='replace') as f:
 
-    if print_errors == True:
-        print(error_list)
+        # Initiate group name and headings list
+        group = ''
+        headings = []
 
+        for i, line in enumerate(f, start=1):
 
-def rule_1_2a_3(input_file):
-    """This function checks whether this AGS4 Rules 1, 2a, and are satisfied.
+            # Track headings to be used with group checks
+            if line.strip('"').startswith("GROUP"):
+                # Reset group name and headings list at the beginning each group
+                group = ''
+                headings = []
 
-    Input:
-    -----
-    input_file - AGS4 file (*.ags) to be checked
-
-    Output:
-    ------
-    List of lines that do not compy with Rules 1, 2a, and 3.
-    """
-
-    #Initialize list to store lines with errors
-    error_list = []
-
-    with open(input_file, mode='r', newline='') as f:
-        for i,line in enumerate(f, start=1):
-
-            #Rule 2a
-            try:
-                assert line[-2:] == '\r\n'
-            except AssertionError:
-                #print(f"Rule 2a\t Line {i}: Does not end with '\\r\\n'.")
-                error_list.append(f'Rule 2a\t Line {i}:\t Does not end with "\\r\\n".')
-
-
-            #Check non-blank lines
-            if not line.isspace():
-                temp = line.rstrip().split('","')
-                temp = [item.strip('"') for item in temp]
-
-                #Rule 1
                 try:
-                    assert line.isascii() is True
-                except AssertionError:
-                    #print(f"Rule 1\t Line {i}: Has one or more non-ASCII characters.")
-                    error_list.append(f"Rule 1\t Line {i}:\t Has one or more non-ASCII characters.")
+                    group = line.rstrip().split('","')[1]
 
-                #Rules 3
-                try:
-                    assert temp[0] in ["GROUP", "HEADING", "TYPE", "UNIT", "DATA"]
-                except AssertionError:
-                    #print(f"Rule 3\t Line {i}: Does not start with a valid tag (i.e. GROUP, HEADING, TYPE, UNIT, or DATA).")
-                    error_list.append(f"Rule 3\t Line {i}:\t Does not start with a valid tag (i.e. GROUP, HEADING, TYPE, UNIT, or DATA).")
+                except IndexError:
+                    # GROUP name not available (Rule 19 should catch this error)
+                    pass
 
-            #Check blank lines
-            else:
-                #Catch lines with only spaces (Rule 3)
-                try:
-                    assert line[0:2] == '\r\n'
-                except AssertionError:
-                    #print(f"Rule 3\t Line {i}: Consists only of spaces.\t")
-                    error_list.append(f"Rule 3\t Line {i}:\t Consists only of spaces.")
+            elif line.strip('"').startswith("HEADING"):
+                headings = line.rstrip().split('","')
+                headings = [item.strip('"') for item in headings]
 
-    return error_list
+            # Line Checks
+            ags_errors = check.rule_1(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_2a(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_2c(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_3(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_4a(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_4b(line, i, group=group, headings=headings, ags_errors=ags_errors)
+            ags_errors = check.rule_5(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_6(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_19(line, i, ags_errors=ags_errors)
+
+    return ags_errors
