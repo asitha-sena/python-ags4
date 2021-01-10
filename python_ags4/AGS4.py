@@ -591,5 +591,7 @@ def check_file(input_file, output_file=None, standard_AGS4_dictionary=None):
     ags_errors = check.rule_7(headings, master_DICT, ags_errors=ags_errors)
     ags_errors = check.rule_9(headings, master_DICT, ags_errors=ags_errors)
     ags_errors = check.rule_10a(tables, headings, master_DICT, ags_errors=ags_errors)
+    ags_errors = check.rule_10b(tables, headings, master_DICT, ags_errors=ags_errors)
+    ags_errors = check.rule_10c(tables, headings, master_DICT, ags_errors=ags_errors)
 
     return ags_errors

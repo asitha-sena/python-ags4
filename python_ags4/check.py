@@ -394,7 +394,7 @@ def rule_10a(tables, headings, dictionary, ags_errors={}):
 
         # Check for duplicate KEY field combinations if all KEY fields are present
         if set(key_fields).issubset(set(headings[group])):
-            #'HEADING' column has to added explicity as it is not in the key field list
+            # 'HEADING' column has to added explicity as it is not in the key field list
             key_fields = ['HEADING'] + key_fields
 
             mask = tables[group].duplicated(key_fields, keep=False)
@@ -403,5 +403,79 @@ def rule_10a(tables, headings, dictionary, ags_errors={}):
             for i, row in duplicate_rows.iterrows():
                 duplicate_key_combo = '|'.join(row[key_fields].tolist())
                 add_error_msg(ags_errors, 'Rule 10a', '-', group, f'Duplicate key field combination: {duplicate_key_combo}')
+
+    return ags_errors
+
+
+def rule_10b(tables, headings, dictionary, ags_errors={}):
+    '''AGS4 Rule 10b: REQUIRED fields in a GROUP must be present and cannot be empty.
+    '''
+
+    for group in tables:
+        # Extract REQUIRED fields from dictionary
+        mask = (dictionary.DICT_GRP == group) & (dictionary.DICT_STAT.str.contains('required', case=False))
+        required_fields = dictionary.loc[mask, 'DICT_HDNG'].tolist()
+
+        # Check for missing REQUIRED fields
+        for heading in required_fields:
+            if heading not in headings[group]:
+                add_error_msg(ags_errors, 'Rule 10b', '-', group, f'Required field {heading} not found.')
+
+        # Check for missing entries in REQUIRED fields
+        # First make copy of table so that it can be modified without unexpected side-effects
+        df = tables[group].copy()
+
+        for heading in set(required_fields).intersection(set(headings[group])):
+
+            # Regex ^\s*$ should catch empty entries as well as entries that contain only whitespace
+            mask = (df['HEADING'] == 'DATA') & df[heading].str.contains('^\s*$')
+
+            # Replace missing/blank entries with '???' so that they can be clearly seen in the output
+            df[heading] = df[heading].str.replace('^\s*$', '???')
+            missing_required_fields = df.loc[mask, :]
+
+            # Add each row with missing entries to the error log
+            for i, row in missing_required_fields.iterrows():
+                msg = '|'.join(row.tolist())
+                add_error_msg(ags_errors, 'Rule 10b', '-', group, f'Empty REQUIRED fields: {msg}')
+
+    return ags_errors
+
+
+def rule_10c(tables, headings, dictionary, ags_errors={}):
+    '''AGS4 Rule 10c: Each DATA row should have a parent entry in the parent GROUP.
+    '''
+
+    for group in tables:
+
+        # Find parent group name
+        if group not in ['PROJ', 'TRAN', 'ABBR', 'DICT', 'UNIT', 'TYPE', 'LOCA']:
+
+            try:
+                mask = (dictionary.DICT_TYPE == 'GROUP') & (dictionary.DICT_GRP == group)
+                parent_group = dictionary.loc[mask, 'DICT_PGRP'].to_list()[0]
+
+                # Check whether parent entries exist
+                if parent_group == '':
+                    add_error_msg(ags_errors, 'Rule 10c', '-', group, 'Parent group left blank in dictionary.')
+
+                else:
+                    # Extract KEY fields from dictionary
+                    mask = (dictionary.DICT_GRP == parent_group) & (dictionary.DICT_STAT.str.contains('key', case=False))
+                    parent_key_fields = dictionary.loc[mask, 'DICT_HDNG'].tolist()
+                    parent_df = tables[parent_group].copy()
+
+                    child_df = tables[group].copy()
+
+                    # Merge parent and child tables using parent key fields and find entries that not in the
+                    # parent table
+                    orphan_rows = child_df.merge(parent_df, how='left', on=parent_key_fields, indicator=True).query('''_merge=="left_only"''')
+
+                    for i, row in orphan_rows.iterrows():
+                        msg = '|'.join(row[parent_key_fields].tolist())
+                        add_error_msg(ags_errors, 'Rule 10a', '-', group, f'Orphan row: {msg}')
+
+            except IndexError:
+                add_error_msg(ags_errors, 'Rule 10c', '-', group, 'Could not check parent entries since group definitions not found in standard dictionary or DICT table.')
 
     return ags_errors
