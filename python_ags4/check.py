@@ -50,6 +50,54 @@ def add_error_msg(ags_errors, rule, line, group, desc):
     return ags_errors
 
 
+def combine_DICT_tables(input_files):
+    '''Read multiple .ags files and cobmbine the DICT tables.
+
+    If duplicate rows are encountered, the first will be kept and the rest dropped.
+    Only 'HEADING','DICT_TYPE','DICT_GRP','DICT_HDNG' columns will be considered
+    to determine duplicate rows. Precedence will be given to files in the order in
+    which they appear in the input_files list.
+
+    Parameters
+    ----------
+    input_files : list
+        List of paths to .ags files.
+
+    Returns
+    -------
+    DataFrame
+        Pandas DataFrame with combined DICT tables.
+    '''
+
+    from pandas import DataFrame, concat
+    from python_ags4.AGS4 import AGS4_to_dataframe
+    import sys
+    from rich import print as rprint
+
+    # Initialize DataFrame to hold all dictionary entries
+    master_DICT = DataFrame()
+
+    for file in input_files:
+        try:
+            tables, _ = AGS4_to_dataframe(file)
+
+            master_DICT = concat([master_DICT, tables['DICT']])
+
+        except:
+            pass
+
+    # Check whether master_DICT is empty
+    if master_DICT.shape[0] == 0:
+        rprint('[red]  ERROR: No DICT tables available to proceed with checking.[/red]')
+        rprint('[red]         Please ensure the input file has a DICT table or provide file with standard AGS4 dictionary.[/red]')
+        sys.exit()
+
+    # Drop duplicate entries
+    master_DICT.drop_duplicates(['HEADING', 'DICT_TYPE', 'DICT_GRP', 'DICT_HDNG'], keep='first', inplace=True)
+
+    return master_DICT
+
+
 # Line Rules
 
 def rule_1(line, line_number=0, ags_errors={}):
@@ -193,6 +241,48 @@ def rule_19(line, line_number=0, ags_errors={}):
     return ags_errors
 
 
+def rule_19a(line, line_number=0, group='', ags_errors={}):
+    '''AGS4 Rule 19a: HEADING names should consist of uppercase letters.
+    '''
+
+    if line.strip('"').startswith('HEADING'):
+        temp = line.rstrip().split('","')
+        temp = [item.strip('"') for item in temp]
+
+        if len(temp) >= 2:
+            for item in temp[1:]:
+                if not item.isupper() or (len(item) > 9):
+                    add_error_msg(ags_errors, 'Rule 19a', line_number, group, f'Heading {item} should be uppercase and limited to 9 character in length.')
+
+        else:
+            add_error_msg(ags_errors, 'Rule 19a', line_number, group, 'Headings row does not seem to have any fields.')
+
+    return ags_errors
+
+
+def rule_19b(line, line_number=0, group='', ags_errors={}):
+    '''AGS4 Rule 19b: HEADING names shall start with the group name followed by an underscore character.
+    Where a HEADING referes to an existing HEADING within another GROUP, it shall bear the same name.
+    '''
+
+    if line.strip('"').startswith('HEADING'):
+        temp = line.rstrip().split('","')
+        temp = [item.strip('"') for item in temp]
+
+        if len(temp) >= 2:
+            for item in temp[1:]:
+                try:
+                    if (len(item.split('_')[0]) != 4) or (len(item.split('_')[1]) > 4):
+                        add_error_msg(ags_errors, 'Rule 19b', line_number, group, f'Heading {item} should consist of a 4 charater group name and a field name of upto 4 characters.')
+
+                    # TODO: Check whether heading name is present in the standard AGS4 dictionary or in the DICT group in the input file
+
+                except IndexError:
+                    add_error_msg(ags_errors, 'Rule 19b', line_number, group, f'Heading {item} should consist of group name and field name separated by "_".')
+
+    return ags_errors
+
+
 # Group Rules
 
 def rule_2(tables, headings, ags_errors={}):
@@ -200,20 +290,15 @@ def rule_2(tables, headings, ags_errors={}):
     consist of one or more DATA rows.
     '''
 
-    # Create dictionary to store Rule 2 infractions within the main ags_errors dictionary
-    try:
-        ags_errors['Rule 2']
-    except KeyError:
-        ags_errors['Rule 2'] = {}
-        ags_errors['Rule 2']['msg'] = 'GROUP does not have any DATA rows.'
-        ags_errors['Rule 2']['group'] = []
-
-    # Assert that input tables conforms to Rule 2
     for key in tables:
-        try:
-            assert "DATA" in tables[key]['HEADING'].values
-        except AssertionError:
-            ags_errors['Rule 2']['group'].append(key)
+        # Re-index table to ensure row numbering starts from zero
+        tables[key].reset_index(drop=True, inplace=True)
+
+        # Check if there is a UNIT row in the table
+        # NOTE: .tolist() used instead of .values to avoid "FutureWarning: elementwise comparison failed."
+        #       ref: https://stackoverflow.com/questions/40659212/futurewarning-elementwise-comparison-failed-returning-scalar-but-in-the-futur
+        if 'DATA' not in tables[key]['HEADING'].tolist():
+            add_error_msg(ags_errors, 'Rule 2', float('NaN'), key, 'No DATA rows in group.')
 
     return ags_errors
 
@@ -222,24 +307,72 @@ def rule_2b(tables, headings, ags_errors={}):
     '''AGS4 Rule 2b: UNIT and TYPE rows should be defined at the start of each GROUP
     '''
 
-    # Create dictionary to store Rule 2b infractions within the main ags_errors dictionary
-    try:
-        ags_errors['Rule 2b']
-    except KeyError:
-        ags_errors['Rule 2b'] = {}
-        ags_errors['Rule 2b']['msg'] = 'Missing or misplaced UNIT/TYPE row(s). UNIT and TYPE rows should immediately follow the HEADING row.'
-        ags_errors['Rule 2b']['group'] = []
-
-    # Assert that input tables conforms to Rule 2b
     for key in tables:
         # Re-index table to ensure row numbering starts from zero
         tables[key].reset_index(drop=True, inplace=True)
 
-        try:
-            assert "UNIT" in tables[key].loc[0, 'HEADING'] == "UNIT"
-            assert "TYPE" in tables[key].loc[1, 'HEADING'] == "TYPE"
+        # Check if there is a UNIT row in the table
+        # NOTE: .tolist() used instead of .values to avoid "FutureWarning: elementwise comparison failed."
+        #       ref: https://stackoverflow.com/questions/40659212/futurewarning-elementwise-comparison-failed-returning-scalar-but-in-the-futur
+        if 'UNIT' not in tables[key]['HEADING'].tolist():
+            add_error_msg(ags_errors, 'Rule 2b', float('NaN'), key, 'UNIT row missing from group.')
 
-        except AssertionError:
-            ags_errors['Rule 2b']['group'].append(key)
+        # Check if the UNIT row is in the correct location within the table
+        elif tables[key].loc[0, 'HEADING'] != 'UNIT':
+            add_error_msg(ags_errors, 'Rule 2b', float('NaN'), key, 'UNIT row is misplaced. It should be immediately below the HEADING row.')
+
+        # Check if there is a TYPE row in the table
+        if 'TYPE' not in tables[key]['HEADING'].tolist():
+            add_error_msg(ags_errors, 'Rule 2b', float('NaN'), key, 'TYPE row missing from group.')
+
+        # Check if the UNIT row is in the correct location within the table
+        elif tables[key].loc[1, 'HEADING'] != 'TYPE':
+            add_error_msg(ags_errors, 'Rule 2b', float('NaN'), key, 'TYPE row is misplaced. It should be immediately below the UNIT row.')
+
+    return ags_errors
+
+
+def rule_7(headings, dictionary, ags_errors={}):
+    '''AGS4 Rule 7: HEADINGs shall be in the order described in the AGS4 dictionary.
+    '''
+
+    for key in headings:
+        # Extract list of headings defined for the group in the dictionaries
+        mask = dictionary.DICT_GRP == key
+        reference_headings_list = dictionary.loc[mask, 'DICT_HDNG'].tolist()
+
+        # Verify that all headings names in the group are defined in the dictionaries
+        if set(headings[key][1:]).issubset(set(reference_headings_list)):
+
+            # Make a copy of reference list to modify
+            temp = reference_headings_list.copy()
+
+            for item in reference_headings_list:
+                # Drop heading names that are not used in the file
+                if item not in headings[key]:
+                    temp.remove(item)
+
+            # Finally compare the two lists. They will be identical only if all element are in the same order
+            if not temp == headings[key][1:]:
+                msg = f'HEADING names in {key} are not in the order that they are defined in the DICT table and the standard dictionary.'
+                add_error_msg(ags_errors, 'Rule 7', float('NaN'), key, msg)
+
+        else:
+            pass
+
+    return ags_errors
+
+
+def rule_9(headings, dictionary, ags_errors={}):
+    '''AGS4 Rule 9: GROUP and HEADING names will be taken from the standard AGS4 dictionary or
+    defined in DICT table in the .ags file.
+    '''
+
+    for key in headings:
+        for item in headings[key][1:]:
+            mask = dictionary.DICT_GRP == key
+
+            if item not in dictionary.loc[mask, 'DICT_HDNG'].tolist():
+                add_error_msg(ags_errors, 'Rule 9', float('NaN'), key, f'{item} not found in DICT table or the provided standard AGS4 dictionary.')
 
     return ags_errors

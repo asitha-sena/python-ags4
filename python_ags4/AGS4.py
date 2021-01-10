@@ -509,7 +509,7 @@ def format_numeric_column(dataframe, column_name, TYPE):
     return df
 
 
-def check_file(input_file, output_file=None):
+def check_file(input_file, output_file=None, standard_AGS4_dictionary=None):
     """This function checks the input AGS4 file for errors.
 
     Parameters
@@ -518,6 +518,8 @@ def check_file(input_file, output_file=None):
         Path to AGS4 file (*.ags) to be checked
     output_file : str, optional
         Path to file in which to save error list
+    standard_AGS4_dict : str, optional
+        Path to .ags file with standard AGS4 dictionary
 
     Returns
     -------
@@ -526,9 +528,11 @@ def check_file(input_file, output_file=None):
     """
 
     from python_ags4 import check
+    from rich import print as rprint
 
     ags_errors = {}
 
+    # Line checks
     with open(input_file, 'r', newline='', encoding='utf-8', errors='replace') as f:
 
         # Initiate group name and headings list
@@ -554,7 +558,7 @@ def check_file(input_file, output_file=None):
                 headings = line.rstrip().split('","')
                 headings = [item.strip('"') for item in headings]
 
-            # Line Checks
+            # Call line Checks
             ags_errors = check.rule_1(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_2a(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_2c(line, i, ags_errors=ags_errors)
@@ -564,5 +568,27 @@ def check_file(input_file, output_file=None):
             ags_errors = check.rule_5(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_6(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_19(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_19a(line, i, group=group, ags_errors=ags_errors)
+            ags_errors = check.rule_19b(line, i, group=group, ags_errors=ags_errors)
+
+    # Group Checks
+    try:
+        # Import tables and headings from input file
+        tables, headings = AGS4_to_dataframe(input_file)
+
+        ags_errors = check.rule_2(tables, headings, ags_errors=ags_errors)
+        ags_errors = check.rule_2b(tables, headings, ags_errors=ags_errors)
+
+    except:
+        rprint('[red]  ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
+        return ags_errors
+
+    # Dictionary Based Checks
+
+    # Combine dictionary file in input file with the standard dictionary to carry out checks
+    master_DICT = check.combine_DICT_tables([standard_AGS4_dictionary, input_file])
+
+    ags_errors = check.rule_7(headings, master_DICT, ags_errors=ags_errors)
+    ags_errors = check.rule_9(headings, master_DICT, ags_errors=ags_errors)
 
     return ags_errors
