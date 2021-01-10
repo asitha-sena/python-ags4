@@ -177,10 +177,10 @@ def rule_4b(line, line_number=0, group='', headings=[], ags_errors={}):
             try:
 
                 if not any([(d['group'] == group) and (d['desc'] == 'Headings row missing.') for d in ags_errors['Rule 4b']]):
-                    add_error_msg(ags_errors, 'Rule 4b', float('NaN'), group, 'Headings row missing.')
+                    add_error_msg(ags_errors, 'Rule 4b', '-', group, 'Headings row missing.')
 
             except KeyError:
-                add_error_msg(ags_errors, 'Rule 4b', float('NaN'), group, 'Headings row missing.')
+                add_error_msg(ags_errors, 'Rule 4b', '-', group, 'Headings row missing.')
 
         elif len(temp) != len(headings):
             add_error_msg(ags_errors, 'Rule 4b', line_number, group, 'Number of fields does not match the HEADING row.')
@@ -298,7 +298,7 @@ def rule_2(tables, headings, ags_errors={}):
         # NOTE: .tolist() used instead of .values to avoid "FutureWarning: elementwise comparison failed."
         #       ref: https://stackoverflow.com/questions/40659212/futurewarning-elementwise-comparison-failed-returning-scalar-but-in-the-futur
         if 'DATA' not in tables[key]['HEADING'].tolist():
-            add_error_msg(ags_errors, 'Rule 2', float('NaN'), key, 'No DATA rows in group.')
+            add_error_msg(ags_errors, 'Rule 2', '-', key, 'No DATA rows in group.')
 
     return ags_errors
 
@@ -315,19 +315,19 @@ def rule_2b(tables, headings, ags_errors={}):
         # NOTE: .tolist() used instead of .values to avoid "FutureWarning: elementwise comparison failed."
         #       ref: https://stackoverflow.com/questions/40659212/futurewarning-elementwise-comparison-failed-returning-scalar-but-in-the-futur
         if 'UNIT' not in tables[key]['HEADING'].tolist():
-            add_error_msg(ags_errors, 'Rule 2b', float('NaN'), key, 'UNIT row missing from group.')
+            add_error_msg(ags_errors, 'Rule 2b', '-', key, 'UNIT row missing from group.')
 
         # Check if the UNIT row is in the correct location within the table
         elif tables[key].loc[0, 'HEADING'] != 'UNIT':
-            add_error_msg(ags_errors, 'Rule 2b', float('NaN'), key, 'UNIT row is misplaced. It should be immediately below the HEADING row.')
+            add_error_msg(ags_errors, 'Rule 2b', '-', key, 'UNIT row is misplaced. It should be immediately below the HEADING row.')
 
         # Check if there is a TYPE row in the table
         if 'TYPE' not in tables[key]['HEADING'].tolist():
-            add_error_msg(ags_errors, 'Rule 2b', float('NaN'), key, 'TYPE row missing from group.')
+            add_error_msg(ags_errors, 'Rule 2b', '-', key, 'TYPE row missing from group.')
 
         # Check if the UNIT row is in the correct location within the table
         elif tables[key].loc[1, 'HEADING'] != 'TYPE':
-            add_error_msg(ags_errors, 'Rule 2b', float('NaN'), key, 'TYPE row is misplaced. It should be immediately below the UNIT row.')
+            add_error_msg(ags_errors, 'Rule 2b', '-', key, 'TYPE row is misplaced. It should be immediately below the UNIT row.')
 
     return ags_errors
 
@@ -355,7 +355,7 @@ def rule_7(headings, dictionary, ags_errors={}):
             # Finally compare the two lists. They will be identical only if all element are in the same order
             if not temp == headings[key][1:]:
                 msg = f'HEADING names in {key} are not in the order that they are defined in the DICT table and the standard dictionary.'
-                add_error_msg(ags_errors, 'Rule 7', float('NaN'), key, msg)
+                add_error_msg(ags_errors, 'Rule 7', '-', key, msg)
 
         else:
             pass
@@ -373,6 +373,35 @@ def rule_9(headings, dictionary, ags_errors={}):
             mask = dictionary.DICT_GRP == key
 
             if item not in dictionary.loc[mask, 'DICT_HDNG'].tolist():
-                add_error_msg(ags_errors, 'Rule 9', float('NaN'), key, f'{item} not found in DICT table or the provided standard AGS4 dictionary.')
+                add_error_msg(ags_errors, 'Rule 9', '-', key, f'{item} not found in DICT table or the provided standard AGS4 dictionary.')
+
+    return ags_errors
+
+
+def rule_10a(tables, headings, dictionary, ags_errors={}):
+    '''AGS4 Rule 10a: KEY fields in a GROUP must be present (even if null). There should not be any dupliate KEY field combinations.
+    '''
+
+    for group in tables:
+        # Extract KEY fields from dictionary
+        mask = (dictionary.DICT_GRP == group) & (dictionary.DICT_STAT.str.contains('key', case=False))
+        key_fields = dictionary.loc[mask, 'DICT_HDNG'].tolist()
+
+        # Check for missing KEY fields
+        for heading in key_fields:
+            if heading not in headings[group]:
+                add_error_msg(ags_errors, 'Rule 10a', '-', group, f'Key field {heading} not found.')
+
+        # Check for duplicate KEY field combinations if all KEY fields are present
+        if set(key_fields).issubset(set(headings[group])):
+            #'HEADING' column has to added explicity as it is not in the key field list
+            key_fields = ['HEADING'] + key_fields
+
+            mask = tables[group].duplicated(key_fields, keep=False)
+            duplicate_rows = tables[group].loc[mask, :]
+
+            for i, row in duplicate_rows.iterrows():
+                duplicate_key_combo = '|'.join(row[key_fields].tolist())
+                add_error_msg(ags_errors, 'Rule 10a', '-', group, f'Duplicate key field combination: {duplicate_key_combo}')
 
     return ags_errors
