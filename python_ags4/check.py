@@ -447,7 +447,6 @@ def rule_10c(tables, headings, dictionary, ags_errors={}):
     '''
 
     for group in tables:
-       
         # Find parent group name
         if group not in ['PROJ', 'TRAN', 'ABBR', 'DICT', 'UNIT', 'TYPE', 'LOCA']:
 
@@ -467,13 +466,21 @@ def rule_10c(tables, headings, dictionary, ags_errors={}):
 
                     child_df = tables[group].copy()
 
-                    # Merge parent and child tables using parent key fields and find entries that not in the
-                    # parent table
-                    orphan_rows = child_df.merge(parent_df, how='left', on=parent_key_fields, indicator=True).query('''_merge=="left_only"''')
+                    # Check that both child and parent groups have the parent key fields. Otherwise an IndexError will occur
+                    # when merge operation is attempted
+                    if set(parent_key_fields).issubset(set(headings[group])) and set(parent_key_fields).issubset(headings[parent_group]):
+                        # Merge parent and child tables using parent key fields and find entries that not in the
+                        # parent table
+                        orphan_rows = child_df.merge(parent_df, how='left', on=parent_key_fields, indicator=True).query('''_merge=="left_only"''')
 
-                    for i, row in orphan_rows.iterrows():
-                        msg = '|'.join(row[parent_key_fields].tolist())
-                        add_error_msg(ags_errors, 'Rule 10a', '-', group, f'Orphan row: {msg}')
+                        for i, row in orphan_rows.iterrows():
+                            msg = '|'.join(row[parent_key_fields].tolist())
+                            add_error_msg(ags_errors, 'Rule 10a', '-', group, f'Orphan row: {msg}')
+
+                    else:
+                        msg = f'Could not check parent entries due to missing key fields in {group} or {parent_group}. Check error log under Rule 10a.'
+                        add_error_msg(ags_errors, 'Rule 10c', '-', group, msg)
+                        # Missing key fields in child and/or parent groups. Rule 10a should catch this error.
 
             except IndexError:
                 add_error_msg(ags_errors, 'Rule 10c', '-', group, 'Could not check parent entries since group definitions not found in standard dictionary or DICT table.')
