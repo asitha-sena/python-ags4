@@ -57,6 +57,8 @@ def combine_DICT_tables(input_files):
     Only 'HEADING','DICT_TYPE','DICT_GRP','DICT_HDNG' columns will be considered
     to determine duplicate rows. Precedence will be given to files in the order in
     which they appear in the input_files list.
+    IMPORTANT: The standard AGS4 dictionary has to be the first entry in order for
+    order of headings (Rule 7) to checked correctly.
 
     Parameters
     ----------
@@ -358,7 +360,8 @@ def rule_7(headings, dictionary, ags_errors={}):
                 add_error_msg(ags_errors, 'Rule 7', '-', key, msg)
 
         else:
-            pass
+            msg = 'Order of headings could not be checked as one or more fields were not found in either the DICT table or the standard dictionary. Check error log under Rule 9.'
+            add_error_msg(ags_errors, 'Rule 7', '-', key, msg)
 
     return ags_errors
 
@@ -369,10 +372,12 @@ def rule_9(headings, dictionary, ags_errors={}):
     '''
 
     for key in headings:
-        for item in headings[key][1:]:
-            mask = dictionary.DICT_GRP == key
+        # Extract list of headings defined for the group in the dictionaries
+        mask = dictionary.DICT_GRP == key
+        reference_headings_list = dictionary.loc[mask, 'DICT_HDNG'].tolist()
 
-            if item not in dictionary.loc[mask, 'DICT_HDNG'].tolist():
+        for item in headings[key][1:]:
+            if item not in reference_headings_list:
                 add_error_msg(ags_errors, 'Rule 9', '-', key, f'{item} not found in DICT table or the provided standard AGS4 dictionary.')
 
     return ags_errors
