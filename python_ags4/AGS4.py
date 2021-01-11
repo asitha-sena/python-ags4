@@ -578,6 +578,10 @@ def check_file(input_file, output_file=None, standard_AGS4_dictionary=None):
 
         ags_errors = check.rule_2(tables, headings, ags_errors=ags_errors)
         ags_errors = check.rule_2b(tables, headings, ags_errors=ags_errors)
+        ags_errors = check.rule_12(tables, headings, ags_errors=ags_errors)
+        ags_errors = check.rule_13(tables, headings, ags_errors=ags_errors)
+        ags_errors = check.rule_14(tables, headings, ags_errors=ags_errors)
+        ags_errors = check.rule_15(tables, headings, ags_errors=ags_errors)
 
     except:
         rprint('[red]  ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')

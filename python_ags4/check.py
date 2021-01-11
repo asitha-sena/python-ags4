@@ -85,8 +85,9 @@ def combine_DICT_tables(input_files):
 
             master_DICT = concat([master_DICT, tables['DICT']])
 
-        except:
-            pass
+        except KeyError:
+            # KeyError if there is no DICT table in an input file
+            rprint(f'[yellow]  WARNING:There is no DICT table in {file}.[/yellow]')
 
     # Check whether master_DICT is empty
     if master_DICT.shape[0] == 0:
@@ -489,5 +490,84 @@ def rule_10c(tables, headings, dictionary, ags_errors={}):
 
             except IndexError:
                 add_error_msg(ags_errors, 'Rule 10c', '-', group, 'Could not check parent entries since group definitions not found in standard dictionary or DICT table.')
+
+    return ags_errors
+
+
+def rule_12(tables, headings, ags_errors={}):
+    '''AGS4 Rule 12: Only REQUIRED fields needs to be filled. Others can be null.
+    '''
+
+    # This is already checked by Rule 10b. No additional checking necessary
+
+    return ags_errors
+
+
+def rule_13(tables, headings, ags_errors={}):
+    '''AGS4 Rule 13: File shall contain a PROJ group with only DATA. All REQUIRED fields in this
+    row should be filled.
+    '''
+
+    if 'PROJ' not in tables.keys():
+        add_error_msg(ags_errors, 'Rule 13', '-', 'PROJ', 'PROJ table not found.')
+
+    elif tables['PROJ'].loc[tables['PROJ']['HEADING'] == 'DATA', :].shape[0] < 1:
+        add_error_msg(ags_errors, 'Rule 13', '-', 'PROJ', 'There should be at least one DATA row in the PROJ table.')
+
+    elif tables['PROJ'].loc[tables['PROJ']['HEADING'] == 'DATA', :].shape[0] > 1:
+        add_error_msg(ags_errors, 'Rule 13', '-', 'PROJ', 'There should not be more than one DATA row in the PROJ table.')
+
+    return ags_errors
+
+
+def rule_14(tables, headings, ags_errors={}):
+    '''AGS4 Rule 14: File shall contain a TRAN group with only DATA. All REQUIRED fields in this
+    row should be filled.
+    '''
+
+    if 'TRAN' not in tables.keys():
+        add_error_msg(ags_errors, 'Rule 14', '-', 'TRAN', 'TRAN table not found.')
+
+    elif tables['TRAN'].loc[tables['TRAN']['HEADING'] == 'DATA', :].shape[0] < 1:
+        add_error_msg(ags_errors, 'Rule 14', '-', 'TRAN', 'There should be at least one DATA row in the TRAN table.')
+
+    elif tables['TRAN'].loc[tables['TRAN']['HEADING'] == 'DATA', :].shape[0] > 1:
+        add_error_msg(ags_errors, 'Rule 14', '-', 'TRAN', 'There should not be more than one DATA row in the TRAN table.')
+
+    return ags_errors
+
+
+def rule_15(tables, headings, ags_errors={}):
+    '''AGS4 Rule 15: The UNIT group shall list all units used in within the data file.
+    '''
+
+    if 'UNIT' not in tables.keys():
+        add_error_msg(ags_errors, 'Rule 15', '-', 'UNIT', 'UNIT table not found.')
+
+    else:
+        # Extract units defined in UNIT table
+        units_defined = set(tables['UNIT'].loc[tables['UNIT']['HEADING'] == 'DATA', 'UNIT_UNIT'].to_list())
+
+        # Extract units that are used in all the tables with a UNIT row
+        units_used = set()
+
+        for group in tables:
+            try:
+                units_used = units_used.union(set(tables[group].loc[tables[group]['HEADING'] == 'UNIT', :].squeeze().to_list()))
+            except AttributeError:
+                # Group does not have UNIT row. Rule 2b should catch this error.
+                pass
+
+    # Remove irrelevant entries
+    if '' in units_used:
+        units_used.remove('')
+
+    if 'UNIT' in units_used:
+        units_used.remove('UNIT')
+
+    # Check whether all units are defined
+    if not units_used.issubset(units_defined):
+        units_undefined = ', '.join(units_used.difference(units_defined))
+        add_error_msg(ags_errors, 'Rule 15', '-', 'UNIT', f'Following units used in filed but not defined in UNIT table: {units_undefined}')
 
     return ags_errors
