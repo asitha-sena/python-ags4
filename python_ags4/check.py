@@ -15,7 +15,8 @@
 #
 # https://github.com/asitha-sena/python-ags4
 
-# Funtion to help store errors
+
+# Helper functions
 
 def add_error_msg(ags_errors, rule, line, group, desc):
     '''Store AGS4 error in a dictionary.
@@ -379,7 +380,7 @@ def rule_9(headings, dictionary, ags_errors={}):
 
         for item in headings[key][1:]:
             if item not in reference_headings_list:
-                add_error_msg(ags_errors, 'Rule 9', '-', key, f'{item} not found in DICT table or the provided standard AGS4 dictionary.')
+                add_error_msg(ags_errors, 'Rule 9', '-', key, f'{item} not found in DICT table or the standard AGS4 dictionary.')
 
     return ags_errors
 
@@ -481,7 +482,7 @@ def rule_10c(tables, headings, dictionary, ags_errors={}):
 
                         for i, row in orphan_rows.iterrows():
                             msg = '|'.join(row[parent_key_fields].tolist())
-                            add_error_msg(ags_errors, 'Rule 10a', '-', group, f'Orphan row: {msg}')
+                            add_error_msg(ags_errors, 'Rule 10a', '-', group, f'Parent entry for line not found in {parent_group}: {msg}')
 
                     else:
                         msg = f'Could not check parent entries due to missing key fields in {group} or {parent_group}. Check error log under Rule 10a.'
@@ -490,6 +491,9 @@ def rule_10c(tables, headings, dictionary, ags_errors={}):
 
             except IndexError:
                 add_error_msg(ags_errors, 'Rule 10c', '-', group, 'Could not check parent entries since group definitions not found in standard dictionary or DICT table.')
+
+            except KeyError:
+                add_error_msg(ags_errors, 'Rule 10c', '-', group, f'Could not find parent group {parent_group}.')
 
     return ags_errors
 
@@ -541,33 +545,158 @@ def rule_15(tables, headings, ags_errors={}):
     '''AGS4 Rule 15: The UNIT group shall list all units used in within the data file.
     '''
 
-    if 'UNIT' not in tables.keys():
-        add_error_msg(ags_errors, 'Rule 15', '-', 'UNIT', 'UNIT table not found.')
+    try:
+        # Load UNIT group
+        UNIT = tables['UNIT'].copy()
 
-    else:
-        # Extract units defined in UNIT table
-        units_defined = set(tables['UNIT'].loc[tables['UNIT']['HEADING'] == 'DATA', 'UNIT_UNIT'].to_list())
-
-        # Extract units that are used in all the tables with a UNIT row
-        units_used = set()
+        unit_list = []
 
         for group in tables:
+            # First make copy of group to avoid potential changes and side-effects
+            df = tables[group].copy()
+
+            unit_list += tables[group].loc[tables[group]['HEADING']=='UNIT', :].values.flatten().tolist()
+
+        try:
+            # Check whether entries in the type_list are defined in the UNIT table
+            for entry in set(unit_list):
+                if entry not in UNIT.loc[UNIT['HEADING']=='DATA', 'UNIT_UNIT'].to_list() and entry not in ['', 'UNIT']:
+                    add_error_msg(ags_errors, 'Rule 15', '-', '-', f'Unit "{entry}" not found in UNIT table.')
+
+        except KeyError:
+            # TYPE_TYPE column missing. Rule 10a and 10b should catch this error
+            pass
+
+
+    except KeyError:
+        add_error_msg(ags_errors, 'Rule 15', '-', 'UNIT', 'UNIT table not found.')
+
+    return ags_errors
+
+
+def rule_16(tables, headings, dictionary, ags_errors={}):
+    '''AGS4 Rule 16: Data file shall contain an ABBR group with definitions for all abbreviations used in the file.
+    '''
+
+    try:
+        # Load ABBR group
+        ABBR = tables['ABBR'].copy()
+
+        for group in tables:
+            # First make copy of group to avoid potential changes and side-effects
+            df = tables[group].copy()
+
+            for heading in headings[group]:
+                # Check whether column is of data type PA
+                if df.loc[df['HEADING']=='TYPE', heading].values[0] == 'PA':
+                    # Convert entries in column to a set to drop duplicates
+                    entries = set(df.loc[df['HEADING']=='DATA', heading].to_list())
+
+                    try:
+                        # Extract concatenated entries (if they exist) using TRAN_RCON (it it exists)
+                        concatenator = tables['TRAN'].loc[tables['TRAN']['HEADING']=='DATA', 'TRAN_RCON'].values[0]
+                        entries = [entry.split(concatenator) for entry in entries]
+
+                        # The split operation will result in a list of lists that has to be flattened
+                        entries = [item for sublist in entries for item in sublist]
+
+                    except KeyError:
+                        # KeyError will be raised if TRAN or TRAN_RCON does not exist
+                        pass
+
+                    try:
+                        # Check whether entries in the column is defined in the ABBR table
+                        for entry in entries:
+                            if entry not in ABBR.loc[ABBR['ABBR_HDNG']==heading, 'ABBR_CODE'].to_list() and entry not in ['']:
+                                add_error_msg(ags_errors, 'Rule 16', '-', group, f'"{entry}" under {heading} in {group} not found in ABBR table.')
+
+                    except KeyError:
+                        # ABBR_HDNG and/or ABBR_CODE column missing. Rule 10a and 10b should catch this error.
+                        pass
+
+    except KeyError:
+        # ABBR table is not required if no columns of data type PA are found
+        for group in tables:
+            # First make copy of group to avoid potential changes and side-effects
+            df = tables[group].copy()
+
+            for heading in headings[group]:
+                # Check whether column is of data type PA
+                if df.loc[df['HEADING']=='TYPE', heading].values[0] == 'PA':
+                    add_error_msg(ags_errors, 'Rule 16', '-', 'ABBR', f'ABBR table not found.')
+
+                    # Break out of function as soon as first column of data type PA is found to
+                    # avoid duplicate error entries
+                    return ags_errors
+
+    return ags_errors
+
+
+def rule_17(tables, headings, dictionary, ags_errors={}):
+    '''AGS4 Rule 17: Data file shall contain a TYPE group with definitions for all data types used in the file.
+    '''
+
+    try:
+        # Load TYPE group
+        TYPE = tables['TYPE'].copy()
+
+        type_list = []
+
+        for group in tables:
+            # First make copy of group to avoid potential changes and side-effects
+            df = tables[group].copy()
+
+            type_list += tables[group].loc[tables[group]['HEADING']=='TYPE', :].values.flatten().tolist()
+
+        try:
+            # Check whether entries in the type_list are defined in the TYPE table
+            for entry in set(type_list):
+                if entry not in TYPE.loc[TYPE['HEADING']=='DATA', 'TYPE_TYPE'].to_list() and entry not in ['TYPE']:
+                    add_error_msg(ags_errors, 'Rule 17', '-', '-', f'Data type "{entry}" not found in TYPE table.')
+
+        except KeyError:
+            # TYPE_TYPE column missing. Rule 10a and 10b should catch this error
+            pass
+
+
+    except KeyError:
+        add_error_msg(ags_errors, 'Rule 17', '-', 'TYPE', 'TYPE table not found.')
+
+    return ags_errors
+
+
+def rule_18(tables, headings, ags_errors={}):
+    '''AGS4 Rule 18: Data file shall contain a DICT group with definitions for all non-standard headings in the file.
+
+    Note: Check is based on rule_9(). The 'ags_errors' input should be the output from rule_9() in order for this to work.
+    '''
+
+    if 'DICT' not in tables.keys() and 'Rule 9' in ags_errors.keys():
+        # If Rule 9 has been violated that means a non-standard has been found
+        msg = 'DICT table not found. See error log under Rule 9 for a list of non-standard headings that need to be defined in a DICT table.'
+        add_error_msg(ags_errors, 'Rule 18', '-', 'DICT', f'{msg}')
+
+    return ags_errors
+
+
+def rule_19c(tables, headings, dictionary, ags_errors={}):
+    '''AGS4 Rule 19b: HEADING names shall start with the group name followed by an underscore character.
+    Where a HEADING referes to an existing HEADING within another GROUP, it shall bear the same name.
+    '''
+
+    for key in headings:
+
+        for heading in headings[key][1:]:
+
             try:
-                units_used = units_used.union(set(tables[group].loc[tables[group]['HEADING'] == 'UNIT', :].squeeze().to_list()))
-            except AttributeError:
-                # Group does not have UNIT row. Rule 2b should catch this error.
+                temp = heading.split('_')
+
+                if (temp[0] != key) and heading not in dictionary.DICT_HDNG.to_list():
+                    msg = f'{heading} does not start with the name of this group, nor is it defined in another group.'
+                    add_error_msg(ags_errors, 'Rule 19b', '-', key, msg)
+
+            except IndexError:
+                # Heading does not have an underscore in it. Rule 19b should catch this error.
                 pass
-
-    # Remove irrelevant entries
-    if '' in units_used:
-        units_used.remove('')
-
-    if 'UNIT' in units_used:
-        units_used.remove('UNIT')
-
-    # Check whether all units are defined
-    if not units_used.issubset(units_defined):
-        units_undefined = ', '.join(units_used.difference(units_defined))
-        add_error_msg(ags_errors, 'Rule 15', '-', 'UNIT', f'Following units used in filed but not defined in UNIT table: {units_undefined}')
 
     return ags_errors

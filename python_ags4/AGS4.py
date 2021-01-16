@@ -571,31 +571,39 @@ def check_file(input_file, output_file=None, standard_AGS4_dictionary=None):
             ags_errors = check.rule_19a(line, i, group=group, ags_errors=ags_errors)
             ags_errors = check.rule_19b(line, i, group=group, ags_errors=ags_errors)
 
-    # Group Checks
-    try:
-        # Import tables and headings from input file
-        tables, headings = AGS4_to_dataframe(input_file)
 
-        ags_errors = check.rule_2(tables, headings, ags_errors=ags_errors)
-        ags_errors = check.rule_2b(tables, headings, ags_errors=ags_errors)
-        ags_errors = check.rule_12(tables, headings, ags_errors=ags_errors)
-        ags_errors = check.rule_13(tables, headings, ags_errors=ags_errors)
-        ags_errors = check.rule_14(tables, headings, ags_errors=ags_errors)
-        ags_errors = check.rule_15(tables, headings, ags_errors=ags_errors)
+    # Import file into Pandas DataFrame to run group checks
+    try:
+        tables, headings = AGS4_to_dataframe(input_file)
 
     except:
         rprint('[red]  ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
         return ags_errors
 
+
+    # Group Checks
+    ags_errors = check.rule_2(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_2b(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_12(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_13(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_14(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_15(tables, headings, ags_errors=ags_errors)
+
+
     # Dictionary Based Checks
 
     # Combine dictionary file in input file with the standard dictionary to carry out checks
-    master_DICT = check.combine_DICT_tables([standard_AGS4_dictionary, input_file])
+    dictionary = check.combine_DICT_tables([standard_AGS4_dictionary, input_file])
 
-    ags_errors = check.rule_7(headings, master_DICT, ags_errors=ags_errors)
-    ags_errors = check.rule_9(headings, master_DICT, ags_errors=ags_errors)
-    ags_errors = check.rule_10a(tables, headings, master_DICT, ags_errors=ags_errors)
-    ags_errors = check.rule_10b(tables, headings, master_DICT, ags_errors=ags_errors)
-    ags_errors = check.rule_10c(tables, headings, master_DICT, ags_errors=ags_errors)
+    ags_errors = check.rule_7(headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_9(headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_10a(tables, headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_10b(tables, headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_10c(tables, headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_16(tables, headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_17(tables, headings, dictionary, ags_errors=ags_errors)
+    # Note: rule_18() has to be called after rule_9() as it relies on rule_9() to flag non-standard headings.
+    ags_errors = check.rule_18(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_19c(tables, headings, dictionary, ags_errors=ags_errors)
 
     return ags_errors
