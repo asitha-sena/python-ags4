@@ -15,7 +15,7 @@ path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'St
 
 @click.group()
 def main():
-    '''A tool to read and write AGS4 files.
+    '''A tool to read, write, and check AGS4 files.
     '''
     pass
 
@@ -91,7 +91,7 @@ def convert(input_file, output_file, format_columns, dictionary):
 def check(input_file, dictionary, output_file):
     '''Check .ags file for error based AGS4 rules.
 
-    INPUT_FILE   Path to .ags to be checked
+    INPUT_FILE   Path to .ags file to be checked
     '''
 
     if input_file.endswith('.ags'):
@@ -149,16 +149,16 @@ def print_to_screen(ags_errors):
 def save_to_file(output_file, ags_errors, input_file, error_count):
     '''Save error report to file.'''
 
-    with open(output_file, 'w') as f:
-        f.write(f'Input file: {input_file}\r\n')
-        f.write(f'{error_count} errors found!\r\n')
-        f.write('\r\n')
+    with open(output_file, 'w', newline='', encoding='utf-8') as f:
+        f.write(f'Input file: {input_file}\n')
+        f.write(f'{error_count} errors found!\n')
+        f.write('\n')
 
         for key in ags_errors:
-            f.write(f'{key}:\r\n')
+            f.write(f'{key}:\n')
             for entry in ags_errors[key]:
-                f.write(f'''  Line {entry['line']}\t {entry['group'].strip('"')}\t {entry['desc']}\r\n''')
-            f.write('\r\n')
+                f.write(f'''  Line {entry['line']}\t {entry['group'].strip('"')}\t {entry['desc']}\n''')
+            f.write('\n')
 
 
 if __name__ == '__main__':
