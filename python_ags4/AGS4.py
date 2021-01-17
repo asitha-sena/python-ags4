@@ -25,18 +25,19 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
     'AGS4_to_dataframe' uses this funtion to load AGS4 data in to Pandas
     dataframes.
 
-    Input:
-    -----
-    filepath   - Path to AGS4 file
+    Parameters
+    ----------
+    filepath : str
+        Path to AGS4 file
 
-    Output:
-    ------
-    data       - Python dictionary populated with data from the AGS4 file
-                    with AGS4 headers as keys
-    headings   - Dictionary with the headings in the each GROUP
-                 (This will be needed to recall the correct column order when
-                 writing pandas dataframes back to AGS4 files.
-                 i.e. input for 'dataframe_to_AGS4()' function)
+    Returns
+    -------
+    data : dict
+        Python dictionary populated with data from the AGS4 file with AGS4 headers as keys
+    headings : dict
+        Dictionary with the headings in the each GROUP (This will be needed to
+        recall the correct column order when writing pandas dataframes back to AGS4
+        files. i.e. input for 'dataframe_to_AGS4()' function)
     """
 
     from rich import print as rprint
@@ -123,19 +124,19 @@ def AGS4_to_dataframe(filepath, encoding='utf-8'):
     a Python dictionary of dataframes with the name of each AGS4 table (i.e.
     GROUP) as the primary key.
 
-    Input:
-    -----
-    filepath    - Path to AGS4 file
+    Parameters
+    ----------
+    filepath : str
+        Path to AGS4 file
 
-    Output:
-    ------
-    data        - Python dictionary populated with Pandas dataframes. Each
-                  GROUP in the AGS4 files is assigned to its a dataframe.
-    headings    -  Dictionary with the headings in the each GROUP
-                   (This will be needed to recall the correct column order when
-                   writing pandas dataframes back to AGS4 files.
-                   i.e. input for 'dataframe_to_AGS4()' function)
-
+    Returns
+    -------
+    data : dict
+        Python dictionary populated with Pandas dataframes. Each GROUP in the AGS4 files is assigned to its a dataframe.
+    headings : dict
+        Dictionary with the headings in the each GROUP (This will be needed to
+        recall the correct column order when writing pandas dataframes back to AGS4
+        files. i.e. input for 'dataframe_to_AGS4()' function)
     """
 
     from pandas import DataFrame
@@ -154,13 +155,15 @@ def AGS4_to_dataframe(filepath, encoding='utf-8'):
 def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
     """Load all the tables in a AGS4 file to an Excel spreasheet.
 
-    Input:
-    -----
-    input_file    - Path to AGS4 file
-    output_file   - Path to Excel file
+    Parameters
+    ----------
+    input_file : str
+        Path to AGS4 file
+    output_file : str
+        Path to Excel file
 
-    Output:
-    ------
+    Returns
+    -------
     Excel file populated with data from the input AGS4 file.
     """
 
@@ -198,22 +201,25 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
     """Write Pandas dataframes that have been extracted using
     'AGS4_to_dataframe()' function back to an AGS4 file.
 
-    Input:
-    -----
-    data        - Dictionary of Pandas dataframes (output from
-                    'AGS4_to_dataframe()')
-    headings -    Dictionary of lists containing AGS4 headings in the correct order
-                  (e.g. output from 'AGS4_to_dataframe()')
-                  Columns can be dropped as well from the exported file using
-                  this option. An empty dictionary {} can be passed to export
-                  data without explicitly ensuring column order.
-    filepath    - Path to output file
-    mode        - Option to write ('w') or append ('a') data ('w' by default)
-    index       - Include the index column when writing to file. (False by default)
-                  WARNING: The output will not be a valid AGS4 file if set to True.
+    Parameters
+    ----------
+    data : dict
+        Dictionary of Pandas dataframes (output from 'AGS4_to_dataframe()')
+    headings : dict
+        Dictionary of lists containing AGS4 headings in the correct order (e.g.
+        output from 'AGS4_to_dataframe()') Columns can be dropped as well from
+        the exported file using this option. An empty dictionary {} can be
+        passed to export data without explicitly ensuring column order.
+    filepath : str
+        Path to output file
+    mode : str, optional
+        Option to write ('w') or append ('a') data ('w' by default)
+    index : bool, optional
+        Include the index column when writing to file. (False by default)
+        WARNING: The output will not be a valid AGS4 file if set to True.
 
-    Output:
-    ------
+    Returns
+    -------
     AGS4 file with data in the dictionary of dataframes that is input.
     """
 
@@ -248,19 +254,21 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
 def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictionary=None):
     """Export AGS4 data in Excel file to .ags file.
 
-    Input:
-    -----
-    input_file    - Path to Excel file
-                    (Note: Each GROUP should be in a separate worksheet.
-                     e.g. output from AGS4.AGS4_to_excel)
-    output_file   - Path to AGS4 file
-    reformat_numeric_columns - Format numeric columns to match specified
-                               TYPE
-    dictionary    - Filepath to dictionary if the UNIT and TYPE data in
-                    tables need to be overridden.
+    Parameters
+    ----------
+    input_file : str
+        Path to Excel file (Note: Each GROUP should be in a separate worksheet.
+        e.g. output from AGS4.AGS4_to_excel)
+    output_file : str
+        Path to AGS4 file
+    reformat_numeric_columns : bool, optional
+        Format numeric columns to match specified TYPE
+    dictionary : str
+        Filepath to dictionary if the UNIT and TYPE data in tables need to be
+        overridden.
 
-    Output:
-    ------
+    Returns
+    -------
     AGS4 file with data from the input Excel file.
     """
 
@@ -308,13 +316,13 @@ def convert_to_numeric(dataframe):
     5DP, and MC into numerical data. This allows the data to be plotted and
     used in calculations/formulas.
 
-    Input:
-    -----
-    dataframe    - Pandas DataFrame outputted by AGS4.AGS4_to_dataframe()
-                   function
+    Parameters
+    ----------
+    dataframe : Pandas DataFrame
+        Pandas DataFrame outputted by AGS4.AGS4_to_dataframe() function
 
-    Output:
-    ------
+    Returns
+    -------
     A Pandas DataFrame with numerical columns to converted from
     text to numeric datatypes, the TYPE and UNIT rows (i.e. rows 1 and 2)
     removed, and the index reset.
@@ -349,16 +357,20 @@ def convert_to_text(dataframe, dictionary=None):
     """Convert AGS4 DataFrame with numeric columns back to formatted text ready for exporting
     back to a csv file.
 
-    Input:
-    -----
-    dataframe  - Pandas DataFrame with numeric columns. e.g. output from AGS4.convert_to_numeric()
-    dictionary - Path to AGS4 dictionary file from which to get UNIT and TYPE rows and to convert to
-                 numeric fields to required precision. The values from the dictionary will override
-                 those already in the UNIT and TYPE rows in the dataframe.
+    Parameters
+    ----------
+    dataframe : Pandas DataFrame
+        Pandas DataFrame with numeric columns. e.g. output from
+        AGS4.convert_to_numeric()
+    dictionary : str, optional
+        Path to AGS4 dictionary file from which to get UNIT and TYPE rows and to
+        convert to numeric fields to required precision. The values from the
+        dictionary will override those already in the UNIT and TYPE rows in the
+        dataframe.
 
-    Output:
-    ------
-    Pandas DataFrame.
+    Returns
+    -------
+    Pandas DataFrame
 
     e.g.
     >>from python_ags4 import AGS4
@@ -445,15 +457,19 @@ def convert_to_text(dataframe, dictionary=None):
 def format_numeric_column(dataframe, column_name, TYPE):
     '''Format column in dataframe to specified TYPE and convert to string.
 
-    Input:
-    -----
-    dataframe   - Pandas DataFrame with AGS4 data
-    column_name - Name of column to be formatted
-    TYPE        - AGS4 TYPE for specified column
+    Parameters
+    ----------
+    dataframe : Pandas DataFrame
+        Pandas DataFrame with AGS4 data
+    column_name : str
+        Name of column to be formatted
+    TYPE : str
+        AGS4 TYPE for specified column
 
-    Output:
-    ------
-    Pandas DataFrame with formatted data.
+    Returns
+    -------
+    Pandas DataFrame
+        Pandas DataFrame with formatted data.
     '''
 
     from rich import print as rprint
