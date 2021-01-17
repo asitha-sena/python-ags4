@@ -98,8 +98,9 @@ def check(input_file, dictionary, output_file):
         console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
         console.print('')
 
-        with console.status("[bold green]Checking file...") as status:
-            ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary)
+        # TODO: Add status indicator
+        # with console.status("[bold green]Checking file...") as status:
+        ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary)
 
         # Dictionay evaluates to False if empty
         if bool(ags_errors) is False:
