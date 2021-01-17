@@ -539,6 +539,7 @@ def check_file(input_file, output_file=None, standard_AGS4_dictionary=None):
         group = ''
         headings = []
 
+        rprint('[green]  Checking lines...[/green]')
         for i, line in enumerate(f, start=1):
 
             # Track headings to be used with group checks
@@ -574,6 +575,7 @@ def check_file(input_file, output_file=None, standard_AGS4_dictionary=None):
 
     # Import file into Pandas DataFrame to run group checks
     try:
+        rprint('[green]  Loading tables...[/green]')
         tables, headings = AGS4_to_dataframe(input_file)
 
     except:
@@ -582,6 +584,7 @@ def check_file(input_file, output_file=None, standard_AGS4_dictionary=None):
 
 
     # Group Checks
+    rprint('[green]  Checking headings and groups...[/green]')
     ags_errors = check.rule_2(tables, headings, ags_errors=ags_errors)
     ags_errors = check.rule_2b(tables, headings, ags_errors=ags_errors)
     ags_errors = check.rule_12(tables, headings, ags_errors=ags_errors)
@@ -595,6 +598,7 @@ def check_file(input_file, output_file=None, standard_AGS4_dictionary=None):
     # Combine dictionary file in input file with the standard dictionary to carry out checks
     dictionary = check.combine_DICT_tables([standard_AGS4_dictionary, input_file])
 
+    rprint('[green]  Checking file schema...[/green]')
     ags_errors = check.rule_7(headings, dictionary, ags_errors=ags_errors)
     ags_errors = check.rule_9(headings, dictionary, ags_errors=ags_errors)
     ags_errors = check.rule_10a(tables, headings, dictionary, ags_errors=ags_errors)
