@@ -89,7 +89,7 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
 
                         for i, item in enumerate(temp):
                             if item not in item_count:
-                                item_count[item] = {'i':i, 'count':0}
+                                item_count[item] = {'i': i, 'count': 0}
                             else:
                                 item_count[item]['i'] = i
                                 item_count[item]['count'] += 1
@@ -507,3 +507,105 @@ def format_numeric_column(dataframe, column_name, TYPE):
         rprint(f"[yellow]  WARNING: Numeric data in [bold]{col}[/bold] exported without reformatting as it had one or more non-numeric entries.[/yellow]")
 
     return df
+
+
+def check_file(input_file, output_file=None, standard_AGS4_dictionary=None):
+    """This function checks the input AGS4 file for errors.
+
+    Parameters
+    ----------
+    input_file : str
+        Path to AGS4 file (*.ags) to be checked
+    output_file : str, optional
+        Path to file in which to save error list
+    standard_AGS4_dict : str, optional
+        Path to .ags file with standard AGS4 dictionary
+
+    Returns
+    -------
+    dict
+        Dictionary contains AGS4 error in input file.
+    """
+
+    from python_ags4 import check
+    from rich import print as rprint
+
+    ags_errors = {}
+
+    # Line checks
+    with open(input_file, 'r', newline='', encoding='utf-8', errors='replace') as f:
+
+        # Initiate group name and headings list
+        group = ''
+        headings = []
+
+        rprint('[green]  Checking lines...[/green]')
+        for i, line in enumerate(f, start=1):
+
+            # Track headings to be used with group checks
+            if line.strip('"').startswith("GROUP"):
+                # Reset group name and headings list at the beginning each group
+                group = ''
+                headings = []
+
+                try:
+                    group = line.rstrip().split('","')[1]
+
+                except IndexError:
+                    # GROUP name not available (Rule 19 should catch this error)
+                    pass
+
+            elif line.strip('"').startswith("HEADING"):
+                headings = line.rstrip().split('","')
+                headings = [item.strip('"') for item in headings]
+
+            # Call line Checks
+            ags_errors = check.rule_1(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_2a(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_2c(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_3(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_4a(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_4b(line, i, group=group, headings=headings, ags_errors=ags_errors)
+            ags_errors = check.rule_5(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_6(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_19(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_19a(line, i, group=group, ags_errors=ags_errors)
+            ags_errors = check.rule_19b(line, i, group=group, ags_errors=ags_errors)
+
+    # Import file into Pandas DataFrame to run group checks
+    try:
+        rprint('[green]  Loading tables...[/green]')
+        tables, headings = AGS4_to_dataframe(input_file)
+
+    except:
+        # TODO: Add specific errors to except clause to conform to flake8
+        rprint('[red]  ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
+        return ags_errors
+
+    # Group Checks
+    rprint('[green]  Checking headings and groups...[/green]')
+    ags_errors = check.rule_2(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_2b(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_12(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_13(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_14(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_15(tables, headings, ags_errors=ags_errors)
+
+    # Dictionary Based Checks
+
+    # Combine dictionary file in input file with the standard dictionary to carry out checks
+    dictionary = check.combine_DICT_tables([standard_AGS4_dictionary, input_file])
+
+    rprint('[green]  Checking file schema...[/green]')
+    ags_errors = check.rule_7(headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_9(headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_10a(tables, headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_10b(tables, headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_10c(tables, headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_16(tables, headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_17(tables, headings, dictionary, ags_errors=ags_errors)
+    # Note: rule_18() has to be called after rule_9() as it relies on rule_9() to flag non-standard headings.
+    ags_errors = check.rule_18(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_19c(tables, headings, dictionary, ags_errors=ags_errors)
+
+    return ags_errors
