@@ -140,6 +140,9 @@ def check(input_file, dictionary, output_file):
 
 def print_to_screen(ags_errors):
     '''Print error report to screen.'''
+
+    console.print('')
+
     for key in ags_errors:
         console.print(f'''[underline]{key}[/underline]:''')
         for entry in ags_errors[key]:
