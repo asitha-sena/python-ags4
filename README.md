@@ -45,6 +45,16 @@ LOCA_txt = AGS4.convert_to_text(LOCA, 'DICT.ags')
 
 Tables converted to numeric using the ```AGS4.convert_to_numeric()``` function should always be converted back to text before exporting to an AGS4 file. (*Note: The UNIT and TYPE rows will be added back in addition to formatting the numeric columns.*) 
 
+## Command Line Interface ##
+
+A cli tool was added in version 0.2.0. It should be available from the terminal (or on the Anaconda Powershell prompt in Windows) after running ```python pip install python-ags4>=0.2.0```
+
+It does not yet have the full functionality of the library, but it does provide a quick and easy way to convert .ags files to Excel spreadsheets (.xlsx) and back. The data can be easily edited in a spreadsheet and then converted back a .ags file. The TYPE values for numeric columns can be changed in the spreadsheet and the data will be automatically reformatted correctly when converted back to .ags, as long as all values in a column are numbers. Any supposedly numeric columns with text entries will be skipped with a warning message.
+
+*(Note: All data is imported to the spreadsheet as text entries so any column that should be reformatted should be explicitly converted to numbers in Excel.)*
+
+[![asciicast](https://asciinema.org/a/cBS180JoZA3dpEcNsckkX4hW7.png)](https://asciinema.org/a/cBS180JoZA3dpEcNsckkX4hW7)
+
 ## Graphical User Interface using *pandasgui*
 
 The output from `python-ags4` can be directly used with [`pandasgui`](https://github.com/adamerose/pandasgui) to view and edit AGS4 files using an interactive graphical user interface. It also provides funtionality to plot and visualize the data.
@@ -59,8 +69,6 @@ gui = show(**tables)
 <img src="https://github.com/asitha-sena/python-ags4/blob/master/tests/pandasgui_screenshot.PNG" width=800>
 
 Any edits made in the GUI can be saved and exported back to an AGS4 file as follows:
-
-*(Note: The code should be run before closing the GUI window)*
 
 ```python
 updated_tables = gui.get_dataframes()
