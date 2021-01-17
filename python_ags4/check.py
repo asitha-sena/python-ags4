@@ -555,18 +555,17 @@ def rule_15(tables, headings, ags_errors={}):
             # First make copy of group to avoid potential changes and side-effects
             df = tables[group].copy()
 
-            unit_list += tables[group].loc[tables[group]['HEADING']=='UNIT', :].values.flatten().tolist()
+            unit_list += df.loc[df['HEADING'] == 'UNIT', :].values.flatten().tolist()
 
         try:
             # Check whether entries in the type_list are defined in the UNIT table
             for entry in set(unit_list):
-                if entry not in UNIT.loc[UNIT['HEADING']=='DATA', 'UNIT_UNIT'].to_list() and entry not in ['', 'UNIT']:
+                if entry not in UNIT.loc[UNIT['HEADING'] == 'DATA', 'UNIT_UNIT'].to_list() and entry not in ['', 'UNIT']:
                     add_error_msg(ags_errors, 'Rule 15', '-', '-', f'Unit "{entry}" not found in UNIT table.')
 
         except KeyError:
             # TYPE_TYPE column missing. Rule 10a and 10b should catch this error
             pass
-
 
     except KeyError:
         add_error_msg(ags_errors, 'Rule 15', '-', 'UNIT', 'UNIT table not found.')
@@ -588,13 +587,13 @@ def rule_16(tables, headings, dictionary, ags_errors={}):
 
             for heading in headings[group]:
                 # Check whether column is of data type PA
-                if df.loc[df['HEADING']=='TYPE', heading].values[0] == 'PA':
+                if df.loc[df['HEADING'] == 'TYPE', heading].values[0] == 'PA':
                     # Convert entries in column to a set to drop duplicates
-                    entries = set(df.loc[df['HEADING']=='DATA', heading].to_list())
+                    entries = set(df.loc[df['HEADING'] == 'DATA', heading].to_list())
 
                     try:
                         # Extract concatenated entries (if they exist) using TRAN_RCON (it it exists)
-                        concatenator = tables['TRAN'].loc[tables['TRAN']['HEADING']=='DATA', 'TRAN_RCON'].values[0]
+                        concatenator = tables['TRAN'].loc[tables['TRAN']['HEADING'] == 'DATA', 'TRAN_RCON'].values[0]
                         entries = [entry.split(concatenator) for entry in entries]
 
                         # The split operation will result in a list of lists that has to be flattened
@@ -607,7 +606,7 @@ def rule_16(tables, headings, dictionary, ags_errors={}):
                     try:
                         # Check whether entries in the column is defined in the ABBR table
                         for entry in entries:
-                            if entry not in ABBR.loc[ABBR['ABBR_HDNG']==heading, 'ABBR_CODE'].to_list() and entry not in ['']:
+                            if entry not in ABBR.loc[ABBR['ABBR_HDNG'] == heading, 'ABBR_CODE'].to_list() and entry not in ['']:
                                 add_error_msg(ags_errors, 'Rule 16', '-', group, f'"{entry}" under {heading} in {group} not found in ABBR table.')
 
                     except KeyError:
@@ -622,8 +621,8 @@ def rule_16(tables, headings, dictionary, ags_errors={}):
 
             for heading in headings[group]:
                 # Check whether column is of data type PA
-                if df.loc[df['HEADING']=='TYPE', heading].values[0] == 'PA':
-                    add_error_msg(ags_errors, 'Rule 16', '-', 'ABBR', f'ABBR table not found.')
+                if df.loc[df['HEADING'] == 'TYPE', heading].values[0] == 'PA':
+                    add_error_msg(ags_errors, 'Rule 16', '-', 'ABBR', 'ABBR table not found.')
 
                     # Break out of function as soon as first column of data type PA is found to
                     # avoid duplicate error entries
@@ -646,18 +645,17 @@ def rule_17(tables, headings, dictionary, ags_errors={}):
             # First make copy of group to avoid potential changes and side-effects
             df = tables[group].copy()
 
-            type_list += tables[group].loc[tables[group]['HEADING']=='TYPE', :].values.flatten().tolist()
+            type_list += df.loc[tables[group]['HEADING'] == 'TYPE', :].values.flatten().tolist()
 
         try:
             # Check whether entries in the type_list are defined in the TYPE table
             for entry in set(type_list):
-                if entry not in TYPE.loc[TYPE['HEADING']=='DATA', 'TYPE_TYPE'].to_list() and entry not in ['TYPE']:
+                if entry not in TYPE.loc[TYPE['HEADING'] == 'DATA', 'TYPE_TYPE'].to_list() and entry not in ['TYPE']:
                     add_error_msg(ags_errors, 'Rule 17', '-', '-', f'Data type "{entry}" not found in TYPE table.')
 
         except KeyError:
             # TYPE_TYPE column missing. Rule 10a and 10b should catch this error
             pass
-
 
     except KeyError:
         add_error_msg(ags_errors, 'Rule 17', '-', 'TYPE', 'TYPE table not found.')

@@ -572,16 +572,15 @@ def check_file(input_file, output_file=None, standard_AGS4_dictionary=None):
             ags_errors = check.rule_19a(line, i, group=group, ags_errors=ags_errors)
             ags_errors = check.rule_19b(line, i, group=group, ags_errors=ags_errors)
 
-
     # Import file into Pandas DataFrame to run group checks
     try:
         rprint('[green]  Loading tables...[/green]')
         tables, headings = AGS4_to_dataframe(input_file)
 
     except:
+        # TODO: Add specific errors to except clause to conform to flake8
         rprint('[red]  ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
         return ags_errors
-
 
     # Group Checks
     rprint('[green]  Checking headings and groups...[/green]')
@@ -591,7 +590,6 @@ def check_file(input_file, output_file=None, standard_AGS4_dictionary=None):
     ags_errors = check.rule_13(tables, headings, ags_errors=ags_errors)
     ags_errors = check.rule_14(tables, headings, ags_errors=ags_errors)
     ags_errors = check.rule_15(tables, headings, ags_errors=ags_errors)
-
 
     # Dictionary Based Checks
 
