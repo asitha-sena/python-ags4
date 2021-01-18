@@ -53,7 +53,11 @@ It does not yet have the full functionality of the library, but it does provide 
 
 *(Note: All data is imported to the spreadsheet as text entries so any column that should be reformatted should be explicitly converted to numbers in Excel.)*
 
-[![asciicast](https://asciinema.org/a/cBS180JoZA3dpEcNsckkX4hW7.png)](https://asciinema.org/a/cBS180JoZA3dpEcNsckkX4hW7)
+[![asciicast](https://asciinema.org/a/O7zhgGqWlobK8Hiyqrx3NGtaf.svg)](https://asciinema.org/a/O7zhgGqWlobK8Hiyqrx3NGtaf)
+
+A checking tool is available as of version 0.3.0 and it can be used to make sure that the file conforms to the AGS4 rules. The tool has been tested in both bash and Powershell.
+
+[![asciicast](https://asciinema.org/a/OOVN1rtqpvggzt9ZlHAlLBb6M.svg)](https://asciinema.org/a/OOVN1rtqpvggzt9ZlHAlLBb6M)
 
 ## Graphical User Interface using *pandasgui*
 
