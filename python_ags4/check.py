@@ -587,7 +587,7 @@ def rule_16(tables, headings, dictionary, ags_errors={}):
 
             for heading in headings[group]:
                 # Check whether column is of data type PA
-                if df.loc[df['HEADING'] == 'TYPE', heading].values[0] == 'PA':
+                if 'PA' in df.loc[df['HEADING'] == 'TYPE', heading].tolist():
                     # Convert entries in column to a set to drop duplicates
                     entries = set(df.loc[df['HEADING'] == 'DATA', heading].to_list())
 
