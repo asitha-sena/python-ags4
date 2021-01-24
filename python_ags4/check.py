@@ -348,18 +348,16 @@ def rule_7(headings, dictionary, ags_errors={}):
         # Verify that all headings names in the group are defined in the dictionaries
         if set(headings[key][1:]).issubset(set(reference_headings_list)):
 
-            # Make a copy of reference list to modify
-            temp = reference_headings_list.copy()
+            # Make a copy of reference list with only items that have been used
+            temp = [x for x in reference_headings_list if x in headings[key]]
 
-            for item in reference_headings_list:
-                # Drop heading names that are not used in the file
-                if item not in headings[key]:
-                    temp.remove(item)
+            for i, item in enumerate(headings[key][1:]):
+                if item != temp[i]:
 
-            # Finally compare the two lists. They will be identical only if all element are in the same order
-            if not temp == headings[key][1:]:
-                msg = f'HEADING names in {key} are not in the order that they are defined in the DICT table and the standard dictionary.'
-                add_error_msg(ags_errors, 'Rule 7', '-', key, msg)
+                    msg = f'Headings not in order starting from {item}. Expected order: ...{"|".join(temp[i:])}'
+                    add_error_msg(ags_errors, 'Rule 7', '-', key, msg)
+
+                    return ags_errors
 
         else:
             msg = 'Order of headings could not be checked as one or more fields were not found in either the DICT table or the standard dictionary. Check error log under Rule 9.'
