@@ -500,7 +500,12 @@ def format_numeric_column(dataframe, column_name, TYPE):
 
                 from numpy import round, log10
 
-                i = int(TYPE.strip('SF')) - 1 - int(log10(abs(value)))
+                # Avoid log(0) as int(log(0)) will raise an OverflowError
+                if value != 0:
+                    i = int(TYPE.strip('SF')) - 1 - int(log10(abs(value)))
+
+                else:
+                    return f"{value}"
 
                 if i < 0:
                     return f"{round(value, i):.0f}"
