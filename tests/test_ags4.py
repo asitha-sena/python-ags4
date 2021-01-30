@@ -150,7 +150,12 @@ def test_excel_to_AGS4():
 
 def test_check_file():
     error_list = AGS4.check_file('tests/test_data.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
-
     # assert error_list == ['Rule 1\t Line 12:\t Has one or more non-ASCII characters.',
     #                       'Rule 3\t Line 37:\t Consists only of spaces.',
     #                       'Rule 3\t Line 54:\t Does not start with a valid tag (i.e. GROUP, HEADING, TYPE, UNIT, or DATA).']
+
+    # File without any errors
+    error_list = AGS4.check_file('tests/test_files/example1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+    assert error_list == {}
+
+
