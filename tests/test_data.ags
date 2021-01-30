@@ -68,3 +68,10 @@
 "TYPE","ID","2DP","X","PA","ID","X","2DP","2SF","XN","2SF"
 "DATA","Location_1","1.00","1a","Bag","","","1.05","55.1","20.3","34.8"
 "DATA","Location_1","2.00","2a","Bag","","","2.05","155.1","20.3","134.8"
+
+"GROUP","TEST"
+"HEADING","LOCA_ID","TEST_COL"
+"UNIT","","m"
+"TYPE","ID","1SF"
+"DATA","Location_1","1.01"
+"DATA","Location_1","0.0"
