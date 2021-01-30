@@ -102,6 +102,58 @@ def combine_DICT_tables(input_files):
     return master_DICT
 
 
+def fetch_record(record_link, tables):
+    '''Check whether record link points to an existing entry
+
+    Parameters
+    ----------
+    record_link : list
+        AGS4 Record Link (i.e. TYPE = "RL") converterd to an ordered list
+    tables : dict
+        Dictionary of Pandas DataFrames with all AGS4 data in file
+
+    Returns
+    -------
+    DataFrame
+    '''
+
+    from pandas import DataFrame
+    from pandas.errors import MergeError
+
+    try:
+        # Get name(s) of GROUP and KEY fields
+        group = record_link[0]
+        field_names = tables[group].columns.tolist()[1:]
+
+        # Convert record link to dataframe
+        df1 = DataFrame(record_link[1:]).T
+
+        # Assign heading names to columns
+        df1.columns = field_names[0:len(record_link)-1]
+
+        # Use merge operation to check whether record link matches with entry
+        # in the linked tables
+        df2 = df1.merge(tables[group].filter(regex=r'[^HEADING]'), how='left', indicator=True).query(''' _merge=="both" ''')
+
+        return df2.filter(regex=r'[^_merge]')
+
+    except IndexError:
+        # Record link list may be empty
+            return DataFrame()
+
+    except KeyError:
+        # group not in tables
+            return DataFrame()
+
+    except ValueError:
+        # Input record link has more entries than there are columns in the table to which it refers
+            return DataFrame()
+
+    except MergeError:
+        # No common columns on which to perform merge operation
+            return DataFrame()
+
+
 # Line Rules
 
 def rule_1(line, line_number=0, ags_errors={}):
@@ -492,6 +544,74 @@ def rule_10c(tables, headings, dictionary, ags_errors={}):
 
             except KeyError:
                 add_error_msg(ags_errors, 'Rule 10c', '-', group, f'Could not find parent group {parent_group}.')
+
+    return ags_errors
+
+
+def rule_11(tables, headings, dictionary, ags_errors={}):
+    '''AGS4 Rule 11: Data of TYPE "RL" shall be delimited by a single character defined under TRAN_DLIM.
+    '''
+
+    try:
+        # Extract and check TRAN_DLIM and TRAN_RCON
+        TRAN = tables['TRAN'].copy()
+
+        delimiter = TRAN.loc[TRAN.HEADING=='DATA', 'TRAN_DLIM'].values[0]
+        concatenator = TRAN.loc[TRAN.HEADING=='DATA', 'TRAN_RCON'].values[0]
+
+        # Check Rule 11a
+        if delimiter == '':
+            add_error_msg(ags_errors, 'Rule 11a', '-', 'TRAN', 'TRAN_DLIM missing.')
+
+        # Check Rule 11b
+        if concatenator == '':
+            add_error_msg(ags_errors, 'Rule 11b', '-', 'TRAN', 'TRAN_RCON missing.')
+
+        # Check Rule 11c (only if Rule 11a and Rule 11b are satisfied)
+        if 'Rule 11a' in ags_errors or 'Rule 11b' in ags_errors:
+            return ags_errors
+
+        else:
+            ags_errors = rule_11c(tables, dictionary, delimiter, concatenator, ags_errors=ags_errors)
+
+    except KeyError:
+        # TRAN group missing. Rule 14 should catch this error.
+        pass
+
+    except IndexError:
+        # TRAN group has no DATA rows. Rule 14 should catch this error.
+        pass
+
+    return ags_errors
+
+
+def rule_11c(tables, dictionary, delimiter, concatenator, ags_errors={}):
+    '''AGS4 Rule 11c: Data type "RL" can cross-reference to any group in an AGS4 file
+    '''
+
+    # Check for columns of data type RL
+    for group in tables:
+        df = tables[group].copy()
+
+        for col in df:
+            if 'RL' in df.loc[df.HEADING=='TYPE', col].tolist():
+                # Filter out rows with blank RL entries
+                for record_link in df.loc[df.HEADING.eq('DATA') & df[col].str.contains(r'.+', regex=True), col]:
+                    # Return error message if delimiter is not found
+                    if delimiter not in record_link:
+                        add_error_msg(ags_errors, 'Rule 11c', '-', group, f'Invalid record link: "{record_link}". "{delimiter}" should be used as delimiter.')
+                        continue
+
+                    # Convert record link to list and split using concatenator
+                    record_link = record_link.split(concatenator)
+
+                    # Check whether each link refers to a valid record
+                    for item in record_link:
+                        if fetch_record(record_link, tables).shape[0] < 1:
+                            add_error_msg(ags_errors, 'Rule 11c', '-', group, f'Invalid record link: "{item}". No such record found.')
+
+                        elif fetch_record(record_link, tables).shape[0] > 1:
+                            add_error_msg(ags_errors, 'Rule 11c', '-', group, f'Invalid record link: "{item}". Link refers to more than one record.')
 
     return ags_errors
 
