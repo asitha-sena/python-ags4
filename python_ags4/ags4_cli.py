@@ -113,7 +113,7 @@ def check(input_file, dictionary, output_file):
 
         # Dictionay evaluates to False if empty
         if bool(ags_errors) is False:
-            console.print('\n[green]File check complete! No errors found. :heavy_check_mark:[/green]\n')
+            console.print('\n[green]File check complete! No errors found.[/green]\n')
 
         else:
             # Count number of entries in error log
