@@ -679,7 +679,7 @@ def rule_15(tables, headings, ags_errors={}):
             # Check whether entries in the type_list are defined in the UNIT table
             for entry in set(unit_list):
                 if entry not in UNIT.loc[UNIT['HEADING'] == 'DATA', 'UNIT_UNIT'].to_list() and entry not in ['', 'UNIT']:
-                    add_error_msg(ags_errors, 'Rule 15', '-', '-', f'Unit "{entry}" not found in UNIT table.')
+                    add_error_msg(ags_errors, 'Rule 15', '-', 'UNIT', f'Unit "{entry}" not found in UNIT table.')
 
         except KeyError:
             # TYPE_TYPE column missing. Rule 10a and 10b should catch this error
