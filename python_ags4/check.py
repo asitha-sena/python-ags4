@@ -139,19 +139,19 @@ def fetch_record(record_link, tables):
 
     except IndexError:
         # Record link list may be empty
-            return DataFrame()
+        return DataFrame()
 
     except KeyError:
         # group not in tables
-            return DataFrame()
+        return DataFrame()
 
     except ValueError:
         # Input record link has more entries than there are columns in the table to which it refers
-            return DataFrame()
+        return DataFrame()
 
     except MergeError:
         # No common columns on which to perform merge operation
-            return DataFrame()
+        return DataFrame()
 
 
 # Line Rules
@@ -556,8 +556,8 @@ def rule_11(tables, headings, dictionary, ags_errors={}):
         # Extract and check TRAN_DLIM and TRAN_RCON
         TRAN = tables['TRAN'].copy()
 
-        delimiter = TRAN.loc[TRAN.HEADING=='DATA', 'TRAN_DLIM'].values[0]
-        concatenator = TRAN.loc[TRAN.HEADING=='DATA', 'TRAN_RCON'].values[0]
+        delimiter = TRAN.loc[TRAN.HEADING == 'DATA', 'TRAN_DLIM'].values[0]
+        concatenator = TRAN.loc[TRAN.HEADING == 'DATA', 'TRAN_RCON'].values[0]
 
         # Check Rule 11a
         if delimiter == '':
@@ -594,7 +594,7 @@ def rule_11c(tables, dictionary, delimiter, concatenator, ags_errors={}):
         df = tables[group].copy()
 
         for col in df:
-            if 'RL' in df.loc[df.HEADING=='TYPE', col].tolist():
+            if 'RL' in df.loc[df.HEADING == 'TYPE', col].tolist():
                 # Filter out rows with blank RL entries
                 for record_link in df.loc[df.HEADING.eq('DATA') & df[col].str.contains(r'.+', regex=True), col]:
                     # Return error message if delimiter is not found
@@ -607,10 +607,10 @@ def rule_11c(tables, dictionary, delimiter, concatenator, ags_errors={}):
 
                     # Check whether each link refers to a valid record
                     for item in record_link:
-                        if fetch_record(record_link, tables).shape[0] < 1:
+                        if fetch_record(item.split(delimiter), tables).shape[0] < 1:
                             add_error_msg(ags_errors, 'Rule 11c', '-', group, f'Invalid record link: "{item}". No such record found.')
 
-                        elif fetch_record(record_link, tables).shape[0] > 1:
+                        elif fetch_record(item.split(delimiter), tables).shape[0] > 1:
                             add_error_msg(ags_errors, 'Rule 11c', '-', group, f'Invalid record link: "{item}". Link refers to more than one record.')
 
     return ags_errors
