@@ -433,10 +433,10 @@ def rule_10b(tables, headings, dictionary, ags_errors={}):
         for heading in set(required_fields).intersection(set(headings[group])):
 
             # Regex ^\s*$ should catch empty entries as well as entries that contain only whitespace
-            mask = (df['HEADING'] == 'DATA') & df[heading].str.contains('^\s*$', regex=True)
+            mask = (df['HEADING'] == 'DATA') & df[heading].str.contains(r'^\s*$', regex=True)
 
             # Replace missing/blank entries with '???' so that they can be clearly seen in the output
-            df[heading] = df[heading].str.replace('^\s*$', '???', regex=True)
+            df[heading] = df[heading].str.replace(r'^\s*$', '???', regex=True)
             missing_required_fields = df.loc[mask, :]
 
             # Add each row with missing entries to the error log
