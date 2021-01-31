@@ -710,7 +710,7 @@ def rule_16(tables, headings, dictionary, ags_errors={}):
                     entries = set(df.loc[df['HEADING'] == 'DATA', heading].to_list())
 
                     try:
-                        # Extract concatenated entries (if they exist) using TRAN_RCON (it it exists)
+                        # Extract concatenated entries (if they exist) using TRAN_RCON (if it exists)
                         concatenator = tables['TRAN'].loc[tables['TRAN']['HEADING'] == 'DATA', 'TRAN_RCON'].values[0]
                         entries = [entry.split(concatenator) for entry in entries]
 
@@ -718,7 +718,16 @@ def rule_16(tables, headings, dictionary, ags_errors={}):
                         entries = [item for sublist in entries for item in sublist]
 
                     except KeyError:
-                        # KeyError will be raised if TRAN or TRAN_RCON does not exist
+                        # KeyError will be raised if TRAN or TRAN_RCON does not exist. Rule 14 will catch this error.
+                        pass
+
+                    except IndexError:
+                        # IndexError will be raised if no DATA rows in ABBR table. Rule 14 will catch this error.
+                        pass
+
+                    except ValueError:
+                        # ValueError will be raised by entry.split(concatenator) if TRAN_RCON is empty.
+                        # This error should be caught by Rule 11b.
                         pass
 
                     try:
@@ -739,7 +748,7 @@ def rule_16(tables, headings, dictionary, ags_errors={}):
 
             for heading in headings[group]:
                 # Check whether column is of data type PA
-                if df.loc[df['HEADING'] == 'TYPE', heading].values[0] == 'PA':
+                if 'PA' in df.loc[df['HEADING'] == 'TYPE', heading].tolist():
                     add_error_msg(ags_errors, 'Rule 16', '-', 'ABBR', 'ABBR table not found.')
 
                     # Break out of function as soon as first column of data type PA is found to
