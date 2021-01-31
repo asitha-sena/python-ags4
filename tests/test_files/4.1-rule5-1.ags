@@ -2,7 +2,7 @@
 "HEADING","PROJ_ID","PROJ_NAME","PROJ_LOC","PROJ_CLNT","PROJ_CONT","PROJ_ENG","PROJ_MEMO","FILE_FSET"
 "UNIT","","","","","","","",""
 "TYPE","X","X","X","X","X","X","X","X"
-"DATA","121415","ACME Gas Works Redevelopment","Anytown","ACME Enterprises","ACME Drilling Ltd","","",""
+"DATA","121415","ACME "Gas Works" Redevelopment","Anytown","ACME Enterprises","ACME Drilling Ltd","","",""
 
 "GROUP","ABBR"
 "HEADING","ABBR_HDNG","ABBR_CODE","ABBR_DESC","ABBR_LIST","ABBR_REM","FILE_FSET"
@@ -18,7 +18,7 @@
 "HEADING","TRAN_ISNO","TRAN_DATE","TRAN_PROD","TRAN_STAT","TRAN_DESC","TRAN_AGS","TRAN_RECV","TRAN_DLIM","TRAN_RCON","TRAN_REM","FILE_FSET"
 "UNIT","","yyyy-mm-dd","","","","","","","","",""
 "TYPE","X","DT","X","X","X","X","X","X","X","X","X"
-"DATA","1","2021-01-18","ACME Drilling Ltd","Preliminary","Draft Logs only","4.1","ACME Consulting","|","+","this comment does not have "escaped" quotes",""
+"DATA","1","2021-01-18","ACME Drilling Ltd","Preliminary","Draft Logs only","4.1","ACME Consulting","|","+","Line 5,Incorrect number of quotes",""
 
 "GROUP","TYPE"
 "HEADING","TYPE_TYPE","TYPE_DESC","FILE_FSET"
