@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 import click
-from python_ags4 import AGS4
+from python_ags4 import AGS4, __version__
 from rich.console import Console
 import pkg_resources
 import os
+from datetime import datetime
 
 # Create rich console for pretty printing
 console = Console()
@@ -104,6 +105,7 @@ def check(input_file, dictionary, output_file):
     '''
 
     if input_file.endswith('.ags'):
+        console.print(f'[green]Running [bold]python_ags4 v{__version__}[/bold][/green]')
         console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
         console.print('')
 
@@ -163,7 +165,11 @@ def save_to_file(output_file, ags_errors, input_file, error_count):
     '''Save error report to file.'''
 
     with open(output_file, 'w', newline='', encoding='utf-8') as f:
-        f.write(f'Input file: {input_file}\n')
+        f.write(f'File Name:\t{os.path.basename(input_file)}\n')
+        f.write(f'File Size:\t{int(os.path.getsize(input_file)/1024)} kB\n')
+        f.write(f'Checker:\tpython_ags4 v{__version__}\n')
+        f.write(f'Time (UTC):\t{datetime.utcnow()}\n')
+        f.write('\n')
         f.write(f'{error_count} errors found!\n')
         f.write('\n')
 
