@@ -530,16 +530,14 @@ def format_numeric_column(dataframe, column_name, TYPE):
     return df
 
 
-def check_file(input_file, output_file=None, standard_AGS4_dictionary=None):
+def check_file(input_file, standard_AGS4_dictionary):
     """This function checks the input AGS4 file for errors.
 
     Parameters
     ----------
     input_file : str
         Path to AGS4 file (*.ags) to be checked
-    output_file : str, optional
-        Path to file in which to save error list
-    standard_AGS4_dict : str, optional
+    standard_AGS4_dict : str
         Path to .ags file with standard AGS4 dictionary
 
     Returns
