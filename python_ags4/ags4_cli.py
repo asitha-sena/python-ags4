@@ -109,13 +109,15 @@ def check(input_file, dictionary, output_file):
         console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
         console.print('')
 
-        # TODO: Add status indicator
-        # with console.status("[bold green]Checking file...") as status:
         ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary)
 
         # Dictionay evaluates to False if empty
         if bool(ags_errors) is False:
             console.print('\n[green]File check complete! No errors found.[/green]\n')
+
+            if output_file is not None:
+                save_to_file(output_file, ags_errors, input_file, 'No')
+                console.print(f'[green]Report saved in {output_file}[/green]\n')
 
         else:
             # Count number of entries in error log
