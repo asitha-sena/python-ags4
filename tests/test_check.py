@@ -1,5 +1,6 @@
 from python_ags4 import AGS4, __version__
 import pandas as pd
+import os
 
 
 def test_rule_2():
@@ -358,7 +359,7 @@ def test_rule_20_1():
     assert error_list['Rule 20'][0]['group'] == 'LOCA'
     assert error_list['Rule 20'][0]['desc']  == 'FILE_FSET entry "327-16A" not found in FILE table.'
     assert error_list['Rule 20'][1]['group'] == 'FILE'
-    assert error_list['Rule 20'][1]['desc']  == 'Sub-folder named "FILE/327" not found even though it is defined in the FILE table.'
+    assert error_list['Rule 20'][1]['desc']  == f'Sub-folder named "{os.path.join("FILE", "327")}" not found even though it is defined in the FILE table.'
 
 
 def test_rule_20_2():
@@ -366,7 +367,7 @@ def test_rule_20_2():
 
     assert 'Rule 20' in error_list.keys()
     assert error_list['Rule 20'][0]['group'] == 'FILE'
-    assert error_list['Rule 20'][0]['desc']  == 'Sub-folder named "FILE/327" not found even though it is defined in the FILE table.'
+    assert error_list['Rule 20'][0]['desc']  == f'Sub-folder named "{os.path.join("FILE", "327")}" not found even though it is defined in the FILE table.'
 
 
 def test_rule_20_3():
@@ -374,7 +375,7 @@ def test_rule_20_3():
 
     assert 'Rule 20' in error_list.keys()
     assert error_list['Rule 20'][0]['group'] == 'FILE'
-    assert error_list['Rule 20'][0]['desc']  == 'File named "FILE/327-16A/wrong Report.pdf" not found even though it is defined in the FILE table.'
+    assert error_list['Rule 20'][0]['desc']  == f'File named "{os.path.join("FILE", "327-16A", "wrong Report.pdf")}" not found even though it is defined in the FILE table.'
 
 
 def test_rule_20_OK():
