@@ -213,3 +213,171 @@ def test_rule_15_2():
     assert 'Rule 15' in error_list.keys()
     assert error_list['Rule 15'][0]['group'] == 'UNIT'
     assert error_list['Rule 15'][0]['desc']  == 'Unit "%" not found in UNIT table.'
+
+
+def test_rule_16_1():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule16-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 16' in error_list.keys()
+    assert error_list['Rule 16'][0]['group'] == 'SAMP'
+    assert error_list['Rule 16'][0]['desc']  == '"U" under SAMP_TYPE in SAMP not found in ABBR table.'
+    assert error_list['Rule 16'][1]['group'] == 'LLPL'
+    assert error_list['Rule 16'][1]['desc']  == '"U" under SAMP_TYPE in LLPL not found in ABBR table.'
+
+
+def test_rule_16_3():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule16-3.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 16' in error_list.keys()
+    assert error_list['Rule 16'][0]['group'] == 'ABBR'
+    assert error_list['Rule 16'][0]['desc']  == 'ABBR table not found.'
+
+
+def test_rule_16b_2():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule16b-2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 16' in error_list.keys()
+    assert error_list['Rule 16'][0]['group'] == 'LOCA'
+    assert error_list['Rule 16'][0]['desc']  == '"CP" under LOCA_TYPE in LOCA not found in ABBR table.'
+    assert error_list['Rule 16'][1]['group'] == 'LOCA'
+    assert error_list['Rule 16'][1]['desc']  == '"RC" under LOCA_TYPE in LOCA not found in ABBR table.'
+
+
+def test_rule_16b_3():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule16b-3.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 16' in error_list.keys()
+    assert error_list['Rule 16'][0]['group'] == 'LOCA'
+    assert error_list['Rule 16'][0]['desc']  == '"CP " under LOCA_TYPE in LOCA not found in ABBR table.'
+    assert error_list['Rule 16'][1]['group'] == 'LOCA'
+    assert error_list['Rule 16'][1]['desc']  == '" RC" under LOCA_TYPE in LOCA not found in ABBR table.'
+
+
+def test_rule_16b_4():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule16b-4.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 11b' in error_list.keys()
+    assert error_list['Rule 11b'][0]['group'] == 'TRAN'
+    assert error_list['Rule 11b'][0]['desc']  == 'TRAN_RCON missing.'
+
+
+def test_rule_16b_5():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule16b-5.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 11b' in error_list.keys()
+    assert error_list['Rule 11b'][0]['group'] == 'TRAN'
+    assert error_list['Rule 11b'][0]['desc']  == 'TRAN_RCON missing.'
+
+
+def test_rule_17_1():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule17-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 17' in error_list.keys()
+    assert error_list['Rule 17'][0]['group'] == 'TYPE'
+    assert error_list['Rule 17'][0]['desc']  == 'Data type "ID" not found in TYPE table.'
+
+
+def test_rule_17_2():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule17-2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 17' in error_list.keys()
+    assert error_list['Rule 17'][0]['group'] == 'TYPE'
+    assert error_list['Rule 17'][0]['desc']  == 'TYPE table not found.'
+
+
+def test_rule_18_1():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule18-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 9' in error_list.keys()
+    assert error_list['Rule 9'][0]['group'] == 'LOCA'
+    assert error_list['Rule 9'][0]['desc']  == 'LOCA_APPG not found in DICT table or the standard AGS4 dictionary.'
+
+
+def test_rule_18_2():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule18-2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 7' in error_list.keys()
+    assert error_list['Rule 7'][0]['group'] == 'LOCA'
+    assert error_list['Rule 7'][0]['desc']  == 'Headings not in order starting from LOCA_CHKG. Expected order: ...LOCA_APPG|LOCA_CHKG'
+
+
+def test_rule_18_OK():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule18-OK.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 18' not in error_list.keys()
+
+
+def test_rule_19():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule19.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 19' in error_list.keys()
+    assert error_list['Rule 19'][0]['group'] == 'TESTS'
+    assert error_list['Rule 19'][0]['desc']  == 'GROUP name should consist of four uppercase letters.'
+
+
+def test_rule_19_1():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule19-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 19' in error_list.keys()
+    assert error_list['Rule 19'][0]['group'] == 'TST'
+    assert error_list['Rule 19'][0]['desc']  == 'GROUP name should consist of four uppercase letters.'
+    assert error_list['Rule 19b'][0]['group'] == 'TST'
+    assert error_list['Rule 19b'][0]['desc']  == 'Heading TST_DPTH should consist of a 4 character group name and a field name of up to 4 characters.'
+
+
+def test_rule_19_2():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule19-2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 19' in error_list.keys()
+    assert error_list['Rule 19'][0]['group'] == 'test'
+    assert error_list['Rule 19'][0]['desc']  == 'GROUP name should consist of four uppercase letters.'
+    assert error_list['Rule 19a'][0]['group'] == 'test'
+    assert error_list['Rule 19a'][0]['desc']  == 'Heading test_DPTH should consist of only uppercase letters, numbers, and an underscore character.'
+
+
+def test_rule_19a_1():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule19a-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 19a' in error_list.keys()
+    assert error_list['Rule 19a'][0]['group'] == 'TEST'
+    assert error_list['Rule 19a'][0]['desc']  == 'Heading TEST_DEPTH is more than 9 characters in length.'
+
+
+def test_rule_19a_2():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule19a-2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 19a' in error_list.keys()
+    assert error_list['Rule 19a'][0]['group'] == 'TEST'
+    assert error_list['Rule 19a'][0]['desc']  == 'Heading TEST_D-H should consist of only uppercase letters, numbers, and an underscore character.'
+
+
+def test_rule_20_1():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule20-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 20' in error_list.keys()
+    assert error_list['Rule 20'][0]['group'] == 'LOCA'
+    assert error_list['Rule 20'][0]['desc']  == 'FILE_FSET entry "327-16A" not found in FILE table.'
+    assert error_list['Rule 20'][1]['group'] == 'FILE'
+    assert error_list['Rule 20'][1]['desc']  == 'Sub-folder named "FILE/327" not found even though it is defined in the FILE table.'
+
+
+def test_rule_20_2():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule20-2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 20' in error_list.keys()
+    assert error_list['Rule 20'][0]['group'] == 'FILE'
+    assert error_list['Rule 20'][0]['desc']  == 'Sub-folder named "FILE/327" not found even though it is defined in the FILE table.'
+
+
+def test_rule_20_3():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule20-3.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 20' in error_list.keys()
+    assert error_list['Rule 20'][0]['group'] == 'FILE'
+    assert error_list['Rule 20'][0]['desc']  == 'File named "FILE/327-16A/wrong Report.pdf" not found even though it is defined in the FILE table.'
+
+
+def test_rule_20_OK():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule20OK.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 20' not in error_list.keys()
