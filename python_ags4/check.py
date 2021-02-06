@@ -351,7 +351,8 @@ def rule_19b(line, line_number=0, group='', ags_errors={}):
             for item in temp[1:]:
                 try:
                     if (len(item.split('_')[0]) != 4) or (len(item.split('_')[1]) > 4):
-                        add_error_msg(ags_errors, 'Rule 19b', line_number, group, f'Heading {item} should consist of a 4 character group name and a field name of upto 4 characters.')
+                        msg = f'Heading {item} should consist of a 4 character group name and a field name of up to 4 characters.'
+                        add_error_msg(ags_errors, 'Rule 19b', line_number, group, msg)
 
                     # TODO: Check whether heading name is present in the standard AGS4 dictionary or in the DICT group in the input file
 
