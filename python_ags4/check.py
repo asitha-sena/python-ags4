@@ -528,7 +528,7 @@ def rule_10c(tables, headings, dictionary, ags_errors={}):
 
     for group in tables:
         # Find parent group name
-        if group not in ['PROJ', 'TRAN', 'ABBR', 'DICT', 'UNIT', 'TYPE', 'LOCA']:
+        if group not in ['PROJ', 'TRAN', 'ABBR', 'DICT', 'UNIT', 'TYPE', 'LOCA', 'FILE']:
 
             try:
                 mask = (dictionary.DICT_TYPE == 'GROUP') & (dictionary.DICT_GRP == group)
@@ -846,5 +846,71 @@ def rule_19c(tables, headings, dictionary, ags_errors={}):
             except IndexError:
                 # Heading does not have an underscore in it. Rule 19b should catch this error.
                 pass
+
+    return ags_errors
+
+
+def rule_20(tables, headings, filepath, ags_errors={}):
+    '''AGS4 Rule 20: Additional computer files included within a data submission shall be defined in a FILE GROUP.
+    '''
+
+    import os
+
+    try:
+        # Load FILE group
+        FILE = tables['FILE'].copy()
+
+        # Check whether all FILE_FSET entries in the file are defined in the FILE group
+        for group in tables:
+            # First make copy of group to avoid potential changes and side-effects
+            df = tables[group].copy()
+
+            if 'FILE_FSET' in headings[group]:
+                file_list = df.loc[(df.HEADING == 'DATA') & df.FILE_FSET.str.contains(r'[a-zA-Z0-9]', regex=True), 'FILE_FSET'].tolist()
+
+                for entry in set(file_list):
+                    if entry not in FILE.loc[FILE.HEADING == 'DATA', 'FILE_FSET'].tolist():
+                        add_error_msg(ags_errors, 'Rule 20', '-', group, f'FILE_FSET entry "{entry}" not found in FILE table.')
+
+        # Verify that a sub-directory named "FILE" exists in the same directory as the AGS4 file being checked
+        current_dir = os.path.dirname(filepath)
+
+        if not os.path.isdir(os.path.join(current_dir, 'FILE')):
+            msg = f'Folder named "FILE" not found. Files defined in the FILE table should be saved in this folder.'
+            add_error_msg(ags_errors, 'Rule 20', '-', 'FILE', msg)
+
+        # Verify entries in FILE group
+        for file_fset in set(FILE.loc[FILE.HEADING == 'DATA', 'FILE_FSET'].tolist()):
+            file_fset_path = os.path.join(current_dir, 'FILE', file_fset)
+
+            if not os.path.isdir(file_fset_path):
+                msg = f'Sub-folder named "{os.path.join("FILE", file_fset)}" not found even though it is defined in the FILE table.'
+                add_error_msg(ags_errors, 'Rule 20', '-', 'FILE', msg)
+
+            else:
+                # If sub-directory exists, then continue to check files
+                for file_name in set(FILE.loc[FILE.FILE_FSET == file_fset, 'FILE_NAME'].tolist()):
+                    file_name_path = os.path.join(current_dir, 'FILE', file_fset, file_name)
+
+                    if not os.path.isfile(file_name_path):
+                        msg = f'File named "{os.path.join("FILE", file_fset, file_name)}" not found even though it is defined in the FILE table.'
+                        add_error_msg(ags_errors, 'Rule 20', '-', 'FILE', msg)
+
+    except KeyError:
+        # FILE group not found. It is only required if FILE_FSET entries are found in other groups
+
+        for group in tables:
+            # First make copy of group to avoid potential changes and side-effects
+            df = tables[group].copy()
+
+            if 'FILE_FSET' in headings[group]:
+                file_list = df.loc[(df.HEADING == 'DATA') & df.FILE_FSET.str.contains(r'[a-zA-Z0-9]', regex=True), 'FILE_FSET'].tolist()
+
+                if len(file_list) > 0:
+                    add_error_msg(ags_errors, 'Rule 20', '-', 'FILE', f'FILE table not found even though there are FILE_FSET entries in other tables.')
+
+                    # Break out of function as soon as a group with a FILE_FSET entry is found to
+                    # avoid duplicate error entries
+                    return ags_errors
 
     return ags_errors
