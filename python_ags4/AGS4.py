@@ -568,7 +568,7 @@ def check_file(input_file, standard_AGS4_dictionary):
                 headings = []
 
                 try:
-                    group = line.rstrip().split('","')[1]
+                    group = line.rstrip().strip('"').split('","')[1]
 
                 except IndexError:
                     # GROUP name not available (Rule 19 should catch this error)
