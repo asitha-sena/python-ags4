@@ -249,7 +249,7 @@ def rule_5(line, line_number=0, ags_errors={}):
     '''
 
     import re
-   
+
     if not line.isspace():
         if not line.startswith('"') or not line.strip('\r\n').endswith('"'):
             add_error_msg(ags_errors, 'Rule 5', line_number, '', 'Contains fields that are not enclosed in double quotes.')
@@ -876,7 +876,7 @@ def rule_20(tables, headings, filepath, ags_errors={}):
         current_dir = os.path.dirname(filepath)
 
         if not os.path.isdir(os.path.join(current_dir, 'FILE')):
-            msg = f'Folder named "FILE" not found. Files defined in the FILE table should be saved in this folder.'
+            msg = 'Folder named "FILE" not found. Files defined in the FILE table should be saved in this folder.'
             add_error_msg(ags_errors, 'Rule 20', '-', 'FILE', msg)
 
         # Verify entries in FILE group
@@ -907,7 +907,7 @@ def rule_20(tables, headings, filepath, ags_errors={}):
                 file_list = df.loc[(df.HEADING == 'DATA') & df.FILE_FSET.str.contains(r'[a-zA-Z0-9]', regex=True), 'FILE_FSET'].tolist()
 
                 if len(file_list) > 0:
-                    add_error_msg(ags_errors, 'Rule 20', '-', 'FILE', f'FILE table not found even though there are FILE_FSET entries in other tables.')
+                    add_error_msg(ags_errors, 'Rule 20', '-', 'FILE', 'FILE table not found even though there are FILE_FSET entries in other tables.')
 
                     # Break out of function as soon as a group with a FILE_FSET entry is found to
                     # avoid duplicate error entries
