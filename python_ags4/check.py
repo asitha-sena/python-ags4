@@ -248,6 +248,8 @@ def rule_5(line, line_number=0, ags_errors={}):
     '''AGS4 Rule 5: All fields should be enclosed in double quotes.
     '''
 
+    import re
+
     if not line.isspace():
         if not line.startswith('"') or not line.strip('\r\n').endswith('"'):
             add_error_msg(ags_errors, 'Rule 5', line_number, '', 'Contains fields that are not enclosed in double quotes.')
@@ -262,6 +264,19 @@ def rule_5(line, line_number=0, ags_errors={}):
             # present in fields with string data (i.e TYPE="X"). However, fields in DATA
             # rows that are not enclosed in double quotes will be caught by rule_4b() as
             # they will not be of the same length as the headings row after splitting by '","'.
+
+        else:
+            # Verify that quotes within data fields are enclosed by a second double quote
+
+            # Remove quotes enclosing data fields
+            temp = re.sub(r'","', ' ', line.strip('\r\n')).strip(r'"')
+            # Remove correct double-double quotes
+            temp = re.sub(r'""', ' ', temp)
+
+            # Find orphan double quotes
+            if '"' in re.findall(r'"', temp):
+                msg = 'Contains quotes within a data field. All such quotes should be enclosed by a second quote.'
+                add_error_msg(ags_errors, 'Rule 5', line_number, '', msg)
 
     elif (line == '\r\n') or (line == '\n'):
         pass
