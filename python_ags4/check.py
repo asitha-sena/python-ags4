@@ -801,7 +801,7 @@ def rule_17(tables, headings, dictionary, ags_errors={}):
             # Check whether entries in the type_list are defined in the TYPE table
             for entry in set(type_list):
                 if entry not in TYPE.loc[TYPE['HEADING'] == 'DATA', 'TYPE_TYPE'].to_list() and entry not in ['TYPE']:
-                    add_error_msg(ags_errors, 'Rule 17', '-', '-', f'Data type "{entry}" not found in TYPE table.')
+                    add_error_msg(ags_errors, 'Rule 17', '-', 'TYPE', f'Data type "{entry}" not found in TYPE table.')
 
         except KeyError:
             # TYPE_TYPE column missing. Rule 10a and 10b should catch this error

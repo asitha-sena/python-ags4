@@ -191,6 +191,14 @@ def test_rule_14_2():
     assert error_list['Rule 14'][0]['desc']  == 'TRAN table not found.'
 
 
+def test_rule_14_3():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule14-3.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 17' in error_list.keys()
+    assert error_list['Rule 17'][0]['group'] == 'TYPE'
+    assert error_list['Rule 17'][0]['desc']  == 'Data type "YN" not found in TYPE table.'
+
+
 def test_rule_15_1():
     error_list = AGS4.check_file('tests/test_files/4.1-rule15-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
