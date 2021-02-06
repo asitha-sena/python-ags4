@@ -249,7 +249,7 @@ def rule_5(line, line_number=0, ags_errors={}):
     '''
 
     import re
-
+   
     if not line.isspace():
         if not line.startswith('"') or not line.strip('\r\n').endswith('"'):
             add_error_msg(ags_errors, 'Rule 5', line_number, '', 'Contains fields that are not enclosed in double quotes.')
@@ -316,14 +316,21 @@ def rule_19a(line, line_number=0, group='', ags_errors={}):
     '''AGS4 Rule 19a: HEADING names should consist of uppercase letters.
     '''
 
+    import re
+
     if line.strip('"').startswith('HEADING'):
         temp = line.rstrip().split('","')
         temp = [item.strip('"') for item in temp]
 
         if len(temp) >= 2:
             for item in temp[1:]:
-                if not item.isupper() or (len(item) > 9):
-                    add_error_msg(ags_errors, 'Rule 19a', line_number, group, f'Heading {item} should be uppercase and limited to 9 character in length.')
+                if len(re.findall(r'[^A-Z0-9_]', item)) > 0:
+                    msg = f'Heading {item} should consist of only uppercase letters, numbers, and an underscore character.'
+                    add_error_msg(ags_errors, 'Rule 19a', line_number, group, msg)
+
+                if len(item) > 9:
+                    msg = f'Heading {item} is more than 9 characters in length.'
+                    add_error_msg(ags_errors, 'Rule 19a', line_number, group, msg)
 
         else:
             add_error_msg(ags_errors, 'Rule 19a', line_number, group, 'Headings row does not seem to have any fields.')
