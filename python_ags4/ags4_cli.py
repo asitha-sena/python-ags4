@@ -122,7 +122,6 @@ def check(input_file, dictionary, output_file):
 
             if output_file is not None:
                 save_to_file(output_file, ags_errors, input_file, 'No')
-                console.print(f'[green]Report saved in {output_file}[/green]\n')
 
         else:
             # Count number of entries in error log
@@ -138,7 +137,6 @@ def check(input_file, dictionary, output_file):
 
                 if output_file is not None:
                     save_to_file(output_file, ags_errors, input_file, error_count)
-                    console.print(f'\n[yellow]Error report saved in {output_file}.[/yellow]\n')
 
             else:
                 console.print(f'\n[yellow]File check complete! {error_count} errors found![/yellow]')
@@ -149,8 +147,6 @@ def check(input_file, dictionary, output_file):
                     output_file = os.path.join(output_dir, 'error_log.txt')
 
                 save_to_file(output_file, ags_errors, input_file, error_count)
-
-                console.print(f'\n[yellow]Error report saved in {output_file}[/yellow]\n')
 
     else:
         console.print('[red]ERROR: Only .ags files are accepted as input.[/red]')
@@ -171,20 +167,30 @@ def print_to_screen(ags_errors):
 def save_to_file(output_file, ags_errors, input_file, error_count):
     '''Save error report to file.'''
 
-    with open(output_file, 'w', newline='', encoding='utf-8') as f:
-        f.write(f'File Name:\t{os.path.basename(input_file)}\n')
-        f.write(f'File Size:\t{int(os.path.getsize(input_file)/1024)} kB\n')
-        f.write(f'Checker:\tpython_ags4 v{__version__}\n')
-        f.write(f'Time (UTC):\t{datetime.utcnow()}\n')
-        f.write('\n')
-        f.write(f'{error_count} errors found!\n')
-        f.write('\n')
-
-        for key in ags_errors:
-            f.write(f'{key}:\n')
-            for entry in ags_errors[key]:
-                f.write(f'''  Line {entry['line']}\t {entry['group'].strip('"')}\t {entry['desc']}\n''')
+    try:
+        with open(output_file, 'w', newline='', encoding='utf-8') as f:
+            f.write(f'File Name:\t{os.path.basename(input_file)}\n')
+            f.write(f'File Size:\t{int(os.path.getsize(input_file)/1024)} kB\n')
+            f.write(f'Checker:\tpython_ags4 v{__version__}\n')
+            f.write(f'Time (UTC):\t{datetime.utcnow()}\n')
             f.write('\n')
+            f.write(f'{error_count} errors found!\n')
+            f.write('\n')
+
+            for key in ags_errors:
+                f.write(f'{key}:\n')
+                for entry in ags_errors[key]:
+                    f.write(f'''  Line {entry['line']}\t {entry['group'].strip('"')}\t {entry['desc']}\n''')
+                f.write('\n')
+
+            if error_count == 'No':
+                console.print(f'[green]Report saved in {output_file}[/green]\n')
+            else:
+                console.print(f'\n[yellow]Error report saved in {output_file}[/yellow]\n')
+
+    except FileNotFoundError:
+        console.print('[red]\nERROR: Invalid output file path. Error report could not be saved.[/red]')
+        console.print('[red]       Please ensure that the specified directory exists.[/red]')
 
 
 if __name__ == '__main__':
