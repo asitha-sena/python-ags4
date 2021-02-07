@@ -23,7 +23,7 @@ def main():
 
 @main.command()
 @click.argument('input_file', type=click.Path('r'))
-@click.argument('output_file', type=click.Path('w'))
+@click.argument('output_file', type=click.Path(writable=True))
 @click.option('-f', '--format_columns', default="true",
               help='Format numeric data based on TYPE values if converting from .xlsx to .ags (true [default] or false)')
 @click.option('-d', '--dictionary', type=click.File('r'), default=None,
@@ -36,60 +36,65 @@ def convert(input_file, output_file, format_columns, dictionary):
     OUTPUT_FILE  Path to output file. The file should be either .ags or .xlsx
 
     e.g.
-   
+
     Linux/Mac: ags4_cli convert ~/temp/data.ags ~/temp/data.xlsx
 
     Windows:   ags4_cli convert c:\Temp\data.ags c:\Temp\data.xlsx
 
     '''
 
-    if input_file.endswith('.ags') & output_file.endswith('.xlsx'):
-        console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
-        console.print(f'[green]Exporting data to... [bold]{output_file}[/bold][/green]')
-        print('')
+    try:
+        if input_file.endswith('.ags') & output_file.endswith('.xlsx'):
+            console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
+            console.print(f'[green]Exporting data to... [bold]{output_file}[/bold][/green]')
+            print('')
 
-        AGS4.AGS4_to_excel(input_file, output_file)
+            AGS4.AGS4_to_excel(input_file, output_file)
 
-        console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
+            console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
 
-    elif input_file.endswith('.xlsx') & output_file.endswith('.ags'):
-        console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
-        console.print(f'[green]Exporting data to... [bold]{output_file}[/bold][/green]')
-        print('')
+        elif input_file.endswith('.xlsx') & output_file.endswith('.ags'):
+            console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
+            console.print(f'[green]Exporting data to... [bold]{output_file}[/bold][/green]')
+            print('')
 
-        # Process optional arguments
-        format_numeric_columns = format_columns.lower() in ['true', 'yes']
+            # Process optional arguments
+            format_numeric_columns = format_columns.lower() in ['true', 'yes']
 
-        if dictionary is not None:
-            dictionary = dictionary.name
+            if dictionary is not None:
+                dictionary = dictionary.name
 
-        # Call export function
-        AGS4.excel_to_AGS4(input_file, output_file, format_numeric_columns=format_numeric_columns,
-                           dictionary=dictionary)
+            # Call export function
+            AGS4.excel_to_AGS4(input_file, output_file, format_numeric_columns=format_numeric_columns,
+                            dictionary=dictionary)
 
-        console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
+            console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
 
-    elif (input_file.endswith('.ags') & output_file.endswith('.ags')) | (input_file.endswith('.xlsx') & output_file.endswith('.xlsx')):
-        file_type = input_file.split('.')[-1]
-        console.print(f'[yellow]Both input and output files are of the same type (i.e. [bold].{file_type}[/bold]). No conversion necessary.[/yellow]')
+        elif (input_file.endswith('.ags') & output_file.endswith('.ags')) | (input_file.endswith('.xlsx') & output_file.endswith('.xlsx')):
+            file_type = input_file.split('.')[-1]
+            console.print(f'[yellow]Both input and output files are of the same type (i.e. [bold].{file_type}[/bold]). No conversion necessary.[/yellow]')
 
-    elif input_file.endswith('.ags'):
-        console.print('[red]Please provide an output file with a [bold].xlsx[/bold] extension.[/red]')
+        elif input_file.endswith('.ags'):
+            console.print('[red]Please provide an output file with a [bold].xlsx[/bold] extension.[/red]')
 
-    elif input_file.endswith('.xlsx'):
-        console.print('[red]Please provide an output file with a [bold].ags[/bold] extension.[/red]')
+        elif input_file.endswith('.xlsx'):
+            console.print('[red]Please provide an output file with a [bold].ags[/bold] extension.[/red]')
 
-    elif output_file.endswith('.ags'):
-        console.print('[red]Please provide an input file with a [bold].xlsx[/bold] extension.[/red]')
+        elif output_file.endswith('.ags'):
+            console.print('[red]Please provide an input file with a [bold].xlsx[/bold] extension.[/red]')
 
-    elif output_file.endswith('.xlsx'):
-        console.print('[red]Please provide an input file with a [bold].ags[/bold] extension.[/red]')
+        elif output_file.endswith('.xlsx'):
+            console.print('[red]Please provide an input file with a [bold].ags[/bold] extension.[/red]')
 
-    else:
-        input_file_type = input_file.split('.')[-1]
-        console.print(f'[red]ERROR: This program cannot convert [bold].{input_file_type}[/bold] files.[/red]')
-        console.print('')
-        console.print('[yellow]Try "ags4_cli convert --help" to see help and examples.[/yellow]')
+        else:
+            input_file_type = input_file.split('.')[-1]
+            console.print(f'[red]ERROR: This program cannot convert [bold].{input_file_type}[/bold] files.[/red]')
+            console.print('')
+            console.print('[yellow]Try "ags4_cli convert --help" to see help and examples.[/yellow]')
+
+    except FileNotFoundError:
+        console.print('[red]ERROR: Invalid output file path. Converted file could not be saved.[/red]')
+        console.print('[red]       Please ensure that the specified directory exists.[/red]')
 
 
 @main.command()
