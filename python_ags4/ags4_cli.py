@@ -156,7 +156,16 @@ def print_to_screen(ags_errors):
 
     console.print('')
 
-    for key in ags_errors:
+    # Write 'General' error messages first if present
+    if 'General' in ags_errors.keys():
+        console.print('[underline]General[/underline]:')
+
+        for entry in ags_errors['General']:
+            console.print(f'''  {entry['desc']}''')
+        print('')
+
+    # Write other error messages
+    for key in [x for x in ags_errors if x != 'General']:
         console.print(f'''[underline]{key}[/underline]:''')
         for entry in ags_errors[key]:
             console.print(f'''  Line {entry['line']}\t [bold]{entry['group'].strip('"')}[/bold]\t {entry['desc']}''')
@@ -176,7 +185,15 @@ def save_to_file(output_file, ags_errors, input_file, error_count):
             f.write(f'{error_count} errors found!\n')
             f.write('\n')
 
-            for key in ags_errors:
+            # Write 'General' error messages first if present
+            if 'General' in ags_errors.keys():
+                f.write('General:\n')
+                for entry in ags_errors['General']:
+                    f.write(f'''  {entry['desc']}\n''')
+                f.write('\n')
+
+            # Write other error messages
+            for key in [x for x in ags_errors if x != 'General']:
                 f.write(f'{key}:\n')
                 for entry in ags_errors[key]:
                     f.write(f'''  Line {entry['line']}\t {entry['group'].strip('"')}\t {entry['desc']}\n''')

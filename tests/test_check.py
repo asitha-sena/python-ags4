@@ -393,3 +393,10 @@ def test_rule_STNDandPREMCheck():
     error_list = AGS4.check_file('tests/test_files/STNDandPREMCheck.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
     assert 'Rule 10c' not in error_list.keys()
+
+
+def test_rule_AGS3():
+    error_list = AGS4.check_file('tests/test_files/AGS3.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'General' in error_list.keys()
+    assert 'AGS3' in error_list['General'][0]['desc']

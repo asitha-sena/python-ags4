@@ -915,3 +915,26 @@ def rule_20(tables, headings, filepath, ags_errors={}):
                     return ags_errors
 
     return ags_errors
+
+
+def is_ags3(tables, input_file, ags_errors={}):
+    '''Check if file is likely to be in AGS3 format and issue warning.
+    '''
+
+    import re
+
+    # Check whether dictionary of tables is empty
+    if not tables:
+
+        # If True, then check for AGS3 like entries
+        with open(input_file, mode='r') as f:
+            lines = f.read()
+
+            if re.findall(r'"\*\*[a-zA-Z0-9]+"', lines):
+                msg = 'No AGS4 tables found but lines starting with "**" detected. Therefore, it is possible that this file is in AGS3 format instead of AGS4.'
+                add_error_msg(ags_errors, 'General', '', '', msg)
+
+                msg = 'Checking AGS3 files is not supported. The errors listed below are valid only if this file is confirmed to be an AGS4 file.'
+                add_error_msg(ags_errors, 'General', '', '', msg)
+
+    return ags_errors
