@@ -18,7 +18,7 @@
 "HEADING","TRAN_ISNO","TRAN_DATE","TRAN_PROD","TRAN_STAT","TRAN_DESC","TRAN_AGS","TRAN_RECV","TRAN_DLIM","TRAN_RCON","TRAN_REM","FILE_FSET"
 "UNIT","","yyyy-mm-dd","","","","","","","","",""
 "TYPE","X","DT","X","X","X","X","X","X","X","X","X"
-"DATA","1","2021-01-18","ACME Drilling Ltd","Preliminary","Draft Logs only","4.1","ACME Consulting","|","+","Line 5,Incorrect number of quotes",""
+"DATA","1","2021-01-18","ACME Drilling Ltd","Preliminary","Draft Logs only","4.1","ACME Consulting","|","+","Line 5,Contains quotes within a data field. All such quotes should be enclosed by a second quote.",""
 
 "GROUP","TYPE"
 "HEADING","TYPE_TYPE","TYPE_DESC","FILE_FSET"
@@ -56,5 +56,3 @@
 "UNIT","","","","m","m","","m","","m","yyyy-mm-dd","","","yyyy-mm-dd","","m","m","m","","","m","m","m","m","m","m","","","","","","","","","","","","",""
 "TYPE","ID","PA","PA","2DP","2DP","PA","2DP","X","2DP","DT","X","X","DT","X","2DP","2DP","2DP","X","X","2DP","2DP","2DP","2DP","2DP","2DP","DMS","DMS","DMS","DMS","X","X","X","X","X","2DP","X","X","X"
 "DATA","327-16A","","","523145.00","178456.12","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-
-
