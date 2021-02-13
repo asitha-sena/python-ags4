@@ -65,8 +65,7 @@ def convert(input_file, output_file, format_columns, dictionary):
                 dictionary = dictionary.name
 
             # Call export function
-            AGS4.excel_to_AGS4(input_file, output_file, format_numeric_columns=format_numeric_columns,
-                            dictionary=dictionary)
+            AGS4.excel_to_AGS4(input_file, output_file, format_numeric_columns=format_numeric_columns, dictionary=dictionary)
 
             console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
 
