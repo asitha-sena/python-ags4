@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 import click
-from python_ags4 import AGS4
+from python_ags4 import AGS4, __version__
 from rich.console import Console
 import pkg_resources
 import os
+from datetime import datetime
 
 # Create rich console for pretty printing
 console = Console()
@@ -104,16 +105,19 @@ def check(input_file, dictionary, output_file):
     '''
 
     if input_file.endswith('.ags'):
+        console.print(f'[green]Running [bold]python_ags4 v{__version__}[/bold][/green]')
         console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
         console.print('')
 
-        # TODO: Add status indicator
-        # with console.status("[bold green]Checking file...") as status:
         ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary)
 
         # Dictionay evaluates to False if empty
         if bool(ags_errors) is False:
-            console.print('\n[green]File check complete! No errors found. :heavy_check_mark:[/green]\n')
+            console.print('\n[green]File check complete! No errors found.[/green]\n')
+
+            if output_file is not None:
+                save_to_file(output_file, ags_errors, input_file, 'No')
+                console.print(f'[green]Report saved in {output_file}[/green]\n')
 
         else:
             # Count number of entries in error log
@@ -163,7 +167,11 @@ def save_to_file(output_file, ags_errors, input_file, error_count):
     '''Save error report to file.'''
 
     with open(output_file, 'w', newline='', encoding='utf-8') as f:
-        f.write(f'Input file: {input_file}\n')
+        f.write(f'File Name:\t{os.path.basename(input_file)}\n')
+        f.write(f'File Size:\t{int(os.path.getsize(input_file)/1024)} kB\n')
+        f.write(f'Checker:\tpython_ags4 v{__version__}\n')
+        f.write(f'Time (UTC):\t{datetime.utcnow()}\n')
+        f.write('\n')
         f.write(f'{error_count} errors found!\n')
         f.write('\n')
 
