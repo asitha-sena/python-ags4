@@ -381,3 +381,15 @@ def test_rule_20_OK():
     error_list = AGS4.check_file('tests/test_files/4.1-rule20OK.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
     assert 'Rule 20' not in error_list.keys()
+
+
+def test_rule_LBSGCheck():
+    error_list = AGS4.check_file('tests/test_files/LBSGCheck.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 10c' not in error_list.keys()
+
+
+def test_rule_STNDandPREMCheck():
+    error_list = AGS4.check_file('tests/test_files/STNDandPREMCheck.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 10c' not in error_list.keys()

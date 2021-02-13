@@ -528,7 +528,8 @@ def rule_10c(tables, headings, dictionary, ags_errors={}):
 
     for group in tables:
         # Find parent group name
-        if group not in ['PROJ', 'TRAN', 'ABBR', 'DICT', 'UNIT', 'TYPE', 'LOCA', 'FILE']:
+        # Groups without parents as per the Standard Dictionary are skipped
+        if group not in ['PROJ', 'TRAN', 'ABBR', 'DICT', 'UNIT', 'TYPE', 'LOCA', 'FILE', 'LBSG', 'PREM', 'STND']:
 
             try:
                 mask = (dictionary.DICT_TYPE == 'GROUP') & (dictionary.DICT_GRP == group)
