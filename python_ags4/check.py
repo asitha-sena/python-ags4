@@ -154,6 +154,53 @@ def fetch_record(record_link, tables):
         return DataFrame()
 
 
+def pick_standard_dictionary(tables):
+    '''Pick standard dictionary to check file.
+
+    Parameters
+    ----------
+    tables : dict
+        Dictionary of Pandas DataFrames with all AGS4 data in file
+
+    Returns
+    -------
+    str
+      File path to standard dictionary
+    '''
+
+    import pkg_resources
+    from rich import print as rprint
+
+    # Select standard dictionary based on TRAN_AGS
+    try:
+        TRAN = tables['TRAN']
+
+        dict_version = TRAN.loc[TRAN.HEADING.eq('DATA'), 'TRAN_AGS'].values[0]
+
+        if dict_version == '4.0.3':
+            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_0_3.ags')
+        elif dict_version == '4.0.4':
+            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_0_4.ags')
+        elif dict_version == '4.1':
+            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1.ags')
+        else:
+            rprint('[yellow]  WARNING: Standard dictionary for AGS4 version specified in TRAN_AGS not available.[/yellow]')
+            rprint('[yellow]           Defaulting to standard dictionary v4.1.[/yellow]')
+            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1.ags')
+
+    except KeyError:
+        # TRAN table not in file
+        rprint('[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v4.1.[/yellow]')
+        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1.ags')
+
+    except IndexError:
+        # No DATA rows in TRAN table
+        rprint('[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v4.1.[/yellow]')
+        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1.ags')
+
+    return path_to_standard_dictionary
+
+
 # Line Rules
 
 def rule_1(line, line_number=0, ags_errors={}):

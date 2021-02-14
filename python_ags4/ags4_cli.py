@@ -10,9 +10,6 @@ from datetime import datetime
 # Create rich console for pretty printing
 console = Console()
 
-# Get path to standard AGS4 dictionary
-path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1.ags')
-
 
 @click.group()
 def main():
@@ -100,7 +97,7 @@ def convert(input_file, output_file, format_columns, dictionary):
 @click.argument('input_file', type=click.Path(exists=True))
 @click.option('-o', '--output_file', type=click.Path(writable=True), default=None,
               help="Path to save error log")
-@click.option('-d', '--dictionary', type=click.Path(exists=True), default=path_to_standard_dictionary,
+@click.option('-d', '--dictionary', type=click.Path(exists=True), default=None,
               help="Path to AGS4 dictionary file.")
 def check(input_file, dictionary, output_file):
     '''Check .ags file for error based AGS4 rules.

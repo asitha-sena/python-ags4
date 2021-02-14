@@ -530,7 +530,7 @@ def format_numeric_column(dataframe, column_name, TYPE):
     return df
 
 
-def check_file(input_file, standard_AGS4_dictionary):
+def check_file(input_file, standard_AGS4_dictionary=None):
     """This function checks the input AGS4 file for errors.
 
     Parameters
@@ -612,6 +612,10 @@ def check_file(input_file, standard_AGS4_dictionary):
     ags_errors = check.rule_20(tables, headings, input_file, ags_errors=ags_errors)
 
     # Dictionary Based Checks
+
+    # Pick standard dictionary
+    if standard_AGS4_dictionary is None:
+        standard_AGS4_dictionary = check.pick_standard_dictionary(tables)
 
     # Combine dictionary file in input file with the standard dictionary to carry out checks
     dictionary = check.combine_DICT_tables([standard_AGS4_dictionary, input_file])
