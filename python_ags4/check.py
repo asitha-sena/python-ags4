@@ -88,7 +88,7 @@ def combine_DICT_tables(input_files):
 
         except KeyError:
             # KeyError if there is no DICT table in an input file
-            rprint(f'[yellow]  WARNING:There is no DICT table in {file}.[/yellow]')
+            rprint(f'[yellow]  WARNING: There is no DICT table in {file}.[/yellow]')
 
     # Check whether master_DICT is empty
     if master_DICT.shape[0] == 0:
