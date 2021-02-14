@@ -589,7 +589,7 @@ def check_file(input_file, standard_AGS4_dictionary=None):
             ags_errors = check.rule_6(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_19(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_19a(line, i, group=group, ags_errors=ags_errors)
-            ags_errors = check.rule_19b(line, i, group=group, ags_errors=ags_errors)
+            ags_errors = check.rule_19b_1(line, i, group=group, ags_errors=ags_errors)
 
     # Import file into Pandas DataFrame to run group checks
     try:
@@ -631,6 +631,7 @@ def check_file(input_file, standard_AGS4_dictionary=None):
     ags_errors = check.rule_17(tables, headings, dictionary, ags_errors=ags_errors)
     # Note: rule_18() has to be called after rule_9() as it relies on rule_9() to flag non-standard headings.
     ags_errors = check.rule_18(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_19b_2(headings, dictionary, ags_errors=ags_errors)
     ags_errors = check.rule_19c(tables, headings, dictionary, ags_errors=ags_errors)
 
     # Check if file is likely to in AGS3 format

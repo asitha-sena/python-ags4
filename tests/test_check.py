@@ -361,6 +361,13 @@ def test_rule_19a_2():
     assert error_list['Rule 19a'][0]['desc']  == 'Heading TEST_D-H should consist of only uppercase letters, numbers, and an underscore character.'
 
 
+def test_rule_19b_1():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule19b-1.ags')
+
+    assert 'Rule 19b' in error_list.keys()
+    assert error_list['Rule 19b'][0]['group'] == 'DEMO'
+
+
 def test_rule_20_1():
     error_list = AGS4.check_file('tests/test_files/4.1-rule20-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 

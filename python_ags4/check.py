@@ -419,7 +419,7 @@ def rule_19a(line, line_number=0, group='', ags_errors={}):
     return ags_errors
 
 
-def rule_19b(line, line_number=0, group='', ags_errors={}):
+def rule_19b_1(line, line_number=0, group='', ags_errors={}):
     '''AGS4 Rule 19b: HEADING names shall start with the group name followed by an underscore character.
     Where a HEADING referes to an existing HEADING within another GROUP, it shall bear the same name.
     '''
@@ -905,6 +905,38 @@ def rule_18(tables, headings, ags_errors={}):
         # If Rule 9 has been violated that means a non-standard has been found
         msg = 'DICT table not found. See error log under Rule 9 for a list of non-standard headings that need to be defined in a DICT table.'
         add_error_msg(ags_errors, 'Rule 18', '-', 'DICT', f'{msg}')
+
+    return ags_errors
+
+
+def rule_19b_2(headings, dictionary, ags_errors={}):
+    '''AGS4 Rule 19b: HEADING names shall start with the group name followed by an underscore character.
+    Where a HEADING referes to an existing HEADING within another GROUP, it shall bear the same name.
+    '''
+
+    for group in headings:
+        # List of headings defined under other groups
+
+        for heading in [x for x in headings[group] if x != 'HEADING']:
+            ref_group_name = heading.split('_')[0]
+
+            # The standard dictionaries allow fields like 'SPEC_REF' and 'TEST_STAT' which break Rule 19b
+            # so headings starting with 'SPEC' and 'TEST' are considered exceptions to the rule
+            if ref_group_name not in [group, 'SPEC', 'TEST']:
+                ref_headings_list_1 = dictionary.loc[dictionary.HEADING.eq('DATA') & dictionary.DICT_GRP.eq(ref_group_name), 'DICT_HDNG'].tolist()
+                ref_headings_list_2 = dictionary.loc[dictionary.HEADING.eq('DATA') & dictionary.DICT_GRP.eq(group), 'DICT_HDNG'].tolist()
+
+                if not ref_headings_list_1:
+                    msg = f'Group {ref_group_name} referred to in {heading} could not be found in either the standard dictionary or the DICT table.'
+                    add_error_msg(ags_errors, 'Rule 19b', '', group, msg)
+
+                elif heading not in ref_headings_list_1 and heading in ref_headings_list_2:
+                    msg = f'Definition for {heading} not found under group {ref_group_name}. Either rename heading or add definition under correct group.'
+                    add_error_msg(ags_errors, 'Rule 19b', '', group, msg)
+
+                else:
+                    # Heading is not defined at all. This will be caught by Rule 9
+                    pass
 
     return ags_errors
 
