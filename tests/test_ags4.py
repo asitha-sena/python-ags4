@@ -156,4 +156,4 @@ def test_check_file():
 
     # File without any errors
     error_list = AGS4.check_file('tests/test_files/example1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
-    assert error_list == {}
+    assert 'Rule' not in error_list.keys()

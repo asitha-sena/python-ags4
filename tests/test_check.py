@@ -1,4 +1,4 @@
-from python_ags4 import AGS4
+from python_ags4 import AGS4, __version__
 import os
 
 
@@ -10,14 +10,24 @@ def test_rule_2():
     assert error_list['Rule 2'][0]['group'] == 'SAMP'
     assert error_list['Rule 2'][0]['desc'] == 'No DATA rows in group.'
 
+    assert 'Metadata' in error_list.keys()
+    assert error_list['Metadata'][0]['desc'] == '4.1-rule2.ags'
+    assert error_list['Metadata'][2]['desc'] == f'python_ags4 v{__version__}'
+    assert error_list['Metadata'][3]['desc'] == 'Standard_dictionary_v4_1.ags'
+
 
 def test_rule_2b_1():
-    error_list = AGS4.check_file('tests/test_files/4.1-rule2b1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+    error_list = AGS4.check_file('tests/test_files/4.1-rule2b1.ags')
 
     assert 'Rule 2b' in error_list.keys()
     # TODO assert error_list['Rule 2'][0]['line'] == ?
     assert error_list['Rule 2b'][0]['group'] == 'ABBR'
     assert error_list['Rule 2b'][0]['desc'] == 'UNIT row missing from group.'
+
+    assert 'Metadata' in error_list.keys()
+    assert error_list['Metadata'][0]['desc'] == '4.1-rule2b1.ags'
+    assert error_list['Metadata'][2]['desc'] == f'python_ags4 v{__version__}'
+    assert error_list['Metadata'][3]['desc'] == 'Standard_dictionary_v4_1.ags'
 
 
 def test_rule_2b_2():
@@ -384,15 +394,25 @@ def test_rule_20_OK():
 
 
 def test_rule_LBSGCheck():
-    error_list = AGS4.check_file('tests/test_files/LBSGCheck.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+    error_list = AGS4.check_file('tests/test_files/LBSGCheck.ags')
 
     assert 'Rule 10c' not in error_list.keys()
+
+    assert 'Metadata' in error_list.keys()
+    assert error_list['Metadata'][0]['desc'] == 'LBSGCheck.ags'
+    assert error_list['Metadata'][2]['desc'] == f'python_ags4 v{__version__}'
+    assert error_list['Metadata'][3]['desc'] == 'Standard_dictionary_v4_0_4.ags'
 
 
 def test_rule_STNDandPREMCheck():
-    error_list = AGS4.check_file('tests/test_files/STNDandPREMCheck.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+    error_list = AGS4.check_file('tests/test_files/STNDandPREMCheck.ags')
 
     assert 'Rule 10c' not in error_list.keys()
+
+    assert 'Metadata' in error_list.keys()
+    assert error_list['Metadata'][0]['desc'] == 'STNDandPREMCheck.ags'
+    assert error_list['Metadata'][2]['desc'] == f'python_ags4 v{__version__}'
+    assert error_list['Metadata'][3]['desc'] == 'Standard_dictionary_v4_0_4.ags'
 
 
 def test_rule_AGS3():
