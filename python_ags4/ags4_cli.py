@@ -3,9 +3,7 @@
 import click
 from python_ags4 import AGS4, __version__
 from rich.console import Console
-import pkg_resources
 import os
-from datetime import datetime
 
 # Create rich console for pretty printing
 console = Console()
@@ -123,7 +121,8 @@ def check(input_file, dictionary, output_file):
             # Count number of entries in error log
             error_count = 0
             for key, val in ags_errors.items():
-                error_count += len(val)
+                if 'Rule' in key:
+                    error_count += len(val)
 
             # Print errors to screen if list is short enough.
             if error_count < 100:
@@ -153,17 +152,23 @@ def print_to_screen(ags_errors):
 
     console.print('')
 
-    # Write 'General' error messages first if present
+    # Print  metadata
+    if 'Metadata' in ags_errors.keys():
+        for entry in ags_errors['Metadata']:
+            click.echo(f'''{entry['line']}: \t {entry['desc']}''')
+        console.print('')
+
+    # Print 'General' error messages first if present
     if 'General' in ags_errors.keys():
         console.print('[underline]General[/underline]:')
 
         for entry in ags_errors['General']:
             console.print(f'''  {entry['desc']}''')
-        print('')
+        console.print('')
 
-    # Write other error messages
-    for key in [x for x in ags_errors if x != 'General']:
-        console.print(f'''[underline]{key}[/underline]:''')
+    # Print other error messages
+    for key in [x for x in ags_errors if 'Rule' in x]:
+        console.print(f'''[white underline]{key}[/white underline]:''')
         for entry in ags_errors[key]:
             console.print(f'''  Line {entry['line']}\t [bold]{entry['group'].strip('"')}[/bold]\t {entry['desc']}''')
         console.print('')
@@ -174,13 +179,11 @@ def save_to_file(output_file, ags_errors, input_file, error_count):
 
     try:
         with open(output_file, 'w', newline='', encoding='utf-8') as f:
-            f.write(f'File Name:\t{os.path.basename(input_file)}\n')
-            f.write(f'File Size:\t{int(os.path.getsize(input_file)/1024)} kB\n')
-            f.write(f'Checker:\tpython_ags4 v{__version__}\n')
-            f.write(f'Time (UTC):\t{datetime.utcnow()}\n')
-            f.write('\n')
-            f.write(f'{error_count} errors found!\n')
-            f.write('\n')
+            # Write metadata
+            if 'Metadata' in ags_errors.keys():
+                for entry in ags_errors['Metadata']:
+                    f.write(f'''{entry['line']}: \t {entry['desc']}\n''')
+                f.write('\n')
 
             # Write 'General' error messages first if present
             if 'General' in ags_errors.keys():
@@ -190,7 +193,7 @@ def save_to_file(output_file, ags_errors, input_file, error_count):
                 f.write('\n')
 
             # Write other error messages
-            for key in [x for x in ags_errors if x != 'General']:
+            for key in [x for x in ags_errors if 'Rule' in x]:
                 f.write(f'{key}:\n')
                 for entry in ags_errors[key]:
                     f.write(f'''  Line {entry['line']}\t {entry['group'].strip('"')}\t {entry['desc']}\n''')

@@ -201,6 +201,40 @@ def pick_standard_dictionary(tables):
     return path_to_standard_dictionary
 
 
+def add_meta_data(input_file, standard_dictionary, ags_errors={}):
+    '''Add meta data from input file to error list.
+
+    Parameters
+    ----------
+    input_file : str
+        Path to input file
+    standard_dictionary : str
+        Path to standard dictionary file
+    ags_errors : dict
+        Python dictionary to store details of errors in the AGS4 file being checked.
+
+    Returns
+    -------
+    dict
+        Updated Python dictionary.
+    '''
+
+    import os
+    from python_ags4 import __version__
+    from datetime import datetime
+
+    add_error_msg(ags_errors, 'Metadata', 'File Name', '', f'{os.path.basename(input_file)}')
+    add_error_msg(ags_errors, 'Metadata', 'File Size', '', f'{int(os.path.getsize(input_file)/1024)} kB')
+    add_error_msg(ags_errors, 'Metadata', 'Checker', '', f'python_ags4 v{__version__}')
+
+    if standard_dictionary is not None:
+        add_error_msg(ags_errors, 'Metadata', 'Dictionary', '', f'{os.path.basename(standard_dictionary)}')
+
+    add_error_msg(ags_errors, 'Metadata', 'Time (UTC)', '', f'{datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")}')
+
+    return ags_errors
+
+
 # Line Rules
 
 def rule_1(line, line_number=0, ags_errors={}):

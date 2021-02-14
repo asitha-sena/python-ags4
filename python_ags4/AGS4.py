@@ -636,4 +636,7 @@ def check_file(input_file, standard_AGS4_dictionary=None):
     # Check if file is likely to in AGS3 format
     ags_errors = check.is_ags3(tables, input_file, ags_errors=ags_errors)
 
+    # Add metadata
+    ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors)
+
     return ags_errors
