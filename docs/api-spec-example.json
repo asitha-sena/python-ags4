@@ -4,9 +4,9 @@
     "description": "",
     "version": "1.0.0",
     "title": "",
-    "termsOfService": "https://www.bgs.ac.uk/help/terms_of_use.html",
+    "termsOfService": "",
     "contact": {
-      "email": "enquiries@bgs.ac.uk"
+      "email": ""
     }
   },
   "servers": [
