@@ -17,6 +17,7 @@ rich = "^9.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+toml = "^0.10"
 
 [tool.poetry.scripts]
 ags4_cli = "python_ags4.ags4_cli:main"
