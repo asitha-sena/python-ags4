@@ -69,7 +69,7 @@ def test_dataframe_to_AGS4():
 
     # Export with headings dictionary
     AGS4.dataframe_to_AGS4(tables, headings, 'tests/test.out')
-    new_tables, new_headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
+    new_tables, new_headings = AGS4.AGS4_to_dataframe('tests/test.out')
 
     assert headings == new_headings
     assert tables['PROJ'].equals(new_tables['PROJ'])
@@ -80,7 +80,7 @@ def test_dataframe_to_AGS4():
 
     # Export without headings dictionary
     AGS4.dataframe_to_AGS4(tables, {}, 'tests/test.out')
-    new_tables, new_headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
+    new_tables, new_headings = AGS4.AGS4_to_dataframe('tests/test.out')
 
     assert headings == new_headings
     assert tables['PROJ'].equals(new_tables['PROJ'])

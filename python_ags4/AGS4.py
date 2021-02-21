@@ -236,7 +236,16 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
 
                 rprint(f'[green]Writing data from... [bold]{key}[/bold][green]')
                 f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
-                data[key].to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
+                data[key].apply(lambda x: x.str.replace('""', '"')).to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
+                # The lambda funtion is applied to the dataframe to take care of
+                # an edge case where quoted text is present in a field. The
+                # to_csv function automatiically adds an extra pair of quotes
+                # around any quoted strings that is encountered and there is not
+                # way work around for it as of Pandas v1.1.5. Therefore,
+                # double-double quotes required by AGS4 Rule 5 are changed to
+                # single-double quotes before the to_csv function is called.
+                # This ensures that the output file has the quoted string in
+                # double-double quotes.
                 f.write("\r\n")
 
             except KeyError:
@@ -249,7 +258,7 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
                     rprint("[italic yellow]           Please check column order and ensure AGS4 Rule 7 is still satisfied.[/italic yellow]")
 
                 f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
-                data[key].to_csv(f, index=index, quoting=1, line_terminator='\r\n', encoding=encoding)
+                data[key].apply(lambda x: x.str.replace('""', '"')).to_csv(f, index=index, quoting=1, line_terminator='\r\n', encoding=encoding)
                 f.write("\r\n")
 
 

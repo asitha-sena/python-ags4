@@ -3,7 +3,7 @@
 "HEADING","PROJ_ID","PROJ_NAME","PROJ_LOC","PROJ_CLNT","PROJ_CONT","PROJ_ENG"
 "UNIT","","","","","",""
 "TYPE","ID","X","X","X","X","X"
-"DATA","123456","Project_Name","","Project_Locations","Contractor_Name","AS"
+"DATA","123456","Project_Name ""XYZ"" ","","Project_Locations","Contractor_Name","AS"
 
 "GROUP","TRAN"
 "HEADING","TRAN_ISNO","TRAN_DATE","TRAN_PROD","TRAN_STAT","TRAN_DESC","TRAN_AGS","TRAN_RECV","TRAN_DLIM","TRAN_RCON","TRAN_REM"
