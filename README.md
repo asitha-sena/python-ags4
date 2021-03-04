@@ -1,3 +1,8 @@
+# NOTE - this repo is on hold until further notice. Please use the repo here (https://github.com/asitha-sena/python-ags4)
+# This repo will become live once the governance arrangements have been established
+
+
+
 # python-ags4
 A library to read and write AGS4 files using Pandas DataFrames
 
