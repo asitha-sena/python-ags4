@@ -1,10 +1,5 @@
-# NOTE - this repo is on hold until further notice. Please use the repo here (https://github.com/asitha-sena/python-ags4)
-# This repo will become live once the governance arrangements have been established
+### NOTE - this repo has been ported from (https://github.com/asitha-sena/python-ags4) which is now read-only
 
-----
-----
-----
-----
 ----
 
 # python-ags4
