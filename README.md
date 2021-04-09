@@ -1,3 +1,6 @@
+# *This project has been adopted by the AGS Data Format Working Group and moved to Gitlab (https://gitlab.com/ags-data-format-wg/ags-python-library)*
+---
+
 # python-ags4
 A library to read and write AGS4 files using Pandas DataFrames
 
