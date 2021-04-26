@@ -1,0 +1,1 @@
+{"Rule 2b": [{"line": "-", "group": "ABBR", "desc": "UNIT row is misplaced. It should be immediately below the HEADING row."}, {"line": "-", "group": "ABBR", "desc": "TYPE row is misplaced. It should be immediately below the UNIT row."}]}

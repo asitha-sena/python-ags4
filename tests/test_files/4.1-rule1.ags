@@ -1,4 +1,4 @@
-﻿"GROUP","PROJ"
+"GROUP","PROJ"
 "HEADING","PROJ_ID","PROJ_NAME","PROJ_LOC","PROJ_CLNT","PROJ_CONT","PROJ_ENG","PROJ_MEMO","FILE_FSET"
 "UNIT","","","","","","","",""
 "TYPE","X","X","X","X","X","X","X","X"
@@ -68,5 +68,5 @@
 "HEADING","LOCA_ID","SAMP_TOP","SAMP_REF","SAMP_TYPE","SAMP_ID","SPEC_REF","SPEC_DPTH","SPEC_DESC","SPEC_PREP","ASDI_SDI1","ASDI_SDI2","ASDI_SOLN","ASDI_INDR","ASDI_PADR","ASDI_REM","ASDI_METH","ASDI_LAB","ASDI_CRED","TEST_STAT","FILE_FSET"
 "UNIT","","m","","","","","m","","","%","%","","","","","","","","",""
 "TYPE","ID","2DP","X","PA","ID","X","2DP","X","X","1DP","1DP","X","X","X","X","X","X","X","X","X"
-"DATA","327-16A"","0.80","","C","","","0.80","Crushed Rock","ISRM(2007)","","98.6","Water, 20+/-2°","Retained pieces remain virtually unchanged","Passing material ranges from fine to coarse sand sized particles","","ISRM(2007)","MATtest Limited","UKAS 2643","COMPLETED",""
+"DATA","327-16A","0.80","","C","","","0.80","Crushed Rock","ISRM(2007)","","98.6","Water, 20+/-2°","Retained pieces remain virtually unchanged","Passing material ranges from fine to coarse sand sized particles","","ISRM(2007)","MATtest Limited","UKAS 2643","COMPLETED",""
 
