@@ -25,6 +25,7 @@ def checkandcompare (AGSFilename):
     
     if glob.glob(CheckFilename):
         if filecmp.cmp(ErrorFilename, CheckFilename, shallow=False):
+            os.remove(ErrorFilename) # remove the error file as this is no longer required
             return 'Passed - ' + AGSFilename 
         else:
             return 'Failed - ' + AGSFilename + ' - errors different from file'
