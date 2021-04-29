@@ -20,7 +20,7 @@
 
 # Read functions #
 
-def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
+def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', show_line_number=False, return_group_line_number=False):
     """Load all the data in a AGS4 file to a dictionary of dictionaries.
     This GROUP in the AGS4 file is assigned its own dictionary.
 
@@ -31,6 +31,12 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
     ----------
     filepath_or_buffer : File path (str, pathlib.Path), or StringIO.
         Path to AGS4 file or any object with a read() method (such as an open file or StringIO).
+    encoding : str
+        Encoding of text file (default 'utf-8')
+    show_line_number : bool
+        Add line number column to each table (default False)
+    return_group_line_number : bool
+        Return a dictionary with line number of each group (default False)
 
     Returns
     -------
@@ -40,9 +46,13 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
         Dictionary with the headings in the each GROUP (This will be needed to
         recall the correct column order when writing pandas dataframes back to AGS4
         files. i.e. input for 'dataframe_to_AGS4()' function)
+    group_line_numbers : dict
+        Dictionary with the starting line number of each group. This is only
+        required for checking a .ags file with 'check_file() function.
     """
 
     from rich import print as rprint
+    import sys
 
     if is_file_like(filepath_or_buffer):
         f = filepath_or_buffer
@@ -63,9 +73,8 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
         # the AGS data format. Other columns in certain groups have a
         # preferred order as well)
 
-        import sys
-
         headings = {}
+        group_line_number = {}
 
         for i, line in enumerate(f, start=1):
             temp = line.rstrip().split('","')
@@ -74,6 +83,7 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
             if temp[0] == 'GROUP':
                 group = temp[1]
                 data[group] = {}
+                group_line_number[group] = i
 
             elif temp[0] == 'HEADING':
 
@@ -107,6 +117,10 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
 
                                 temp[i] = temp[i]+'_'+str(item_count[item]['count'])
 
+                # Heading to store line number
+                if show_line_number is True:
+                    temp.append('line_number')
+
                 headings[group] = temp
 
                 for item in temp:
@@ -114,9 +128,13 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
 
             elif temp[0] in ['TYPE', 'UNIT', 'DATA']:
 
-                try:
-                    assert len(temp) == len(headings[group])
-                except AssertionError:
+                # Append line number
+                if show_line_number is True:
+                    temp.append(i)
+
+                # Check whether line has the same number of entries as the number of headings in the group
+                # If not, print error and exit
+                if len(temp) != len(headings[group]):
                     rprint(f"[red]  Error: Line {i} does not have the same number of entries as the HEADING row in [bold]{group}[/bold].[/red]")
                     sys.exit()
 
@@ -129,10 +147,13 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
         if close_file:
             f.close()
 
-    return data, headings
+    if return_group_line_number is True:
+        return data, headings, group_line_number
+    else:
+        return data, headings
 
 
-def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8'):
+def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', show_line_number=False, return_group_line_number=False):
     """Load all the tables in a AGS4 file to a Pandas dataframes. The output is
     a Python dictionary of dataframes with the name of each AGS4 table (i.e.
     GROUP) as the primary key.
@@ -141,6 +162,10 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8'):
     ----------
     filepath_or_buffer : str, StringIO
         Path to AGS4 file or any file like object (open file or StringIO)
+    show_line_number : bool
+        Add line number column to each table (default False)
+    return_group_line_number : bool
+        Return a dictionary with line number of each group (default False)
 
     Returns
     -------
@@ -150,19 +175,36 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8'):
         Dictionary with the headings in the each GROUP (This will be needed to
         recall the correct column order when writing pandas dataframes back to AGS4
         files. i.e. input for 'dataframe_to_AGS4()' function)
+    group_line_number : dict
+        Dictionary with the starting line number of each group. This is only
+        required for checking a .ags file with 'check_file() function.
     """
 
     from pandas import DataFrame
 
     # Extract AGS4 file into a dictionary of dictionaries
-    data, headings = AGS4_to_dict(filepath_or_buffer, encoding=encoding)
+    # A dictionary with group line numbers is returned, in addition to data and headings, for checking purposes
+    if return_group_line_number is True:
+        data, headings, group_line_numbers = AGS4_to_dict(filepath_or_buffer, encoding=encoding, show_line_number=show_line_number,
+                                                          return_group_line_number=return_group_line_number)
 
-    # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
-    df = {}
-    for key in data:
-        df[key] = DataFrame(data[key])
+        # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
+        df = {}
+        for key in data:
+            df[key] = DataFrame(data[key])
 
-    return df, headings
+        return df, headings, group_line_numbers
+
+    # Otherwise only the data and the headings are returned
+    else:
+        data, headings = AGS4_to_dict(filepath_or_buffer, encoding=encoding, show_line_number=show_line_number)
+
+        # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
+        df = {}
+        for key in data:
+            df[key] = DataFrame(data[key])
+
+        return df, headings
 
 
 def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
