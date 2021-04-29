@@ -658,7 +658,8 @@ def check_file(input_file, standard_AGS4_dictionary=None):
     # Import file into Pandas DataFrame to run group checks
     try:
         rprint('[green]  Loading tables...[/green]')
-        tables, headings = AGS4_to_dataframe(input_file)
+        tables, headings, group_line_numbers = AGS4_to_dataframe(input_file, show_line_number=True,
+                                                                 return_group_line_number=True)
 
     except:
         # TODO: Add specific errors to except clause to conform to flake8

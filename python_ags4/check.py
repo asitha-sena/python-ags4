@@ -503,13 +503,16 @@ def rule_7(headings, dictionary, ags_errors={}):
         mask = dictionary.DICT_GRP == key
         reference_headings_list = dictionary.loc[mask, 'DICT_HDNG'].tolist()
 
+        # Pick list of headings in current table not including 'HEADING' and 'line_number'
+        headings_list = [x for x in headings[key] if x not in ['HEADING', 'line_number']]
+
         # Verify that all headings names in the group are defined in the dictionaries
-        if set(headings[key][1:]).issubset(set(reference_headings_list)):
+        if set(headings_list).issubset(set(reference_headings_list)):
 
             # Make a copy of reference list with only items that have been used
-            temp = [x for x in reference_headings_list if x in headings[key]]
+            temp = [x for x in reference_headings_list if x in headings_list]
 
-            for i, item in enumerate(headings[key][1:]):
+            for i, item in enumerate(headings_list):
                 if item != temp[i]:
 
                     msg = f'Headings not in order starting from {item}. Expected order: ...{"|".join(temp[i:])}'
@@ -534,7 +537,7 @@ def rule_9(headings, dictionary, ags_errors={}):
         mask = dictionary.DICT_GRP == key
         reference_headings_list = dictionary.loc[mask, 'DICT_HDNG'].tolist()
 
-        for item in headings[key][1:]:
+        for item in [x for x in headings[key] if x not in ['HEADING', 'line_number']]:
             if item not in reference_headings_list:
                 add_error_msg(ags_errors, 'Rule 9', '-', key, f'{item} not found in DICT table or the standard AGS4 dictionary.')
 
@@ -586,7 +589,7 @@ def rule_10b(tables, headings, dictionary, ags_errors={}):
 
         # Check for missing entries in REQUIRED fields
         # First make copy of table so that it can be modified without unexpected side-effects
-        df = tables[group].copy()
+        df = tables[group].copy().filter(regex=r'[^line_number]')
 
         for heading in set(required_fields).intersection(set(headings[group])):
 
@@ -778,7 +781,7 @@ def rule_15(tables, headings, ags_errors={}):
 
         for group in tables:
             # First make copy of group to avoid potential changes and side-effects
-            df = tables[group].copy()
+            df = tables[group].copy().filter(regex=r'[^line_number]')
 
             unit_list += df.loc[df['HEADING'] == 'UNIT', :].values.flatten().tolist()
 
@@ -877,7 +880,7 @@ def rule_17(tables, headings, dictionary, ags_errors={}):
 
         for group in tables:
             # First make copy of group to avoid potential changes and side-effects
-            df = tables[group].copy()
+            df = tables[group].copy().filter(regex=r'[^line_number]')
 
             type_list += df.loc[tables[group]['HEADING'] == 'TYPE', :].values.flatten().tolist()
 
@@ -919,7 +922,7 @@ def rule_19b_2(headings, dictionary, ags_errors={}):
     for group in headings:
         # List of headings defined under other groups
 
-        for heading in [x for x in headings[group] if x != 'HEADING']:
+        for heading in [x for x in headings[group] if x not in ['HEADING', 'line_number']]:
             ref_group_name = heading.split('_')[0]
 
             # The standard dictionaries allow fields like 'SPEC_REF' and 'TEST_STAT' which break Rule 19b
@@ -950,7 +953,10 @@ def rule_19c(tables, headings, dictionary, ags_errors={}):
 
     for key in headings:
 
-        for heading in headings[key][1:]:
+        # Pick list of headings in current table not including 'HEADING' and 'line_number'
+        headings_list = [x for x in headings[key] if x not in ['HEADING', 'line_number']]
+
+        for heading in headings_list:
 
             try:
                 temp = heading.split('_')
