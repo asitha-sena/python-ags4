@@ -761,8 +761,8 @@ def rule_13(tables, headings, group_line_numbers, ags_errors={}):
     return ags_errors
 
 
-def rule_14(tables, headings, ags_errors={}):
-    '''AGS4 Rule 14: File shall contain a TRAN group with only DATA. All REQUIRED fields in this
+def rule_14(tables, headings, group_line_numbers, ags_errors={}):
+    '''AGS4 Rule 14: File shall contain a TRAN group with only one DATA row. All REQUIRED fields in this
     row should be filled.
     '''
 
@@ -770,10 +770,14 @@ def rule_14(tables, headings, ags_errors={}):
         add_error_msg(ags_errors, 'Rule 14', '-', 'TRAN', 'TRAN table not found.')
 
     elif tables['TRAN'].loc[tables['TRAN']['HEADING'] == 'DATA', :].shape[0] < 1:
-        add_error_msg(ags_errors, 'Rule 14', '-', 'TRAN', 'There should be at least one DATA row in the TRAN table.')
+        line_number = group_line_numbers['TRAN']
+        add_error_msg(ags_errors, 'Rule 14', line_number, 'TRAN', 'There should be at least one DATA row in the TRAN table.')
 
     elif tables['TRAN'].loc[tables['TRAN']['HEADING'] == 'DATA', :].shape[0] > 1:
-        add_error_msg(ags_errors, 'Rule 14', '-', 'TRAN', 'There should not be more than one DATA row in the TRAN table.')
+
+        # Return an error for all DATA rows after the first one
+        for line_number in tables['TRAN'].loc[tables['TRAN']['HEADING'] == 'DATA', 'line_number'].tolist()[1:]:
+            add_error_msg(ags_errors, 'Rule 14', line_number, 'TRAN', 'There should not be more than one DATA row in the TRAN table.')
 
     return ags_errors
 
