@@ -1007,7 +1007,11 @@ def rule_20(tables, headings, filepath, ags_errors={}):
 
                 for entry in set(file_list):
                     if entry not in FILE.loc[FILE.HEADING == 'DATA', 'FILE_FSET'].tolist():
-                        add_error_msg(ags_errors, 'Rule 20', '-', group, f'FILE_FSET entry "{entry}" not found in FILE table.')
+                        # Return line numbers where missing entry appears
+                        line_numbers = df.loc[df['FILE_FSET'] == entry, 'line_number'].tolist()
+
+                        for line_number in line_numbers:
+                            add_error_msg(ags_errors, 'Rule 20', line_number, group, f'FILE_FSET entry "{entry}" not found in FILE table.')
 
         # Verify that a sub-directory named "FILE" exists in the same directory as the AGS4 file being checked
         current_dir = os.path.dirname(filepath)
@@ -1031,7 +1035,12 @@ def rule_20(tables, headings, filepath, ags_errors={}):
 
                     if not os.path.isfile(file_name_path):
                         msg = f'File named "{os.path.join("FILE", file_fset, file_name)}" not found even though it is defined in the FILE table.'
-                        add_error_msg(ags_errors, 'Rule 20', '-', 'FILE', msg)
+
+                        # Return line numbers where missing entry appears
+                        line_numbers = FILE.loc[FILE['FILE_NAME'] == file_name, 'line_number'].tolist()
+
+                        for line_number in line_numbers:
+                            add_error_msg(ags_errors, 'Rule 20', line_number, 'FILE', msg)
 
     except KeyError:
         # FILE group not found. It is only required if FILE_FSET entries are found in other groups
