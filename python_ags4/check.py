@@ -740,8 +740,8 @@ def rule_12(tables, headings, ags_errors={}):
     return ags_errors
 
 
-def rule_13(tables, headings, ags_errors={}):
-    '''AGS4 Rule 13: File shall contain a PROJ group with only DATA. All REQUIRED fields in this
+def rule_13(tables, headings, group_line_numbers, ags_errors={}):
+    '''AGS4 Rule 13: File shall contain a PROJ group with only one DATA row. All REQUIRED fields in this
     row should be filled.
     '''
 
@@ -749,10 +749,14 @@ def rule_13(tables, headings, ags_errors={}):
         add_error_msg(ags_errors, 'Rule 13', '-', 'PROJ', 'PROJ table not found.')
 
     elif tables['PROJ'].loc[tables['PROJ']['HEADING'] == 'DATA', :].shape[0] < 1:
-        add_error_msg(ags_errors, 'Rule 13', '-', 'PROJ', 'There should be at least one DATA row in the PROJ table.')
+        line_number = group_line_numbers['PROJ']
+        add_error_msg(ags_errors, 'Rule 13', line_number, 'PROJ', 'There should be at least one DATA row in the PROJ table.')
 
     elif tables['PROJ'].loc[tables['PROJ']['HEADING'] == 'DATA', :].shape[0] > 1:
-        add_error_msg(ags_errors, 'Rule 13', '-', 'PROJ', 'There should not be more than one DATA row in the PROJ table.')
+
+        # Return an error for all DATA rows after the first one
+        for line_number in tables['PROJ'].loc[tables['PROJ']['HEADING'] == 'DATA', 'line_number'].tolist()[1:]:
+            add_error_msg(ags_errors, 'Rule 13', line_number, 'PROJ', 'There should not be more than one DATA row in the PROJ table.')
 
     return ags_errors
 
