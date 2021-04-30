@@ -673,7 +673,7 @@ def check_file(input_file, standard_AGS4_dictionary=None):
     ags_errors = check.rule_12(tables, headings, ags_errors=ags_errors)
     ags_errors = check.rule_13(tables, headings, group_line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_14(tables, headings, group_line_numbers, ags_errors=ags_errors)
-    ags_errors = check.rule_15(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_15(tables, headings, group_line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_20(tables, headings, input_file, ags_errors=ags_errors)
 
     # Dictionary Based Checks

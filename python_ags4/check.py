@@ -782,7 +782,7 @@ def rule_14(tables, headings, group_line_numbers, ags_errors={}):
     return ags_errors
 
 
-def rule_15(tables, headings, ags_errors={}):
+def rule_15(tables, headings, group_line_numbers, ags_errors={}):
     '''AGS4 Rule 15: The UNIT group shall list all units used in within the data file.
     '''
 
@@ -802,7 +802,9 @@ def rule_15(tables, headings, ags_errors={}):
             # Check whether entries in the type_list are defined in the UNIT table
             for entry in set(unit_list):
                 if entry not in UNIT.loc[UNIT['HEADING'] == 'DATA', 'UNIT_UNIT'].to_list() and entry not in ['', 'UNIT']:
-                    add_error_msg(ags_errors, 'Rule 15', '-', 'UNIT', f'Unit "{entry}" not found in UNIT table.')
+                    # Returns the line number of the UNIT group, not the line number of the missing unit
+                    line_number = group_line_numbers['UNIT']
+                    add_error_msg(ags_errors, 'Rule 15', line_number, 'UNIT', f'Unit "{entry}" not found in UNIT table.')
 
         except KeyError:
             # TYPE_TYPE column missing. Rule 10a and 10b should catch this error
