@@ -447,7 +447,7 @@ def rule_19b_1(line, line_number=0, group='', ags_errors={}):
 
 # Group Rules
 
-def rule_2(tables, headings, ags_errors={}):
+def rule_2(tables, headings, group_line_numbers, ags_errors={}):
     '''AGS4 Rule 2: Each file should consist of one or more GROUPs and each GROUP should
     consist of one or more DATA rows.
     '''
@@ -460,12 +460,13 @@ def rule_2(tables, headings, ags_errors={}):
         # NOTE: .tolist() used instead of .values to avoid "FutureWarning: element-wise comparison failed."
         #       ref: https://stackoverflow.com/questions/40659212/futurewarning-elementwise-comparison-failed-returning-scalar-but-in-the-futur
         if 'DATA' not in tables[key]['HEADING'].tolist():
-            add_error_msg(ags_errors, 'Rule 2', '-', key, 'No DATA rows in group.')
+            line_number = group_line_numbers[key]
+            add_error_msg(ags_errors, 'Rule 2', line_number, key, 'No DATA rows in group.')
 
     return ags_errors
 
 
-def rule_2b(tables, headings, ags_errors={}):
+def rule_2b(tables, headings, group_line_numbers, ags_errors={}):
     '''AGS4 Rule 2b: UNIT and TYPE rows should be defined at the start of each GROUP
     '''
 
@@ -477,19 +478,23 @@ def rule_2b(tables, headings, ags_errors={}):
         # NOTE: .tolist() used instead of .values to avoid "FutureWarning: elementwise comparison failed."
         #       ref: https://stackoverflow.com/questions/40659212/futurewarning-elementwise-comparison-failed-returning-scalar-but-in-the-futur
         if 'UNIT' not in tables[key]['HEADING'].tolist():
-            add_error_msg(ags_errors, 'Rule 2b', '-', key, 'UNIT row missing from group.')
+            line_number = group_line_numbers[key]
+            add_error_msg(ags_errors, 'Rule 2b', line_number, key, 'UNIT row missing from group.')
 
         # Check if the UNIT row is in the correct location within the table
         elif tables[key].loc[0, 'HEADING'] != 'UNIT':
-            add_error_msg(ags_errors, 'Rule 2b', '-', key, 'UNIT row is misplaced. It should be immediately below the HEADING row.')
+            line_number = tables[key].loc[tables[key]['HEADING'] == 'UNIT', 'line_number'].values[0]
+            add_error_msg(ags_errors, 'Rule 2b', line_number, key, 'UNIT row is misplaced. It should be immediately below the HEADING row.')
 
         # Check if there is a TYPE row in the table
         if 'TYPE' not in tables[key]['HEADING'].tolist():
-            add_error_msg(ags_errors, 'Rule 2b', '-', key, 'TYPE row missing from group.')
+            line_number = group_line_numbers[key]
+            add_error_msg(ags_errors, 'Rule 2b', line_number, key, 'TYPE row missing from group.')
 
         # Check if the UNIT row is in the correct location within the table
         elif tables[key].loc[1, 'HEADING'] != 'TYPE':
-            add_error_msg(ags_errors, 'Rule 2b', '-', key, 'TYPE row is misplaced. It should be immediately below the UNIT row.')
+            line_number = tables[key].loc[tables[key]['HEADING'] == 'TYPE', 'line_number'].values[0]
+            add_error_msg(ags_errors, 'Rule 2b', line_number, key, 'TYPE row is misplaced. It should be immediately below the UNIT row.')
 
     return ags_errors
 

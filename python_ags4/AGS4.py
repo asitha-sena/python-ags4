@@ -668,8 +668,8 @@ def check_file(input_file, standard_AGS4_dictionary=None):
 
     # Group Checks
     rprint('[green]  Checking headings and groups...[/green]')
-    ags_errors = check.rule_2(tables, headings, ags_errors=ags_errors)
-    ags_errors = check.rule_2b(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_2(tables, headings, group_line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_2b(tables, headings, group_line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_12(tables, headings, ags_errors=ags_errors)
     ags_errors = check.rule_13(tables, headings, ags_errors=ags_errors)
     ags_errors = check.rule_14(tables, headings, ags_errors=ags_errors)
