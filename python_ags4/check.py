@@ -447,7 +447,7 @@ def rule_19b_1(line, line_number=0, group='', ags_errors={}):
 
 # Group Rules
 
-def rule_2(tables, headings, group_line_numbers, ags_errors={}):
+def rule_2(tables, headings, line_numbers, ags_errors={}):
     '''AGS4 Rule 2: Each file should consist of one or more GROUPs and each GROUP should
     consist of one or more DATA rows.
     '''
@@ -460,13 +460,13 @@ def rule_2(tables, headings, group_line_numbers, ags_errors={}):
         # NOTE: .tolist() used instead of .values to avoid "FutureWarning: element-wise comparison failed."
         #       ref: https://stackoverflow.com/questions/40659212/futurewarning-elementwise-comparison-failed-returning-scalar-but-in-the-futur
         if 'DATA' not in tables[key]['HEADING'].tolist():
-            line_number = group_line_numbers[key]
+            line_number = line_numbers[key]['GROUP']
             add_error_msg(ags_errors, 'Rule 2', line_number, key, 'No DATA rows in group.')
 
     return ags_errors
 
 
-def rule_2b(tables, headings, group_line_numbers, ags_errors={}):
+def rule_2b(tables, headings, line_numbers, ags_errors={}):
     '''AGS4 Rule 2b: UNIT and TYPE rows should be defined at the start of each GROUP
     '''
 
@@ -478,7 +478,7 @@ def rule_2b(tables, headings, group_line_numbers, ags_errors={}):
         # NOTE: .tolist() used instead of .values to avoid "FutureWarning: elementwise comparison failed."
         #       ref: https://stackoverflow.com/questions/40659212/futurewarning-elementwise-comparison-failed-returning-scalar-but-in-the-futur
         if 'UNIT' not in tables[key]['HEADING'].tolist():
-            line_number = group_line_numbers[key]
+            line_number = line_numbers[key]['GROUP']
             add_error_msg(ags_errors, 'Rule 2b', line_number, key, 'UNIT row missing from group.')
 
         # Check if the UNIT row is in the correct location within the table
@@ -488,7 +488,7 @@ def rule_2b(tables, headings, group_line_numbers, ags_errors={}):
 
         # Check if there is a TYPE row in the table
         if 'TYPE' not in tables[key]['HEADING'].tolist():
-            line_number = group_line_numbers[key]
+            line_number = line_numbers[key]['GROUP']
             add_error_msg(ags_errors, 'Rule 2b', line_number, key, 'TYPE row missing from group.')
 
         # Check if the UNIT row is in the correct location within the table
@@ -740,7 +740,7 @@ def rule_12(tables, headings, ags_errors={}):
     return ags_errors
 
 
-def rule_13(tables, headings, group_line_numbers, ags_errors={}):
+def rule_13(tables, headings, line_numbers, ags_errors={}):
     '''AGS4 Rule 13: File shall contain a PROJ group with only one DATA row. All REQUIRED fields in this
     row should be filled.
     '''
@@ -749,7 +749,7 @@ def rule_13(tables, headings, group_line_numbers, ags_errors={}):
         add_error_msg(ags_errors, 'Rule 13', '-', 'PROJ', 'PROJ table not found.')
 
     elif tables['PROJ'].loc[tables['PROJ']['HEADING'] == 'DATA', :].shape[0] < 1:
-        line_number = group_line_numbers['PROJ']
+        line_number = line_numbers['PROJ']['GROUP']
         add_error_msg(ags_errors, 'Rule 13', line_number, 'PROJ', 'There should be at least one DATA row in the PROJ table.')
 
     elif tables['PROJ'].loc[tables['PROJ']['HEADING'] == 'DATA', :].shape[0] > 1:
@@ -761,7 +761,7 @@ def rule_13(tables, headings, group_line_numbers, ags_errors={}):
     return ags_errors
 
 
-def rule_14(tables, headings, group_line_numbers, ags_errors={}):
+def rule_14(tables, headings, line_numbers, ags_errors={}):
     '''AGS4 Rule 14: File shall contain a TRAN group with only one DATA row. All REQUIRED fields in this
     row should be filled.
     '''
@@ -770,7 +770,7 @@ def rule_14(tables, headings, group_line_numbers, ags_errors={}):
         add_error_msg(ags_errors, 'Rule 14', '-', 'TRAN', 'TRAN table not found.')
 
     elif tables['TRAN'].loc[tables['TRAN']['HEADING'] == 'DATA', :].shape[0] < 1:
-        line_number = group_line_numbers['TRAN']
+        line_number = line_numbers['TRAN']['GROUP']
         add_error_msg(ags_errors, 'Rule 14', line_number, 'TRAN', 'There should be at least one DATA row in the TRAN table.')
 
     elif tables['TRAN'].loc[tables['TRAN']['HEADING'] == 'DATA', :].shape[0] > 1:
@@ -782,7 +782,7 @@ def rule_14(tables, headings, group_line_numbers, ags_errors={}):
     return ags_errors
 
 
-def rule_15(tables, headings, group_line_numbers, ags_errors={}):
+def rule_15(tables, headings, line_numbers, ags_errors={}):
     '''AGS4 Rule 15: The UNIT group shall list all units used in within the data file.
     '''
 
@@ -803,7 +803,7 @@ def rule_15(tables, headings, group_line_numbers, ags_errors={}):
             for entry in set(unit_list):
                 if entry not in UNIT.loc[UNIT['HEADING'] == 'DATA', 'UNIT_UNIT'].to_list() and entry not in ['', 'UNIT']:
                     # Returns the line number of the UNIT group, not the line number of the missing unit
-                    line_number = group_line_numbers['UNIT']
+                    line_number = line_numbers['UNIT']['GROUP']
                     add_error_msg(ags_errors, 'Rule 15', line_number, 'UNIT', f'Unit "{entry}" not found in UNIT table.')
 
         except KeyError:
