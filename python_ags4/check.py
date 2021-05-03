@@ -499,7 +499,7 @@ def rule_2b(tables, headings, line_numbers, ags_errors={}):
     return ags_errors
 
 
-def rule_7(headings, dictionary, ags_errors={}):
+def rule_7(headings, dictionary, line_numbers, ags_errors={}):
     '''AGS4 Rule 7: HEADINGs shall be in the order described in the AGS4 dictionary.
     '''
 
@@ -519,15 +519,16 @@ def rule_7(headings, dictionary, ags_errors={}):
 
             for i, item in enumerate(headings_list):
                 if item != temp[i]:
-
+                    line_number = line_numbers[key]['HEADING']
                     msg = f'Headings not in order starting from {item}. Expected order: ...{"|".join(temp[i:])}'
-                    add_error_msg(ags_errors, 'Rule 7', '-', key, msg)
+                    add_error_msg(ags_errors, 'Rule 7', line_number, key, msg)
 
                     return ags_errors
 
         else:
+            line_number = line_numbers[key]['HEADING']
             msg = 'Order of headings could not be checked as one or more fields were not found in either the DICT table or the standard dictionary. Check error log under Rule 9.'
-            add_error_msg(ags_errors, 'Rule 7', '-', key, msg)
+            add_error_msg(ags_errors, 'Rule 7', line_number, key, msg)
 
     return ags_errors
 
