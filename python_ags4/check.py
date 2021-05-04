@@ -619,7 +619,7 @@ def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
     return ags_errors
 
 
-def rule_10c(tables, headings, dictionary, ags_errors={}):
+def rule_10c(tables, headings, dictionary, line_numbers, ags_errors={}):
     '''AGS4 Rule 10c: Each DATA row should have a parent entry in the parent GROUP.
     '''
 
@@ -653,11 +653,13 @@ def rule_10c(tables, headings, dictionary, ags_errors={}):
 
                         for i, row in orphan_rows.iterrows():
                             msg = '|'.join(row[parent_key_fields].tolist())
-                            add_error_msg(ags_errors, 'Rule 10a', '-', group, f'Parent entry for line not found in {parent_group}: {msg}')
+                            line_number = row['line_number_x'] #'line_number_x' because merge operation appends '_x' to column name in the left table
+                            add_error_msg(ags_errors, 'Rule 10c', line_number, group, f'Parent entry for line not found in {parent_group}: {msg}')
 
                     else:
                         msg = f'Could not check parent entries due to missing key fields in {group} or {parent_group}. Check error log under Rule 10a.'
-                        add_error_msg(ags_errors, 'Rule 10c', '-', group, msg)
+                        line_number = line_numbers[group]['HEADING']
+                        add_error_msg(ags_errors, 'Rule 10c', line_number, group, msg)
                         # Missing key fields in child and/or parent groups. Rule 10a should catch this error.
 
             except IndexError:

@@ -120,19 +120,19 @@ def test_rule_10_2():
 def test_rule_10_3():
     error_list = AGS4.check_file('tests/test_files/4.1-rule10-3.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
-    assert 'Rule 10a' in error_list.keys()
-    # TODO assert error_list['Rule 10a'][0]['line'] == ?
-    assert error_list['Rule 10a'][0]['group'] == 'LLPL'
-    assert error_list['Rule 10a'][0]['desc'] == 'Parent entry for line not found in SAMP: 327-16A|15.00|15||'
+    assert 'Rule 10c' in error_list.keys()
+    # TODO assert error_list['Rule 10c'][0]['line'] == ?
+    assert error_list['Rule 10c'][0]['group'] == 'LLPL'
+    assert error_list['Rule 10c'][0]['desc'] == 'Parent entry for line not found in SAMP: 327-16A|15.00|15||'
 
 
 def test_rule_10_4():
     error_list = AGS4.check_file('tests/test_files/4.1-rule10-4.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
-    assert 'Rule 10a' in error_list.keys()
-    # TODO assert error_list['Rule 10a'][0]['line'] == ?
-    assert error_list['Rule 10a'][0]['group'] == 'LLPL'
-    assert error_list['Rule 10a'][0]['desc'] == 'Parent entry for line not found in SAMP: 327-16A|15.00|15|U|'
+    assert 'Rule 10c' in error_list.keys()
+    # TODO assert error_list['Rule 10c'][0]['line'] == ?
+    assert error_list['Rule 10c'][0]['group'] == 'LLPL'
+    assert error_list['Rule 10c'][0]['desc'] == 'Parent entry for line not found in SAMP: 327-16A|15.00|15|U|'
 
 
 def test_rule_10_5():
