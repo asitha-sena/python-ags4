@@ -551,7 +551,7 @@ def rule_9(headings, dictionary, line_numbers, ags_errors={}):
     return ags_errors
 
 
-def rule_10a(tables, headings, dictionary, ags_errors={}):
+def rule_10a(tables, headings, dictionary, line_numbers, ags_errors={}):
     '''AGS4 Rule 10a: KEY fields in a GROUP must be present (even if null). There should not be any dupliate KEY field combinations.
     '''
 
@@ -563,7 +563,8 @@ def rule_10a(tables, headings, dictionary, ags_errors={}):
         # Check for missing KEY fields
         for heading in key_fields:
             if heading not in headings[group]:
-                add_error_msg(ags_errors, 'Rule 10a', '-', group, f'Key field {heading} not found.')
+                line_number = line_numbers[group]['HEADING']
+                add_error_msg(ags_errors, 'Rule 10a', line_number, group, f'Key field {heading} not found.')
 
         # Check for duplicate KEY field combinations if all KEY fields are present
         if set(key_fields).issubset(set(headings[group])):
@@ -575,7 +576,8 @@ def rule_10a(tables, headings, dictionary, ags_errors={}):
 
             for i, row in duplicate_rows.iterrows():
                 duplicate_key_combo = '|'.join(row[key_fields].tolist())
-                add_error_msg(ags_errors, 'Rule 10a', '-', group, f'Duplicate key field combination: {duplicate_key_combo}')
+                line_number = row['line_number']
+                add_error_msg(ags_errors, 'Rule 10a', line_number, group, f'Duplicate key field combination: {duplicate_key_combo}')
 
     return ags_errors
 

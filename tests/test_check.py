@@ -102,7 +102,8 @@ def test_rule_10_1():
     error_list = AGS4.check_file('tests/test_files/4.1-rule10-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
     assert 'Rule 10a' in error_list.keys()
-    # TODO assert error_list['Rule 10a'][0]['line'] == ?
+    assert error_list['Rule 10a'][0]['line'] == 73
+    assert error_list['Rule 10a'][1]['line'] == 74
     assert error_list['Rule 10a'][0]['group'] == 'LLPL'
     assert error_list['Rule 10a'][0]['desc'] == 'Duplicate key field combination: DATA|327-16A|15.00|15|U||1|15.00'
 
