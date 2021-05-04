@@ -90,6 +90,13 @@ def test_rule_7():
 #    assert error_list['Rule 7'][0]['group'] == 'PROJ'
 #    assert error_list['Rule 7'][0]['desc'] == 'Headings not in order starting from FILE_FSET. Expected order: ...PROJ_MEMO|FILE_FSET'
 
+def test_rule_9_2():
+   error_list = AGS4.check_file('tests/test_files/4.1-rule9-2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+   assert 'Rule 9' in error_list.keys()
+   assert error_list['Rule 9'][0]['line'] == 78
+   assert error_list['Rule 9'][0]['group'] == 'SAMP'
+   assert error_list['Rule 9'][0]['desc'] == 'SAMP_XXXX not found in DICT table or the standard AGS4 dictionary.'
 
 def test_rule_10_1():
     error_list = AGS4.check_file('tests/test_files/4.1-rule10-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')

@@ -690,11 +690,11 @@ def check_file(input_file, standard_AGS4_dictionary=None):
     dictionary = check.combine_DICT_tables([standard_AGS4_dictionary, input_file])
 
     rprint('[green]  Checking file schema...[/green]')
-    ags_errors = check.rule_9(headings, dictionary, ags_errors=ags_errors)
     ags_errors = check.rule_10a(tables, headings, dictionary, ags_errors=ags_errors)
     ags_errors = check.rule_10b(tables, headings, dictionary, ags_errors=ags_errors)
     ags_errors = check.rule_10c(tables, headings, dictionary, ags_errors=ags_errors)
     ags_errors = check.rule_7(headings, dictionary, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_9(headings, dictionary, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_11(tables, headings, dictionary, ags_errors=ags_errors)
     ags_errors = check.rule_16(tables, headings, dictionary, ags_errors=ags_errors)
     ags_errors = check.rule_17(tables, headings, dictionary, ags_errors=ags_errors)

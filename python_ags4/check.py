@@ -533,7 +533,7 @@ def rule_7(headings, dictionary, line_numbers, ags_errors={}):
     return ags_errors
 
 
-def rule_9(headings, dictionary, ags_errors={}):
+def rule_9(headings, dictionary, line_numbers, ags_errors={}):
     '''AGS4 Rule 9: GROUP and HEADING names will be taken from the standard AGS4 dictionary or
     defined in DICT table in the .ags file.
     '''
@@ -545,7 +545,8 @@ def rule_9(headings, dictionary, ags_errors={}):
 
         for item in [x for x in headings[key] if x not in ['HEADING', 'line_number']]:
             if item not in reference_headings_list:
-                add_error_msg(ags_errors, 'Rule 9', '-', key, f'{item} not found in DICT table or the standard AGS4 dictionary.')
+                line_number = line_numbers[key]['HEADING']
+                add_error_msg(ags_errors, 'Rule 9', line_number, key, f'{item} not found in DICT table or the standard AGS4 dictionary.')
 
     return ags_errors
 
