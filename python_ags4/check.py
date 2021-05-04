@@ -582,7 +582,7 @@ def rule_10a(tables, headings, dictionary, line_numbers, ags_errors={}):
     return ags_errors
 
 
-def rule_10b(tables, headings, dictionary, ags_errors={}):
+def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
     '''AGS4 Rule 10b: REQUIRED fields in a GROUP must be present and cannot be empty.
     '''
 
@@ -594,11 +594,12 @@ def rule_10b(tables, headings, dictionary, ags_errors={}):
         # Check for missing REQUIRED fields
         for heading in required_fields:
             if heading not in headings[group]:
-                add_error_msg(ags_errors, 'Rule 10b', '-', group, f'Required field {heading} not found.')
+                line_number = line_numbers[group]['HEADING']
+                add_error_msg(ags_errors, 'Rule 10b', line_numbers, group, f'Required field {heading} not found.')
 
         # Check for missing entries in REQUIRED fields
         # First make copy of table so that it can be modified without unexpected side-effects
-        df = tables[group].copy().filter(regex=r'[^line_number]')
+        df = tables[group].copy()
 
         for heading in set(required_fields).intersection(set(headings[group])):
 
@@ -611,8 +612,9 @@ def rule_10b(tables, headings, dictionary, ags_errors={}):
 
             # Add each row with missing entries to the error log
             for i, row in missing_required_fields.iterrows():
-                msg = '|'.join(row.tolist())
-                add_error_msg(ags_errors, 'Rule 10b', '-', group, f'Empty REQUIRED fields: {msg}')
+                msg = '|'.join(row.filter(regex=r'[^line_number]').tolist())
+                line_number = row['line_number']
+                add_error_msg(ags_errors, 'Rule 10b', line_number, group, f'Empty REQUIRED fields: {msg}')
 
     return ags_errors
 
