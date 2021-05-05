@@ -945,7 +945,7 @@ def rule_18(tables, headings, ags_errors={}):
     return ags_errors
 
 
-def rule_19b_2(headings, dictionary, ags_errors={}):
+def rule_19b_2(headings, dictionary, line_numbers, ags_errors={}):
     '''AGS4 Rule 19b: HEADING names shall start with the group name followed by an underscore character.
     Where a HEADING referes to an existing HEADING within another GROUP, it shall bear the same name.
     '''
@@ -964,11 +964,13 @@ def rule_19b_2(headings, dictionary, ags_errors={}):
 
                 if not ref_headings_list_1:
                     msg = f'Group {ref_group_name} referred to in {heading} could not be found in either the standard dictionary or the DICT table.'
-                    add_error_msg(ags_errors, 'Rule 19b', '', group, msg)
+                    line_number = line_numbers[group]['HEADING']
+                    add_error_msg(ags_errors, 'Rule 19b', line_number, group, msg)
 
                 elif heading not in ref_headings_list_1 and heading in ref_headings_list_2:
                     msg = f'Definition for {heading} not found under group {ref_group_name}. Either rename heading or add definition under correct group.'
-                    add_error_msg(ags_errors, 'Rule 19b', '', group, msg)
+                    line_number = line_numbers[group]['HEADING']
+                    add_error_msg(ags_errors, 'Rule 19b', line_number, group, msg)
 
                 else:
                     # Heading is not defined at all. This will be caught by Rule 9
@@ -977,7 +979,7 @@ def rule_19b_2(headings, dictionary, ags_errors={}):
     return ags_errors
 
 
-def rule_19c(tables, headings, dictionary, ags_errors={}):
+def rule_19c(tables, headings, dictionary, line_numbers, ags_errors={}):
     '''AGS4 Rule 19b: HEADING names shall start with the group name followed by an underscore character.
     Where a HEADING referes to an existing HEADING within another GROUP, it shall bear the same name.
     '''
@@ -994,7 +996,8 @@ def rule_19c(tables, headings, dictionary, ags_errors={}):
 
                 if (temp[0] != key) and heading not in dictionary.DICT_HDNG.to_list():
                     msg = f'{heading} does not start with the name of this group, nor is it defined in another group.'
-                    add_error_msg(ags_errors, 'Rule 19b', '-', key, msg)
+                    line_number = line_numbers[key]['HEADING']
+                    add_error_msg(ags_errors, 'Rule 19b', line_number, key, msg)
 
             except IndexError:
                 # Heading does not have an underscore in it. Rule 19b should catch this error.

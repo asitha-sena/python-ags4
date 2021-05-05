@@ -379,6 +379,14 @@ def test_rule_19b_1():
     assert error_list['Rule 19b'][0]['group'] == 'DEMO'
 
 
+def test_rule_19b_2():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule19b-2.ags')
+
+    assert 'Rule 19b' in error_list.keys()
+    assert error_list['Rule 19b'][2]['group'] == 'LLPL'
+    assert error_list['Rule 19b'][2]['desc'] == 'XXXX_425 does not start with the name of this group, nor is it defined in another group.'
+
+
 def test_rule_20_1():
     error_list = AGS4.check_file('tests/test_files/4.1-rule20-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 

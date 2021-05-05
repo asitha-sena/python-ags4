@@ -700,8 +700,8 @@ def check_file(input_file, standard_AGS4_dictionary=None):
     ags_errors = check.rule_17(tables, headings, dictionary, ags_errors=ags_errors)
     # Note: rule_18() has to be called after rule_9() as it relies on rule_9() to flag non-standard headings.
     ags_errors = check.rule_18(tables, headings, ags_errors=ags_errors)
-    ags_errors = check.rule_19b_2(headings, dictionary, ags_errors=ags_errors)
-    ags_errors = check.rule_19c(tables, headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_19b_2(headings, dictionary, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_19c(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
 
     # Check if file is likely to in AGS3 format
     ags_errors = check.is_ags3(tables, input_file, ags_errors=ags_errors)
