@@ -20,7 +20,7 @@
 
 # Read functions #
 
-def AGS4_to_dict(filepath, encoding='utf-8'):
+def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
     """Load all the data in a AGS4 file to a dictionary of dictionaries.
     This GROUP in the AGS4 file is assigned its own dictionary.
 
@@ -29,8 +29,8 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
 
     Parameters
     ----------
-    filepath : str
-        Path to AGS4 file
+    filepath_or_buffer : File path (str, pathlib.Path), or StringIO.
+        Path to AGS4 file or any object with a read() method (such as an open file or StringIO).
 
     Returns
     -------
@@ -44,8 +44,16 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
 
     from rich import print as rprint
 
-    # Read file with errors="replace" to catch UnicodeDecodeErrors
-    with open(filepath, "r", encoding=encoding, errors="replace") as f:
+    if is_file_like(filepath_or_buffer):
+        f = filepath_or_buffer
+        close_file = False
+    else:
+        # Read file with errors="replace" to catch UnicodeDecodeErrors
+        f = open(filepath_or_buffer, "r", encoding=encoding, errors="replace")
+        close_file = True
+
+    try:
+
         data = {}
 
         # dict to save and output the headings. This is not really necessary
@@ -117,19 +125,22 @@ def AGS4_to_dict(filepath, encoding='utf-8'):
 
             else:
                 continue
+    finally:
+        if close_file:
+            f.close()
 
     return data, headings
 
 
-def AGS4_to_dataframe(filepath, encoding='utf-8'):
+def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8'):
     """Load all the tables in a AGS4 file to a Pandas dataframes. The output is
     a Python dictionary of dataframes with the name of each AGS4 table (i.e.
     GROUP) as the primary key.
 
     Parameters
     ----------
-    filepath : str
-        Path to AGS4 file
+    filepath_or_buffer : str, StringIO
+        Path to AGS4 file or any file like object (open file or StringIO)
 
     Returns
     -------
@@ -144,7 +155,7 @@ def AGS4_to_dataframe(filepath, encoding='utf-8'):
     from pandas import DataFrame
 
     # Extract AGS4 file into a dictionary of dictionaries
-    data, headings = AGS4_to_dict(filepath, encoding=encoding)
+    data, headings = AGS4_to_dict(filepath_or_buffer, encoding=encoding)
 
     # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
     df = {}
@@ -652,3 +663,21 @@ def check_file(input_file, standard_AGS4_dictionary=None):
     ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors)
 
     return ags_errors
+
+
+def is_file_like(obj):
+    """Check if object is file like
+
+    Returns
+    -------
+    bool
+        Return True if obj is file like, otherwise return False
+    """
+
+    if not (hasattr(obj, 'read') or hasattr(obj, 'write')):
+        return False
+
+    if not hasattr(obj, "__iter__"):
+        return False
+
+    return True
