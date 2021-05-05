@@ -682,13 +682,16 @@ def rule_11(tables, headings, dictionary, ags_errors={}):
         delimiter = TRAN.loc[TRAN.HEADING == 'DATA', 'TRAN_DLIM'].values[0]
         concatenator = TRAN.loc[TRAN.HEADING == 'DATA', 'TRAN_RCON'].values[0]
 
+        # Get line number
+        line_number = TRAN.loc[TRAN.HEADING == 'DATA', 'line_number'].values[0]
+
         # Check Rule 11a
         if delimiter == '':
-            add_error_msg(ags_errors, 'Rule 11a', '-', 'TRAN', 'TRAN_DLIM missing.')
+            add_error_msg(ags_errors, 'Rule 11a', line_number, 'TRAN', 'TRAN_DLIM missing.')
 
         # Check Rule 11b
         if concatenator == '':
-            add_error_msg(ags_errors, 'Rule 11b', '-', 'TRAN', 'TRAN_RCON missing.')
+            add_error_msg(ags_errors, 'Rule 11b', line_number, 'TRAN', 'TRAN_RCON missing.')
 
         # Check Rule 11c (only if Rule 11a and Rule 11b are satisfied)
         if 'Rule 11a' in ags_errors or 'Rule 11b' in ags_errors:
@@ -719,10 +722,15 @@ def rule_11c(tables, dictionary, delimiter, concatenator, ags_errors={}):
         for col in df:
             if 'RL' in df.loc[df.HEADING == 'TYPE', col].tolist():
                 # Filter out rows with blank RL entries
-                for record_link in df.loc[df.HEADING.eq('DATA') & df[col].str.contains(r'.+', regex=True), col]:
+                rows_with_record_links = df.loc[df.HEADING.eq('DATA') & df[col].str.contains(r'.+', regex=True), :]
+
+                for i, row in rows_with_record_links.iterrows():
+                    record_link = row[col]
+                    line_number = row['line_number']
+
                     # Return error message if delimiter is not found
                     if delimiter not in record_link:
-                        add_error_msg(ags_errors, 'Rule 11c', '-', group, f'Invalid record link: "{record_link}". "{delimiter}" should be used as delimiter.')
+                        add_error_msg(ags_errors, 'Rule 11c', line_number, group, f'Invalid record link: "{record_link}". "{delimiter}" should be used as delimiter.')
                         continue
 
                     # Convert record link to list and split using concatenator
@@ -731,10 +739,10 @@ def rule_11c(tables, dictionary, delimiter, concatenator, ags_errors={}):
                     # Check whether each link refers to a valid record
                     for item in record_link:
                         if fetch_record(item.split(delimiter), tables).shape[0] < 1:
-                            add_error_msg(ags_errors, 'Rule 11c', '-', group, f'Invalid record link: "{item}". No such record found.')
+                            add_error_msg(ags_errors, 'Rule 11c', line_number, group, f'Invalid record link: "{item}". No such record found.')
 
                         elif fetch_record(item.split(delimiter), tables).shape[0] > 1:
-                            add_error_msg(ags_errors, 'Rule 11c', '-', group, f'Invalid record link: "{item}". Link refers to more than one record.')
+                            add_error_msg(ags_errors, 'Rule 11c', line_number, group, f'Invalid record link: "{item}". Link refers to more than one record.')
 
     return ags_errors
 
