@@ -483,7 +483,9 @@ def rule_2b(tables, headings, line_numbers, ags_errors={}):
 
         # Check if the UNIT row is in the correct location within the table
         elif tables[key].loc[0, 'HEADING'] != 'UNIT':
-            line_number = tables[key].loc[tables[key]['HEADING'] == 'UNIT', 'line_number'].values[0]
+            line_number = int(tables[key].loc[tables[key]['HEADING'] == 'UNIT', 'line_number'].values[0])
+            # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+            # that Pandas returns by default
             add_error_msg(ags_errors, 'Rule 2b', line_number, key, 'UNIT row is misplaced. It should be immediately below the HEADING row.')
 
         # Check if there is a TYPE row in the table
@@ -493,7 +495,9 @@ def rule_2b(tables, headings, line_numbers, ags_errors={}):
 
         # Check if the UNIT row is in the correct location within the table
         elif tables[key].loc[1, 'HEADING'] != 'TYPE':
-            line_number = tables[key].loc[tables[key]['HEADING'] == 'TYPE', 'line_number'].values[0]
+            line_number = int(tables[key].loc[tables[key]['HEADING'] == 'TYPE', 'line_number'].values[0])
+            # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+            # that Pandas returns by default
             add_error_msg(ags_errors, 'Rule 2b', line_number, key, 'TYPE row is misplaced. It should be immediately below the UNIT row.')
 
     return ags_errors
@@ -576,7 +580,9 @@ def rule_10a(tables, headings, dictionary, line_numbers, ags_errors={}):
 
             for i, row in duplicate_rows.iterrows():
                 duplicate_key_combo = '|'.join(row[key_fields].tolist())
-                line_number = row['line_number']
+                line_number = int(row['line_number'])
+                # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+                # that Pandas returns by default
                 add_error_msg(ags_errors, 'Rule 10a', line_number, group, f'Duplicate key field combination: {duplicate_key_combo}')
 
     return ags_errors
@@ -613,7 +619,9 @@ def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
             # Add each row with missing entries to the error log
             for i, row in missing_required_fields.iterrows():
                 msg = '|'.join(row.filter(regex=r'[^line_number]').tolist())
-                line_number = row['line_number']
+                line_number = int(row['line_number'])
+                # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+                # that Pandas returns by default
                 add_error_msg(ags_errors, 'Rule 10b', line_number, group, f'Empty REQUIRED fields: {msg}')
 
     return ags_errors
@@ -653,7 +661,7 @@ def rule_10c(tables, headings, dictionary, line_numbers, ags_errors={}):
 
                         for i, row in orphan_rows.iterrows():
                             msg = '|'.join(row[parent_key_fields].tolist())
-                            line_number = row['line_number_x'] #'line_number_x' because merge operation appends '_x' to column name in the left table
+                            line_number = int(row['line_number_x']) #'line_number_x' because merge operation appends '_x' to column name in the left table
                             add_error_msg(ags_errors, 'Rule 10c', line_number, group, f'Parent entry for line not found in {parent_group}: {msg}')
 
                     else:
@@ -683,7 +691,9 @@ def rule_11(tables, headings, dictionary, ags_errors={}):
         concatenator = TRAN.loc[TRAN.HEADING == 'DATA', 'TRAN_RCON'].values[0]
 
         # Get line number
-        line_number = TRAN.loc[TRAN.HEADING == 'DATA', 'line_number'].values[0]
+        line_number = int(TRAN.loc[TRAN.HEADING == 'DATA', 'line_number'].values[0])
+        # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+        # that Pandas returns by default
 
         # Check Rule 11a
         if delimiter == '':
@@ -726,7 +736,9 @@ def rule_11c(tables, dictionary, delimiter, concatenator, ags_errors={}):
 
                 for i, row in rows_with_record_links.iterrows():
                     record_link = row[col]
-                    line_number = row['line_number']
+                    line_number = int(row['line_number'])
+                    # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+                    # that Pandas returns by default
 
                     # Return error message if delimiter is not found
                     if delimiter not in record_link:
