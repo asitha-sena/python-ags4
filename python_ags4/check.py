@@ -54,7 +54,7 @@ def add_error_msg(ags_errors, rule, line, group, desc):
 
 
 def combine_DICT_tables(input_files):
-    '''Read multiple .ags files and cobmbine the DICT tables.
+    '''Read multiple .ags files and combine the DICT tables.
 
     If duplicate rows are encountered, the first will be kept and the rest dropped.
     Only 'HEADING','DICT_TYPE','DICT_GRP','DICT_HDNG' columns will be considered
@@ -110,7 +110,7 @@ def fetch_record(record_link, tables):
     Parameters
     ----------
     record_link : list
-        AGS4 Record Link (i.e. TYPE = "RL") converterd to an ordered list
+        AGS4 Record Link (i.e. TYPE = "RL") converted to an ordered list
     tables : dict
         Dictionary of Pandas DataFrames with all AGS4 data in file
 
@@ -423,7 +423,7 @@ def rule_19a(line, line_number=0, group='', ags_errors={}):
 
 def rule_19b_1(line, line_number=0, group='', ags_errors={}):
     '''AGS4 Rule 19b: HEADING names shall start with the group name followed by an underscore character.
-    Where a HEADING referes to an existing HEADING within another GROUP, it shall bear the same name.
+    Where a HEADING refers to an existing HEADING within another GROUP, it shall bear the same name.
     '''
 
     if line.strip('"').startswith('HEADING'):
@@ -457,7 +457,7 @@ def rule_2(tables, headings, ags_errors={}):
         tables[key].reset_index(drop=True, inplace=True)
 
         # Check if there is a UNIT row in the table
-        # NOTE: .tolist() used instead of .values to avoid "FutureWarning: elementwise comparison failed."
+        # NOTE: .tolist() used instead of .values to avoid "FutureWarning: element-wise comparison failed."
         #       ref: https://stackoverflow.com/questions/40659212/futurewarning-elementwise-comparison-failed-returning-scalar-but-in-the-futur
         if 'DATA' not in tables[key]['HEADING'].tolist():
             add_error_msg(ags_errors, 'Rule 2', '-', key, 'No DATA rows in group.')

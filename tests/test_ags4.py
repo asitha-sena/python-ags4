@@ -5,6 +5,8 @@
 from python_ags4 import AGS4, __version__
 import toml
 import pandas as pd
+import pathlib
+import pytest
 
 
 # Data in LOCA table in test_data.ags
@@ -42,14 +44,31 @@ def test_version():
     assert __version__ == pyproject['tool']['poetry']['version']
 
 
-def test_AGS4_to_dict(LOCA=LOCA):
-    tables, headings = AGS4.AGS4_to_dict('tests/test_data.ags')
+@pytest.mark.parametrize("test_file", ['tests/test_data.ags', pathlib.Path('tests/test_data.ags')])
+def test_AGS4_file_to_dict(test_file, LOCA=LOCA):
+    tables, headings = AGS4.AGS4_to_dict(test_file)
 
     assert tables['LOCA'] == LOCA
 
 
-def test_AGS4_to_dataframe(LOCA=LOCA):
+def test_AGS4_stream_to_dict(LOCA=LOCA):
+
+    with open('tests/test_data.ags', 'r') as file:
+        tables, headings = AGS4.AGS4_to_dict(file)
+
+    assert tables['LOCA'] == LOCA
+
+
+def test_AGS4_file_to_dataframe(LOCA=LOCA):
     tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
+
+    assert tables['LOCA'].loc[2, 'LOCA_ID'] == 'Location_1'
+    assert tables['LOCA'].equals(pd.DataFrame(LOCA))
+
+
+def test_AGS4_stream_to_dataframe(LOCA=LOCA):
+    with open('tests/test_data.ags', 'r') as file:
+        tables, headings = AGS4.AGS4_to_dataframe(file)
 
     assert tables['LOCA'].loc[2, 'LOCA_ID'] == 'Location_1'
     assert tables['LOCA'].equals(pd.DataFrame(LOCA))
