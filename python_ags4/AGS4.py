@@ -20,7 +20,7 @@
 
 # Read functions #
 
-def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
+def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False):
     """Load all the data in a AGS4 file to a dictionary of dictionaries.
     This GROUP in the AGS4 file is assigned its own dictionary.
 
@@ -31,6 +31,11 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
     ----------
     filepath_or_buffer : File path (str, pathlib.Path), or StringIO.
         Path to AGS4 file or any object with a read() method (such as an open file or StringIO).
+    encoding : str
+        Encoding of text file (default 'utf-8')
+    get_line_numbers : bool
+        Add line number column to each table (for UNIT, TYPE, and DATA rows) and return
+        a dictionary with line numbers for GROUP and HEADING lines (default False)
 
     Returns
     -------
@@ -40,9 +45,13 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
         Dictionary with the headings in the each GROUP (This will be needed to
         recall the correct column order when writing pandas dataframes back to AGS4
         files. i.e. input for 'dataframe_to_AGS4()' function)
+    line_numbers : dict (Only if get_line_numbers=True)
+        Dictionary with the starting line numbers of GROUP and HEADING rows. This is only
+        required for checking a .ags file with 'check_file() function.
     """
 
     from rich import print as rprint
+    import sys
 
     if is_file_like(filepath_or_buffer):
         f = filepath_or_buffer
@@ -63,9 +72,8 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
         # the AGS data format. Other columns in certain groups have a
         # preferred order as well)
 
-        import sys
-
         headings = {}
+        line_numbers = {}
 
         for i, line in enumerate(f, start=1):
             temp = line.rstrip().split('","')
@@ -74,6 +82,11 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
             if temp[0] == 'GROUP':
                 group = temp[1]
                 data[group] = {}
+
+                # Store GROUP line number
+                # (A default 'HEADING' entry is added to avoid KeyErrors in case of missing
+                # HEADING rows)
+                line_numbers[group] = {'GROUP': i, 'HEADING': '-'}
 
             elif temp[0] == 'HEADING':
 
@@ -107,6 +120,13 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
 
                                 temp[i] = temp[i]+'_'+str(item_count[item]['count'])
 
+                # Store HEADING line number
+                line_numbers[group]['HEADING'] = i
+
+                # Store UNIT, TYPE, and DATA line numbers
+                if get_line_numbers is True:
+                    temp.append('line_number')
+
                 headings[group] = temp
 
                 for item in temp:
@@ -114,9 +134,13 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
 
             elif temp[0] in ['TYPE', 'UNIT', 'DATA']:
 
-                try:
-                    assert len(temp) == len(headings[group])
-                except AssertionError:
+                # Append line number
+                if get_line_numbers is True:
+                    temp.append(i)
+
+                # Check whether line has the same number of entries as the number of headings in the group
+                # If not, print error and exit
+                if len(temp) != len(headings[group]):
                     rprint(f"[red]  Error: Line {i} does not have the same number of entries as the HEADING row in [bold]{group}[/bold].[/red]")
                     sys.exit()
 
@@ -129,10 +153,13 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8'):
         if close_file:
             f.close()
 
+    if get_line_numbers is True:
+        return data, headings, line_numbers
+
     return data, headings
 
 
-def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8'):
+def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=False):
     """Load all the tables in a AGS4 file to a Pandas dataframes. The output is
     a Python dictionary of dataframes with the name of each AGS4 table (i.e.
     GROUP) as the primary key.
@@ -141,6 +168,11 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8'):
     ----------
     filepath_or_buffer : str, StringIO
         Path to AGS4 file or any file like object (open file or StringIO)
+    show_line_number : bool
+        Add line number column to each table (default False)
+    get_line_numbers : bool
+        Add line number column to each table (for UNIT, TYPE, and DATA rows) and return
+        a dictionary with line numbers for GROUP and HEADING lines (default False)
 
     Returns
     -------
@@ -150,11 +182,26 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8'):
         Dictionary with the headings in the each GROUP (This will be needed to
         recall the correct column order when writing pandas dataframes back to AGS4
         files. i.e. input for 'dataframe_to_AGS4()' function)
+    line_numbers : dict (Only if get_line_numbers=True)
+        Dictionary with the starting line numbers of GROUP and HEADING rows. This is only
+        required for checking a .ags file with 'check_file() function.
     """
 
     from pandas import DataFrame
 
     # Extract AGS4 file into a dictionary of dictionaries
+    # A dictionary with group line numbers is returned, in addition to data and headings, for checking purposes
+    if get_line_numbers is True:
+        data, headings, line_numbers = AGS4_to_dict(filepath_or_buffer, encoding=encoding, get_line_numbers=get_line_numbers)
+
+        # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
+        df = {}
+        for key in data:
+            df[key] = DataFrame(data[key])
+
+        return df, headings, line_numbers
+
+    # Otherwise only the data and the headings are returned
     data, headings = AGS4_to_dict(filepath_or_buffer, encoding=encoding)
 
     # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
@@ -616,7 +663,7 @@ def check_file(input_file, standard_AGS4_dictionary=None):
     # Import file into Pandas DataFrame to run group checks
     try:
         rprint('[green]  Loading tables...[/green]')
-        tables, headings = AGS4_to_dataframe(input_file)
+        tables, headings, line_numbers = AGS4_to_dataframe(input_file, get_line_numbers=True)
 
     except:
         # TODO: Add specific errors to except clause to conform to flake8
@@ -625,12 +672,12 @@ def check_file(input_file, standard_AGS4_dictionary=None):
 
     # Group Checks
     rprint('[green]  Checking headings and groups...[/green]')
-    ags_errors = check.rule_2(tables, headings, ags_errors=ags_errors)
-    ags_errors = check.rule_2b(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_2(tables, headings, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_2b(tables, headings, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_12(tables, headings, ags_errors=ags_errors)
-    ags_errors = check.rule_13(tables, headings, ags_errors=ags_errors)
-    ags_errors = check.rule_14(tables, headings, ags_errors=ags_errors)
-    ags_errors = check.rule_15(tables, headings, ags_errors=ags_errors)
+    ags_errors = check.rule_13(tables, headings, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_14(tables, headings, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_15(tables, headings, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_20(tables, headings, input_file, ags_errors=ags_errors)
 
     # Dictionary Based Checks
@@ -643,18 +690,18 @@ def check_file(input_file, standard_AGS4_dictionary=None):
     dictionary = check.combine_DICT_tables([standard_AGS4_dictionary, input_file])
 
     rprint('[green]  Checking file schema...[/green]')
-    ags_errors = check.rule_7(headings, dictionary, ags_errors=ags_errors)
-    ags_errors = check.rule_9(headings, dictionary, ags_errors=ags_errors)
-    ags_errors = check.rule_10a(tables, headings, dictionary, ags_errors=ags_errors)
-    ags_errors = check.rule_10b(tables, headings, dictionary, ags_errors=ags_errors)
-    ags_errors = check.rule_10c(tables, headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_7(headings, dictionary, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_9(headings, dictionary, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_10a(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_10b(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_10c(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_11(tables, headings, dictionary, ags_errors=ags_errors)
     ags_errors = check.rule_16(tables, headings, dictionary, ags_errors=ags_errors)
     ags_errors = check.rule_17(tables, headings, dictionary, ags_errors=ags_errors)
     # Note: rule_18() has to be called after rule_9() as it relies on rule_9() to flag non-standard headings.
     ags_errors = check.rule_18(tables, headings, ags_errors=ags_errors)
-    ags_errors = check.rule_19b_2(headings, dictionary, ags_errors=ags_errors)
-    ags_errors = check.rule_19c(tables, headings, dictionary, ags_errors=ags_errors)
+    ags_errors = check.rule_19b_2(headings, dictionary, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_19c(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
 
     # Check if file is likely to in AGS3 format
     ags_errors = check.is_ags3(tables, input_file, ags_errors=ags_errors)
