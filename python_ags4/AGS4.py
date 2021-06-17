@@ -617,6 +617,7 @@ def check_file(input_file, standard_AGS4_dictionary=None):
 
     from python_ags4 import check
     from rich import print as rprint
+    import sys
 
     ags_errors = {}
 
@@ -667,7 +668,9 @@ def check_file(input_file, standard_AGS4_dictionary=None):
 
     except:
         # TODO: Add specific errors to except clause to conform to flake8
-        rprint('[red]  ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
+        err = sys.exc_info()
+        rprint('[red] ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
+        rprint(f'[red]        Details: {err}.[/red]')
         return ags_errors
 
     # Group Checks
