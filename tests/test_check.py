@@ -144,6 +144,15 @@ def test_rule_10_5():
     assert error_list['Rule 10c'][0]['desc'] == 'Could not find parent group LOCA.'
 
 
+def test_rule_10_6():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule10-6.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 10b' in error_list.keys()
+    assert error_list['Rule 10b'][0]['line'] == 15
+    assert error_list['Rule 10b'][0]['group'] == 'ABBR'
+    assert error_list['Rule 10b'][0]['desc'] == 'Required field ABBR_DESC not found.'
+
+
 def test_rule_11_1():
     error_list = AGS4.check_file('tests/test_files/4.1-rule11-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
