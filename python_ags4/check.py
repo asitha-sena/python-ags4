@@ -601,7 +601,7 @@ def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
         for heading in required_fields:
             if heading not in headings[group]:
                 line_number = line_numbers[group]['HEADING']
-                add_error_msg(ags_errors, 'Rule 10b', line_numbers, group, f'Required field {heading} not found.')
+                add_error_msg(ags_errors, 'Rule 10b', line_number, group, f'Required field {heading} not found.')
 
         # Check for missing entries in REQUIRED fields
         # First make copy of table so that it can be modified without unexpected side-effects
