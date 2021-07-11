@@ -53,8 +53,8 @@ def add_error_msg(ags_errors, rule, line, group, desc):
     return ags_errors
 
 
-def combine_DICT_tables(input_files):
-    '''Read multiple .ags files and combine the DICT tables.
+def combine_DICT_tables(*ags_tables):
+    '''Combine DICT tables
 
     If duplicate rows are encountered, the first will be kept and the rest dropped.
     Only 'HEADING','DICT_TYPE','DICT_GRP','DICT_HDNG' columns will be considered
@@ -65,8 +65,9 @@ def combine_DICT_tables(input_files):
 
     Parameters
     ----------
-    input_files : list
-        List of paths to .ags files.
+    ags_tables : dictionary of Pandas DataFrames
+        A dictionary of Pandas DataFrames containing data from a .ags file that is
+        output from the AGS4_to_dataframe() function
 
     Returns
     -------
@@ -82,15 +83,14 @@ def combine_DICT_tables(input_files):
     # Initialize DataFrame to hold all dictionary entries
     master_DICT = DataFrame()
 
-    for file in input_files:
+    for item in ags_tables:
         try:
-            tables, _ = AGS4_to_dataframe(file)
 
-            master_DICT = concat([master_DICT, tables['DICT']])
+            master_DICT = concat([master_DICT, item['DICT']])
 
         except KeyError:
             # KeyError if there is no DICT table in an input file
-            rprint(f'[yellow]  WARNING: There is no DICT table in {file}.[/yellow]')
+            rprint(f'[yellow]  WARNING: DICT table not found in input file.[/yellow]')
 
     # Check whether master_DICT is empty
     if master_DICT.shape[0] == 0:
