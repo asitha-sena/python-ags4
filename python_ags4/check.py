@@ -53,8 +53,8 @@ def add_error_msg(ags_errors, rule, line, group, desc):
     return ags_errors
 
 
-def combine_DICT_tables(input_files):
-    '''Read multiple .ags files and combine the DICT tables.
+def combine_DICT_tables(*ags_tables):
+    '''Combine DICT tables
 
     If duplicate rows are encountered, the first will be kept and the rest dropped.
     Only 'HEADING','DICT_TYPE','DICT_GRP','DICT_HDNG' columns will be considered
@@ -65,8 +65,9 @@ def combine_DICT_tables(input_files):
 
     Parameters
     ----------
-    input_files : list
-        List of paths to .ags files.
+    ags_tables : dictionary of Pandas DataFrames
+        A dictionary of Pandas DataFrames containing data from a .ags file that is
+        output from the AGS4_to_dataframe() function
 
     Returns
     -------
@@ -82,15 +83,14 @@ def combine_DICT_tables(input_files):
     # Initialize DataFrame to hold all dictionary entries
     master_DICT = DataFrame()
 
-    for file in input_files:
+    for item in ags_tables:
         try:
-            tables, _ = AGS4_to_dataframe(file)
 
-            master_DICT = concat([master_DICT, tables['DICT']])
+            master_DICT = concat([master_DICT, item['DICT']])
 
         except KeyError:
             # KeyError if there is no DICT table in an input file
-            rprint(f'[yellow]  WARNING: There is no DICT table in {file}.[/yellow]')
+            rprint(f'[yellow]  WARNING: DICT table not found in input file.[/yellow]')
 
     # Check whether master_DICT is empty
     if master_DICT.shape[0] == 0:
@@ -578,8 +578,8 @@ def rule_10a(tables, headings, dictionary, line_numbers, ags_errors={}):
             mask = tables[group].duplicated(key_fields, keep=False)
             duplicate_rows = tables[group].loc[mask, :]
 
-            for i, row in duplicate_rows.iterrows():
-                duplicate_key_combo = '|'.join(row[key_fields].tolist())
+            for row in duplicate_rows.to_dict('records'):
+                duplicate_key_combo = '|'.join([row[x] for x in row if x in key_fields])
                 line_number = int(row['line_number'])
                 # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                 # that Pandas returns by default
@@ -617,8 +617,8 @@ def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
             missing_required_fields = df.loc[mask, :]
 
             # Add each row with missing entries to the error log
-            for i, row in missing_required_fields.iterrows():
-                msg = '|'.join(row.filter(regex=r'[^line_number]').tolist())
+            for row in missing_required_fields.to_dict('records'):
+                msg = '|'.join([row[x] for x in row if x not in ['line_number']])
                 line_number = int(row['line_number'])
                 # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                 # that Pandas returns by default
@@ -659,8 +659,8 @@ def rule_10c(tables, headings, dictionary, line_numbers, ags_errors={}):
                         # parent table
                         orphan_rows = child_df.merge(parent_df, how='left', on=parent_key_fields, indicator=True).query('''_merge=="left_only"''')
 
-                        for i, row in orphan_rows.iterrows():
-                            msg = '|'.join(row[parent_key_fields].tolist())
+                        for row in orphan_rows.to_dict('records'):
+                            msg = '|'.join([row[x] for x in row if x in parent_key_fields])
                             line_number = int(row['line_number_x']) #'line_number_x' because merge operation appends '_x' to column name in the left table
                             add_error_msg(ags_errors, 'Rule 10c', line_number, group, f'Parent entry for line not found in {parent_group}: {msg}')
 

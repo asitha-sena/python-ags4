@@ -689,8 +689,12 @@ def check_file(input_file, standard_AGS4_dictionary=None):
     if standard_AGS4_dictionary is None:
         standard_AGS4_dictionary = check.pick_standard_dictionary(tables)
 
-    # Combine dictionary file in input file with the standard dictionary to carry out checks
-    dictionary = check.combine_DICT_tables([standard_AGS4_dictionary, input_file])
+    # Import standard dictionary into Pandas DataFrames
+    tables_std_dict, _ = AGS4_to_dataframe(standard_AGS4_dictionary)
+
+    # Combine standard dictionary with DICT table in input file to create an extended dictionary
+    # This extended dictionary is used to check the file schema
+    dictionary = check.combine_DICT_tables(tables_std_dict, tables)
 
     rprint('[green]  Checking file schema...[/green]')
     ags_errors = check.rule_7(headings, dictionary, line_numbers, ags_errors=ags_errors)
