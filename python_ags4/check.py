@@ -537,6 +537,116 @@ def rule_7(headings, dictionary, line_numbers, ags_errors={}):
     return ags_errors
 
 
+def rule_8(tables, headings, line_numbers, ags_errors={}):
+    '''AGS4 Rule 8: Data variables shall be presented in units of measurements
+    and type that are described by the appropriate data field UNIT and data
+    field TYPE defined at the start of the GROUP.
+    '''
+
+    import pandas as pd
+
+    for group in tables:
+        # First make copy of table to avoid unexpected side-effects
+        df = tables[group].copy()
+
+        try:
+            # Create dictionary of data types in table
+            data_types = df.filter(regex=r'[^line_number]').loc[df.HEADING.eq('TYPE'), :].to_dict('records')[0]
+
+            for col, data_type in data_types.items():
+                if 'DP' in data_type:
+                    i = int(data_type.strip('DP'))
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(f'^-?\d+\.\d{{{i}}}$')
+
+                    for row in df.loc[mask, :].to_dict('records'):
+                        line_number = int(row['line_number'])
+                        # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+                        # that Pandas returns by default
+                        add_error_msg(ags_errors, 'Rule 8', line_number, group, f'Value {row[col]} in {col} not of data type {data_type}.')
+
+                elif 'SCI' in data_type:
+                    i = int(data_type.strip('SCI'))
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(f'^-?\d\.\d{{{i}}}[eE]\d+$')
+
+                    for row in df.loc[mask, :].to_dict('records'):
+                        line_number = int(row['line_number'])
+                        # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+                        # that Pandas returns by default
+                        add_error_msg(ags_errors, 'Rule 8', line_number, group, f'Value {row[col]} in {col} not of data type {data_type}.')
+
+                elif 'SF' in data_type:
+                    i = int(data_type.strip('SF'))
+
+                    # Convert column to numeric values and convert back to correctly format strings
+                    # Final call to str.rstrip('.') is necessary as the formatter put a decimal point at the end of full numbers
+                    temp = pd.to_numeric(df[col], errors='coerce').apply(lambda x: f"{x:.{i}g}").str.rstrip('.')
+                    # Compare correctly formatted strings with original strings
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq(temp)
+
+                    for row in df.loc[mask, :].to_dict('records'):
+                        line_number = int(row['line_number'])
+                        # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+                        # that Pandas returns by default
+                        add_error_msg(ags_errors, 'Rule 8', line_number, group, f'Value {row[col]} in {col} not of data type {data_type}.')
+
+                elif data_type == 'DT':
+                    mask =  df.HEADING.eq('DATA') & pd.to_datetime(df[col], errors='coerce', format='%Y-%m-%d').isna()
+
+                    # TODO Does not identify date/time such as 'yyyy-mm-ddThh:mm:ssZ(+hh:mm)' as valid
+                    for row in df.loc[mask, :].to_dict('records'):
+                        line_number = int(row['line_number'])
+                        # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+                        # that Pandas returns by default
+                        add_error_msg(ags_errors, 'Rule 8', line_number, group, f'Value {row[col]} in {col} not in the ISO date/time format or is an invalid date/time.')
+
+                elif data_type == 'U':
+                    # Column can contain any numeric value
+                    temp = pd.to_numeric(df[col], errors='coerce')
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & temp.isna()
+
+                    for row in df.loc[mask, :].to_dict('records'):
+                        line_number = int(row['line_number'])
+                        # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+                        # that Pandas returns by default
+                        add_error_msg(ags_errors, 'Rule 8', line_number, group, f'Value {row[col]} in {col} not of data type {data_type}.')
+
+                elif data_type == 'YN':
+                    mask = df.HEADING.eq('DATA') & ~df[col].str.lower().str.match(r'^(yes|no|y|n)$')
+
+                    for row in df.loc[mask, :].to_dict('records'):
+                        line_number = int(row['line_number'])
+                        # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+                        # that Pandas returns by default
+                        add_error_msg(ags_errors, 'Rule 8', line_number, group, f'Value {row[col]} in {col} not of data type {data_type}.')
+
+                elif data_type == 'DMS':
+                    mask = df.HEADING.eq('DATA') & ~df[col].str.match(r'^\d+:[0-5]\d:[0-5]\d.?\d*$')
+
+                    for row in df.loc[mask, :].to_dict('records'):
+                        line_number = int(row['line_number'])
+                        # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+                        # that Pandas returns by default
+                        add_error_msg(ags_errors, 'Rule 8', line_number, group, f'Value {row[col]} in {col} not of data type {data_type} or is an invalid value.')
+
+                # elif data_type == 'MC':
+                #     # TODO Add check for MC
+                #     pass
+
+                # elif data_type == 'RL':
+                #     # Rule 11 should flag invalid RL entries
+                #     pass
+
+                # elif data_type in ['X', 'XN']:
+                #     # Definition too broad to validate
+                #     pass
+
+        except IndexError:
+            # No TYPE row in table
+            pass
+
+    return ags_errors
+
+
 def rule_9(headings, dictionary, line_numbers, ags_errors={}):
     '''AGS4 Rule 9: GROUP and HEADING names will be taken from the standard AGS4 dictionary or
     defined in DICT table in the .ags file.
