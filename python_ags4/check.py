@@ -559,9 +559,9 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                     i = int(data_type.strip('DP'))
 
                     if i == 0:
-                        mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(f'^-?\d+\.?$')
+                        mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(r'^-?\d+\.?$')
                     else:
-                        mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(f'^-?\d+\.\d{{{i}}}$')
+                        mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(f'^-?\\d+\\.\\d{{{i}}}$')
 
                     for row in df.loc[mask, :].to_dict('records'):
                         line_number = int(row['line_number'])
@@ -571,7 +571,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
 
                 elif 'SCI' in data_type:
                     i = int(data_type.strip('SCI'))
-                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(f'^-?\d\.\d{{{i}}}[eE]\d+$')
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(f'^-?\\d\\.\\d{{{i}}}[eE]\\d+$')
 
                     for row in df.loc[mask, :].to_dict('records'):
                         line_number = int(row['line_number'])
@@ -606,7 +606,8 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         line_number = int(row['line_number'])
                         # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                         # that Pandas returns by default
-                        add_error_msg(ags_errors, 'Rule 8', line_number, group, f'Value {row[col]} in {col} not in the ISO date/time format or is an invalid date/time.')
+                        msg = f'Value {row[col]} in {col} not in the ISO date/time format or is an invalid date/time.'
+                        add_error_msg(ags_errors, 'Rule 8', line_number, group, msg)
 
                 elif data_type == 'U':
                     # Column can contain any numeric value
@@ -636,7 +637,8 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         line_number = int(row['line_number'])
                         # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                         # that Pandas returns by default
-                        add_error_msg(ags_errors, 'Rule 8', line_number, group, f'Value {row[col]} in {col} not of data type {data_type} or is an invalid value.')
+                        msg = f'Value {row[col]} in {col} not of data type {data_type} or is an invalid value.'
+                        add_error_msg(ags_errors, 'Rule 8', line_number, group, msg)
 
                 # elif data_type == 'MC':
                 #     # TODO Add check for MC
