@@ -544,6 +544,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
     '''
 
     import pandas as pd
+    from python_ags4.AGS4 import format_numeric_column
 
     for group in tables:
         # First make copy of table to avoid unexpected side-effects
@@ -581,20 +582,24 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                 elif 'SF' in data_type:
                     i = int(data_type.strip('SF'))
 
-                    # Convert column to numeric values and convert back to correctly format strings
-                    # Final call to str.rstrip('.') is necessary as the formatter put a decimal point at the end of full numbers
-                    temp = pd.to_numeric(df[col], errors='coerce').apply(lambda x: f"{x:.{i}g}").str.rstrip('.')
+                    # Convert column to numeric values and convert back to correctly formatted strings
+                    df['temp'] = pd.to_numeric(df[col], errors='coerce')
+                    df = format_numeric_column(df, 'temp', data_type)
+                    df.loc[df.temp.isna(), 'temp'] = '?'
                     # Compare correctly formatted strings with original strings
-                    mask = df.HEADING.eq('DATA') & ~df[col].eq(temp)
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].eq(df['temp'])
 
                     for row in df.loc[mask, :].to_dict('records'):
                         line_number = int(row['line_number'])
                         # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                         # that Pandas returns by default
-                        add_error_msg(ags_errors, 'Rule 8', line_number, group, f'Value {row[col]} in {col} not of data type {data_type}.')
+
+                        expected_val = row['temp']
+                        msg = f'Value {row[col]} in {col} not of data type {data_type}. (Expected: {expected_val})'
+                        add_error_msg(ags_errors, 'Rule 8', line_number, group, msg)
 
                 elif data_type == 'DT':
-                    mask =  df.HEADING.eq('DATA') & pd.to_datetime(df[col], errors='coerce', format='%Y-%m-%d').isna()
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & pd.to_datetime(df[col], errors='coerce', format='%Y-%m-%d').isna()
 
                     # TODO Does not identify date/time such as 'yyyy-mm-ddThh:mm:ssZ(+hh:mm)' as valid
                     for row in df.loc[mask, :].to_dict('records'):
