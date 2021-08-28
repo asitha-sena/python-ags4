@@ -556,7 +556,11 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
             for col, data_type in data_types.items():
                 if 'DP' in data_type:
                     i = int(data_type.strip('DP'))
-                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(f'^-?\d+\.\d{{{i}}}$')
+
+                    if i == 0:
+                        mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(f'^-?\d+\.?$')
+                    else:
+                        mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(f'^-?\d+\.\d{{{i}}}$')
 
                     for row in df.loc[mask, :].to_dict('records'):
                         line_number = int(row['line_number'])
