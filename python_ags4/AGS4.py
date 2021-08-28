@@ -563,29 +563,10 @@ def format_numeric_column(dataframe, column_name, TYPE):
 
         elif 'SF' in TYPE:
 
-            def format_SF(value, TYPE):
-                '''Format a value to specified number of significant figures
-                and return a string.'''
-
-                from numpy import round, log10
-
-                # Avoid log(0) as int(log(0)) will raise an OverflowError
-                if value != 0:
-                    i = int(TYPE.strip('SF')) - 1 - int(log10(abs(value)))
-
-                else:
-                    return f"{value}"
-
-                if i < 0:
-                    return f"{round(value, i):.0f}"
-
-                else:
-                    return f"{value:.{i}f}"
-
             # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
             # as "" rather than "nan"
             mask = (df.HEADING == "DATA") & df[col].notna()
-            df.loc[mask, [col]] = df.loc[mask, [col]].applymap(lambda x: format_SF(x, TYPE))
+            df.loc[mask, [col]] = df.loc[mask, [col]].applymap(lambda x: _format_SF(x, TYPE))
 
         else:
             pass
@@ -597,6 +578,26 @@ def format_numeric_column(dataframe, column_name, TYPE):
         rprint(f"[yellow]  WARNING: Numeric data in [bold]{col}[/bold] exported without reformatting as it had one or more non-numeric entries.[/yellow]")
 
     return df
+
+
+def _format_SF(value, TYPE):
+    '''Format a value to specified number of significant figures
+    and return a string.'''
+
+    from math import log10, floor
+
+    # Avoid log(0) as int(log(0)) will raise an OverflowError
+    if value != 0:
+        i = int(TYPE.strip('SF')) - 1 - int(floor(log10(abs(value))))
+
+    else:
+        return f"{value}"
+
+    if i < 0:
+        return f"{round(value, i):.0f}"
+
+    else:
+        return f"{value:.{i}f}"
 
 
 def check_file(input_file, standard_AGS4_dictionary=None):
@@ -677,6 +678,7 @@ def check_file(input_file, standard_AGS4_dictionary=None):
     rprint('[green]  Checking headings and groups...[/green]')
     ags_errors = check.rule_2(tables, headings, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_2b(tables, headings, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_8(tables, headings, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_12(tables, headings, ags_errors=ags_errors)
     ags_errors = check.rule_13(tables, headings, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_14(tables, headings, line_numbers, ags_errors=ags_errors)
