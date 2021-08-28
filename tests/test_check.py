@@ -82,6 +82,105 @@ def test_rule_7():
     assert error_list['Rule 7'][0]['desc'] == 'Headings not in order starting from FILE_FSET. Expected order: ...PROJ_MEMO|FILE_FSET'
 
 
+def test_rule_8_1():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule8-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 8' in error_list.keys()
+    assert error_list['Rule 8'][0]['line'] == 76
+    assert error_list['Rule 8'][0]['group'] == 'LOCA'
+    assert error_list['Rule 8'][0]['desc'] == 'Value 523145.010 in LOCA_NATE not of data type 2DP.'
+
+    assert error_list['Rule 8'][1]['line'] == 77
+    assert error_list['Rule 8'][1]['group'] == 'LOCA'
+    assert error_list['Rule 8'][1]['desc'] == 'Value 523145.0 in LOCA_NATE not of data type 2DP.'
+
+
+def test_rule_8_2():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule8-2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 8' in error_list.keys()
+    assert error_list['Rule 8'][0]['line'] == 82
+    assert error_list['Rule 8'][0]['group'] == 'SAMP'
+    assert error_list['Rule 8'][0]['desc'] == 'Value 2.455e1 in SAMP_TOP not of data type 2SCI.'
+
+    assert error_list['Rule 8'][1]['line'] == 83
+    assert error_list['Rule 8'][1]['group'] == 'SAMP'
+    assert error_list['Rule 8'][1]['desc'] == 'Value 30.45e1 in SAMP_TOP not of data type 2SCI.'
+
+    assert error_list['Rule 8'][2]['line'] == 84
+    assert error_list['Rule 8'][2]['group'] == 'SAMP'
+    assert error_list['Rule 8'][2]['desc'] == 'Value 3.4e1 in SAMP_TOP not of data type 2SCI.'
+
+
+def test_rule_8_3():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule8-3.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 8' in error_list.keys()
+    assert error_list['Rule 8'][0]['line'] == 70
+    assert error_list['Rule 8'][0]['group'] == 'LLPL'
+    assert error_list['Rule 8'][0]['desc'] == 'Value 45.0 in LLPL_LL not of data type 2SF. (Expected: 45)'
+
+    assert error_list['Rule 8'][1]['line'] == 71
+    assert error_list['Rule 8'][1]['group'] == 'LLPL'
+    assert error_list['Rule 8'][1]['desc'] == 'Value 101 in LLPL_LL not of data type 2SF. (Expected: 100)'
+
+    assert error_list['Rule 8'][2]['line'] == 73
+    assert error_list['Rule 8'][2]['group'] == 'LLPL'
+    assert error_list['Rule 8'][2]['desc'] == 'Value 0.2 in LLPL_PI not of data type 2SF. (Expected: 0.20)'
+
+
+def test_rule_8_4():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule8-4.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 8' in error_list.keys()
+    assert error_list['Rule 8'][1]['line'] == 79
+    assert error_list['Rule 8'][1]['group'] == 'LOCA'
+    assert error_list['Rule 8'][1]['desc'] == 'Value 01-12-2020 in LOCA_START not in the ISO date/time format or is an invalid date/time.'
+
+    assert error_list['Rule 8'][2]['line'] == 80
+    assert error_list['Rule 8'][2]['group'] == 'LOCA'
+    assert error_list['Rule 8'][2]['desc'] == 'Value 2021-02-29 in LOCA_START not in the ISO date/time format or is an invalid date/time.'
+
+
+def test_rule_8_5():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule8-5.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 8' in error_list.keys()
+    assert error_list['Rule 8'][0]['line'] == 76
+    assert error_list['Rule 8'][0]['group'] == 'LOCA'
+    assert error_list['Rule 8'][0]['desc'] == 'Value 51:68:52.498 in LOCA_LAT not of data type DMS or is an invalid value.'
+
+    assert error_list['Rule 8'][1]['line'] == 77
+    assert error_list['Rule 8'][1]['group'] == 'LOCA'
+    assert error_list['Rule 8'][1]['desc'] == 'Value 51:28:152.498 in LOCA_LAT not of data type DMS or is an invalid value.'
+
+    assert error_list['Rule 8'][2]['line'] == 78
+    assert error_list['Rule 8'][2]['group'] == 'LOCA'
+    assert error_list['Rule 8'][2]['desc'] == 'Value :28:152.498 in LOCA_LAT not of data type DMS or is an invalid value.'
+
+
+def test_rule_8_6():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule8-5.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 8' in error_list.keys()
+    assert error_list['Rule 8'][3]['line'] == 85
+    assert error_list['Rule 8'][3]['group'] == 'SAMP'
+    assert error_list['Rule 8'][3]['desc'] == 'Value x in SAMP_RECL not of data type U. Numeric value expected.'
+
+
+def test_rule_8_7():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule8-5.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Rule 8' in error_list.keys()
+    assert error_list['Rule 8'][4]['line'] == 88
+    assert error_list['Rule 8'][4]['group'] == 'SAMP'
+    assert error_list['Rule 8'][4]['desc'] == 'Value xyz in SAMP_XXXX not of data type YN.'
+
+    assert error_list['Rule 8'][5]['line'] == 89
+    assert error_list['Rule 8'][5]['group'] == 'SAMP'
+    assert error_list['Rule 8'][5]['desc'] == 'Value 10 in SAMP_XXXX not of data type YN.'
+
+
 # def test_rule_9():
 #    error_list = AGS4.check_file('tests/test_files/4.1-rule9.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 #
@@ -91,12 +190,13 @@ def test_rule_7():
 #    assert error_list['Rule 7'][0]['desc'] == 'Headings not in order starting from FILE_FSET. Expected order: ...PROJ_MEMO|FILE_FSET'
 
 def test_rule_9_2():
-   error_list = AGS4.check_file('tests/test_files/4.1-rule9-2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+    error_list = AGS4.check_file('tests/test_files/4.1-rule9-2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
-   assert 'Rule 9' in error_list.keys()
-   assert error_list['Rule 9'][0]['line'] == 78
-   assert error_list['Rule 9'][0]['group'] == 'SAMP'
-   assert error_list['Rule 9'][0]['desc'] == 'SAMP_XXXX not found in DICT table or the standard AGS4 dictionary.'
+    assert 'Rule 9' in error_list.keys()
+    assert error_list['Rule 9'][0]['line'] == 78
+    assert error_list['Rule 9'][0]['group'] == 'SAMP'
+    assert error_list['Rule 9'][0]['desc'] == 'SAMP_XXXX not found in DICT table or the standard AGS4 dictionary.'
+
 
 def test_rule_10_1():
     error_list = AGS4.check_file('tests/test_files/4.1-rule10-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
