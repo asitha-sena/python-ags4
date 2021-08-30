@@ -571,7 +571,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
 
                 elif 'SCI' in data_type:
                     i = int(data_type.strip('SCI'))
-                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(f'^-?\\d\\.\\d{{{i}}}[eE]\\d+$')
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(f'^-?\\d\\.\\d{{{i}}}[eE][+-]?\\d+$')
 
                     for row in df.loc[mask, :].to_dict('records'):
                         line_number = int(row['line_number'])
@@ -585,9 +585,12 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                     # Convert column to numeric values and convert back to correctly formatted strings
                     df['temp'] = pd.to_numeric(df[col], errors='coerce')
                     df = format_numeric_column(df, 'temp', data_type)
-                    df.loc[df.temp.isna(), 'temp'] = '?'
+
                     # Compare correctly formatted strings with original strings
                     mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].eq(df['temp'])
+
+                    # Replace NaN with ? to make error log clearer
+                    df.loc[df.temp.isna(), 'temp'] = '?'
 
                     for row in df.loc[mask, :].to_dict('records'):
                         line_number = int(row['line_number'])
@@ -622,7 +625,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         add_error_msg(ags_errors, 'Rule 8', line_number, group, msg)
 
                 elif data_type == 'YN':
-                    mask = df.HEADING.eq('DATA') & ~df[col].str.lower().str.match(r'^(yes|no|y|n)$')
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.lower().str.match(r'^(yes|no|y|n)$')
 
                     for row in df.loc[mask, :].to_dict('records'):
                         line_number = int(row['line_number'])
@@ -631,7 +634,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         add_error_msg(ags_errors, 'Rule 8', line_number, group, f'Value {row[col]} in {col} not of data type {data_type}.')
 
                 elif data_type == 'DMS':
-                    mask = df.HEADING.eq('DATA') & ~df[col].str.match(r'^\d+:[0-5]\d:[0-5]\d.?\d*$')
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(r'^\d+:[0-5]\d:[0-5]\d.?\d*$')
 
                     for row in df.loc[mask, :].to_dict('records'):
                         line_number = int(row['line_number'])
