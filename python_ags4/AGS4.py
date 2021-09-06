@@ -93,32 +93,25 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False):
                 # Catch HEADER rows with duplicate entries as it will result in a dictionary with
                 # arrays of unequal lengths and cause a ValueError when trying to convert to a
                 # Pandas DataFrame
-                try:
-                    assert len(temp) == len(set(temp))
-                except AssertionError:
-                    rprint(f"[red]  ERROR: HEADER row in [bold]{group}[/bold] (Line {i}) has duplicate entries.[/red]")
+                if len(temp) != len(set(temp)):
+                    rprint(f"[yellow]  WARNING: HEADER row in [bold]{group}[/bold] (Line {i}) has duplicate entries.[/yellow]")
 
-                    user_input = input('  Do you want to automatically rename columns and continue (Yes/No) ?')
+                    # Rename duplicate headers by appending a number
+                    item_count = {}
 
-                    if user_input.lower() not in ['yes', 'y']:
-                        rprint('[red]  File conversion aborted![/red]')
-                        sys.exit()
-                    else:
-                        rprint('[blue]  INFO: Duplicate columns were renamed by appending a number (e.g "_1").[/blue]')
-                        rprint('[yellow]  WARNING: Automatically renamed columns do not conform to AGS4 Rules 19a and 19b.[/yellow]')
-                        rprint('[yellow]           Please review the data and rename or drop duplicate columns as appropriate.[/yellow]')
+                    for i, item in enumerate(temp):
+                        if item not in item_count:
+                            item_count[item] = {'i': i, 'count': 0}
+                        else:
+                            item_count[item]['i'] = i
+                            item_count[item]['count'] += 1
+                            count = item_count[item]['count']
 
-                        # Rename duplicates by appending a number
-                        item_count = {}
+                            temp[i] = temp[i]+'_'+str(item_count[item]['count'])
 
-                        for i, item in enumerate(temp):
-                            if item not in item_count:
-                                item_count[item] = {'i': i, 'count': 0}
-                            else:
-                                item_count[item]['i'] = i
-                                item_count[item]['count'] += 1
-
-                                temp[i] = temp[i]+'_'+str(item_count[item]['count'])
+                            rprint(f'[blue]  INFO: Duplicate column {item} found and renamed as {item}_{count}.[/blue]')
+                            rprint('[blue]        Automatically renamed columns do not conform to AGS4 Rules 19a and 19b.[/blue]')
+                            rprint('[blue]        Therefore, please review the data and rename or drop duplicate columns as appropriate.[/blue]')
 
                 # Store HEADING line number
                 line_numbers[group]['HEADING'] = i
@@ -229,7 +222,6 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
 
     from pandas import ExcelWriter
     from rich import print as rprint
-    import sys
 
     # Extract AGS4 file into a dictionary of dictionaries
     tables, headings = AGS4_to_dataframe(input_file, encoding=encoding)
@@ -245,12 +237,6 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
             elif tables[key].shape[0] > 100000:
                 rprint(f'[yellow]  WARNING: {key} has {tables[key].shape[0]} rows, so it may take a few minutes to export.[/yellow]')
                 rprint('[yellow]           The program will terminate if it runs out of memory in the process.[/yellow]')
-
-                user_input = input('  Do you want to continue (Yes/No) ?')
-
-                if user_input.lower() not in ['yes', 'y']:
-                    rprint('[red]  File conversion aborted![/red]')
-                    sys.exit()
 
             tables[key].to_excel(writer, sheet_name=key, index=False)
 
