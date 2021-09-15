@@ -1,9 +1,20 @@
-### NOTE - this repo has been ported from (https://github.com/asitha-sena/python-ags4) which is now read-only
-
-----
-
 # python-ags4
-A library to read and write AGS4 files using Pandas DataFrames
+
+- A library to read and write AGS4 files using [Pandas DataFrames](https://pandas.pydata.org/)
+- Release at [pypi.org/project/python-ags4/](https://pypi.org/project/python-ags4/)
+- Maintained by the [AGS Data Format WG](https://gitlab.com/ags-data-format-wg) 
+
+## Introduction
+`python-ags4` is a library of functions that
+- imports/reads [AGS4](http://www.agsdataformat.com/datatransferv4/intro.php) files to a collection of Pandas DataFrames. 
+- data can be analyzed, manipulated, and updated using Pandas 
+- and then exported/written back to an AGS4 file
+
+
+**NOTE**
+ - this repo has been forked from [github.com/asitha-sena/python-ags4](https://github.com/asitha-sena/python-ags4) which is now read-only
+ - HEAD is  [gitlab.com/ags-data-format-wg/ags-python-library](https://gitlab.com/ags-data-format-wg/ags-python-library)
+
 
 ## Installation
 
@@ -11,12 +22,10 @@ A library to read and write AGS4 files using Pandas DataFrames
 pip install python-ags4
 ```
 
-## Introduction
-`python-ags4` is a library of functions that lets a user import [AGS4](http://www.agsdataformat.com/datatransferv4/intro.php) files to a collection of Pandas DataFrames. The data can be analyzed, manipulated, and updated using Pandas and then exported back to an AGS4 file.
 
-## Examples
+## Code Examples
 
-#### Import module:
+first import the module
 ```python
 from python_ags4 import AGS4
 ```
