@@ -176,3 +176,16 @@ def test_check_file():
     # File without any errors
     error_list = AGS4.check_file('tests/test_files/example1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
     assert 'Rule' not in error_list.keys()
+
+
+@pytest.mark.parametrize("function", [AGS4.AGS4_to_dict, AGS4.AGS4_to_dataframe])
+def test_duplicate_headers_1(function):
+    tables, headers = function('tests/test_files/DuplicateHeaders.ags', rename_duplicate_headers=True)
+
+    assert "SAMP_BASE_1" in headers['SAMP']
+
+
+@pytest.mark.parametrize("function", [AGS4.AGS4_to_dict, AGS4.AGS4_to_dataframe, AGS4.check_file])
+def test_duplicate_headers_2(function):
+    with pytest.raises(AGS4.AGS4Error, match=r'HEADER row.*has duplicate entries'):
+        _ = function('tests/test_files/DuplicateHeaders.ags', rename_duplicate_headers=False)
