@@ -5,22 +5,22 @@ test_py37:
   image: python:3.7
   stage: test
   script:
-    - python -m pip install --upgrade pip
-    - python -m pip install python_ags4 pytest
-    - python -m pytest
+    - python -m pip install .
+    - python -m pip install pytest
+    - python -m pytest -v -s
 
 test_py38:
   image: python:3.8
   stage: test
   script:
-    - python -m pip install --upgrade pip
-    - python -m pip install python_ags4 pytest
-    - python -m pytest
+    - python -m pip install .
+    - python -m pip install pytest
+    - python -m pytest -v -s
 
 test_py39:
   image: python:3.9
   stage: test
   script:
-    - python -m pip install --upgrade pip
-    - python -m pip install python_ags4 pytest
-    - python -m pytest
+    - python -m pip install .
+    - python -m pip install pytest
+    - python -m pytest -v -s
