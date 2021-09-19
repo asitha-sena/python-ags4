@@ -180,7 +180,7 @@ def pick_standard_dictionary(tables):
 
         if dict_version == '4.0.3':
             path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_0_3.ags')
-        elif dict_version == '4.0.4':
+        elif dict_version.startswith('4.0'):
             path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_0_4.ags')
         elif dict_version == '4.1':
             path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1.ags')
