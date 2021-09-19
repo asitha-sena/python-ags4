@@ -280,7 +280,8 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
 
                 rprint(f'[green]Writing data from... [bold]{key}[/bold][green]')
                 f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
-                data[key].apply(lambda x: x.str.replace('""', '"')).to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
+                data[key].apply(lambda x: x.str.replace('""', '"'))\
+                         .to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
                 # The lambda funtion is applied to the dataframe to take care of
                 # an edge case where quoted text is present in a field. The
                 # to_csv function automatiically adds an extra pair of quotes
@@ -558,10 +559,10 @@ def format_numeric_column(dataframe, column_name, TYPE):
             pass
 
     except ValueError:
-        rprint(f"[yellow]  WARNING: Numeric data in [bold]{col}[/bold] exported without reformatting as it had one or more non-numeric entries.[/yellow]")
+        rprint(f"[yellow]  WARNING: Numeric data in [bold]{col:<9}[/bold] not reformatted as it had one or more non-numeric entries.[/yellow]")
 
     except TypeError:
-        rprint(f"[yellow]  WARNING: Numeric data in [bold]{col}[/bold] exported without reformatting as it had one or more non-numeric entries.[/yellow]")
+        rprint(f"[yellow]  WARNING: Numeric data in [bold]{col:<9}[/bold] not reformatted as it had one or more non-numeric entries.[/yellow]")
 
     return df
 
