@@ -117,7 +117,7 @@ def convert(input_file, output_file, format_columns, dictionary):
 @click.option('-d', '--dictionary', type=click.Path(exists=True), default=None,
               help="Path to AGS4 dictionary file.")
 def check(input_file, dictionary, output_file):
-    '''Check .ags file for error based AGS4 rules.
+    '''Check .ags file for errors according to AGS4 rules.
 
     INPUT_FILE   Path to .ags file to be checked
     '''
