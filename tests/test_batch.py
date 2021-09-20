@@ -1,9 +1,10 @@
-from python_ags4 import AGS4, __version__
+
 import os
 import json
 import filecmp
 import glob
 
+from python_ags4 import AGS4, __version__
 
 def checkandcompare (AGSFilename):
     ErrorFilename = AGSFilename.replace(".ags",".errors")

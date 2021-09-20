@@ -1,13 +1,11 @@
-# import sys
-# Prepend path so that AGS4.py is loaded from project file
-# instead of current installation
-# sys.path.insert(0, './')
-from python_ags4 import AGS4, __version__
+
+
 import toml
 import pandas as pd
 import pathlib
 import pytest
 
+from python_ags4 import AGS4, __version__
 
 # Data in LOCA table in test_data.ags
 LOCA = {'HEADING': ['UNIT', 'TYPE', 'DATA', 'DATA', 'DATA', 'DATA'],
