@@ -208,7 +208,8 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=Fal
         return df, headings, line_numbers
 
     # Otherwise only the data and the headings are returned
-    data, headings = AGS4_to_dict(filepath_or_buffer, encoding=encoding, rename_duplicate_headers=rename_duplicate_headers)
+    data, headings = AGS4_to_dict(filepath_or_buffer, encoding=encoding,
+                                  rename_duplicate_headers=rename_duplicate_headers)
 
     # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
     df = {}
@@ -218,7 +219,7 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=Fal
     return df, headings
 
 
-def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
+def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_headers=True):
     """Load all the tables in a AGS4 file to an Excel spreasheet.
 
     Parameters
@@ -227,6 +228,10 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
         Path to AGS4 file
     output_file : str
         Path to Excel file
+    rename_duplicate_headers: bool
+        Rename duplicate headers if found. Neither AGS4 tables nor Pandas
+        dataframes allow duplicate headers, therefore a number will be appended
+        to duplicates to make them unique. (default False)
 
     Returns
     -------
@@ -237,7 +242,8 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
     from rich import print as rprint
 
     # Extract AGS4 file into a dictionary of dictionaries
-    tables, headings = AGS4_to_dataframe(input_file, encoding=encoding)
+    tables, headings = AGS4_to_dataframe(input_file, encoding=encoding,
+                                         rename_duplicate_headers=rename_duplicate_headers)
 
     # Write to Excel file
     with ExcelWriter(output_file) as writer:

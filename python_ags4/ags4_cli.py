@@ -18,12 +18,13 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 # https://github.com/asitha-sena/python-ags4
+import os
+import sys
 
 import click
-from python_ags4 import AGS4, __version__
 from rich.console import Console
-import os
 
+from python_ags4 import AGS4, __version__
 # Create rich console for pretty printing
 console = Console()
 
@@ -42,7 +43,9 @@ def main():
               help='Format numeric data based on TYPE values if converting from .xlsx to .ags (true [default] or false)')
 @click.option('-d', '--dictionary', type=click.File('r'), default=None,
               help="Path to AGS4 dictionary file. Numeric data will be formatted based on TYPE values from this file if converting from .xlsx to .ags.")
-def convert(input_file, output_file, format_columns, dictionary):
+@click.option('-r', '--rename_duplicate_headers', type=click.BOOL, default=True,
+              help="Rename duplicate headers when converting to Excel (default True)")
+def convert(input_file, output_file, format_columns, dictionary, rename_duplicate_headers):
     '''Convert .ags file to .xlsx file or vice versa.
 
     INPUT_FILE   Path to input file. The file should be either .ags or .xlsx
@@ -63,9 +66,12 @@ def convert(input_file, output_file, format_columns, dictionary):
             console.print(f'[green]Exporting data to... [bold]{output_file}[/bold][/green]')
             print('')
 
-            AGS4.AGS4_to_excel(input_file, output_file)
-
-            console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
+            try:
+                AGS4.AGS4_to_excel(input_file, output_file, rename_duplicate_headers=rename_duplicate_headers)
+                console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
+                sys.exit(0)
+            except AGS4.AGS4Error as exc:
+                console.print(f'[red]Error: {exc.args[0]}[/red]')
 
         elif input_file.endswith('.xlsx') & output_file.endswith('.ags'):
             console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
@@ -79,7 +85,8 @@ def convert(input_file, output_file, format_columns, dictionary):
                 dictionary = dictionary.name
 
             # Call export function
-            AGS4.excel_to_AGS4(input_file, output_file, format_numeric_columns=format_numeric_columns, dictionary=dictionary)
+            AGS4.excel_to_AGS4(input_file, output_file, format_numeric_columns=format_numeric_columns,
+                               dictionary=dictionary)
 
             console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
 
