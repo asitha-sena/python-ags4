@@ -58,6 +58,9 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
 
     Windows:   ags4_cli convert c:\Temp\data.ags c:\Temp\data.xlsx
 
+    Exit codes:
+        0 - Conversion succeeded
+        1 - Conversion failed
     '''
 
     try:
@@ -89,6 +92,7 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
                                dictionary=dictionary)
 
             console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
+            sys.exit(0)
 
         elif (input_file.endswith('.ags') & output_file.endswith('.ags')) | (input_file.endswith('.xlsx') & output_file.endswith('.xlsx')):
             file_type = input_file.split('.')[-1]
@@ -116,6 +120,9 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
         console.print('[red]ERROR: Invalid output file path. Converted file could not be saved.[/red]')
         console.print('[red]       Please ensure that the specified directory exists.[/red]')
 
+    # All error cases exit here
+    sys.exit(1)
+
 
 @main.command()
 @click.argument('input_file', type=click.Path(exists=True))
@@ -127,6 +134,10 @@ def check(input_file, dictionary, output_file):
     '''Check .ags file for error based AGS4 rules.
 
     INPUT_FILE   Path to .ags file to be checked
+
+    Exit codes:
+        0 - All checks passed
+        1 - Errors found or file read error
     '''
 
     if input_file.endswith('.ags'):
@@ -150,6 +161,9 @@ def check(input_file, dictionary, output_file):
             if output_file is not None:
                 save_to_file(output_file, ags_errors, input_file, error_count)
                 console.print(f'\n[green]Report saved in {output_file}[/green]\n')
+
+            # End here with successful exit code if no errors found
+            sys.exit(0)
 
         # Print errors to screen if list is short enough
         elif error_count < 100:
@@ -175,6 +189,9 @@ def check(input_file, dictionary, output_file):
 
     else:
         console.print('[red]ERROR: Only .ags files are accepted as input.[/red]')
+
+    # Any errors in file or other problems will exit with failure code
+    sys.exit(1)
 
 
 def print_to_screen(ags_errors):
