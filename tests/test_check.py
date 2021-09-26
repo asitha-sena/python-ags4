@@ -1,6 +1,7 @@
-from python_ags4 import AGS4, __version__
+
 import os
 
+from python_ags4 import AGS4, __version__
 
 def test_rule_2():
     error_list = AGS4.check_file('tests/test_files/4.1-rule2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')

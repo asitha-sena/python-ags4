@@ -1,10 +1,8 @@
 import unittest
-# import sys
-# Prepend path so that AGS4.py is loaded from project file
-# instead of current installation
-# sys.path.insert(0, './')
+
 from python_ags4 import AGS4
 
+# TODO is this valid said @pedromorgan as a note ?
 
 class Test_AGS4(unittest.TestCase):
 
