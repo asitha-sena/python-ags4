@@ -4,6 +4,8 @@
 - Release at [pypi.org/project/python-ags4/](https://pypi.org/project/python-ags4/)
 - Maintained by the [AGS Data Format WG](https://gitlab.com/ags-data-format-wg) 
 
+[[_TOC_]]
+
 ## Introduction
 `python-ags4` is a library of functions that
 - imports/reads [AGS4](http://www.agsdataformat.com/datatransferv4/intro.php) files to a collection of Pandas DataFrames. 
@@ -11,21 +13,21 @@
 - and then exported/written back to an AGS4 file
 
 
-<div class="panel panel-warning">
-**Warning**
-{: .panel-heading}
-<div class="panel-body">
-
+>>>
+**Note**
  This repo has been forked from [github.com/asitha-sena/python-ags4](https://github.com/asitha-sena/python-ags4) which is now read-only
  
  HEAD is  [gitlab.com/ags-data-format-wg/ags-python-library](https://gitlab.com/ags-data-format-wg/ags-python-library)
 
-</div>
-</div>
+>>>
 
 ## Examples
 
 ### Notebook
+
+We have created an example Juypter Notebook which imports an AGS file, plots boreholes on a map and creates a Striplog 
+
+[See here](examples\ags.ipynb)
 
 ### Installation
 
