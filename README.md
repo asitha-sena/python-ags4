@@ -104,3 +104,11 @@ updated_tables = gui.get_dataframes()
 
 AGS4.dataframe_to_AGS4(updated_tables, headings, '/home/asitha/Documents/output.ags')
 ```
+## Implementations
+
+This library has been used to create
+
+- Windows Desktop Application - https://gitlab.com/ags-data-format-wg/ags-checker-desktop-app 
+- Web application and API (pyagsapi) - https://github.com/BritishGeologicalSurvey/pyagsapi 
+  - Deployed as https://agsapi.bgs.ac.uk/
+- Excel Add On - https://gitlab.com/RogerChandler/ags-validator-excel-add-in  
