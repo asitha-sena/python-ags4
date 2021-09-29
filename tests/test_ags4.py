@@ -179,13 +179,13 @@ def test_check_file():
 
 
 @pytest.mark.parametrize("function", [AGS4.AGS4_to_dict, AGS4.AGS4_to_dataframe])
-def test_duplicate_headers_1(function):
+def test_duplicate_headers_with_rename_renames(function):
     tables, headers = function('tests/test_files/DuplicateHeaders.ags', rename_duplicate_headers=True)
 
     assert "SAMP_BASE_1" in headers['SAMP']
 
 
 @pytest.mark.parametrize("function", [AGS4.AGS4_to_dict, AGS4.AGS4_to_dataframe, AGS4.check_file])
-def test_duplicate_headers_2(function):
+def test_duplicate_headers_without_rename_raises_error(function):
     with pytest.raises(AGS4.AGS4Error, match=r'HEADER row.*has duplicate entries'):
-        _ = function('tests/test_files/DuplicateHeaders.ags', rename_duplicate_headers=False)
+        function('tests/test_files/DuplicateHeaders.ags', rename_duplicate_headers=False)
