@@ -1,33 +1,32 @@
 # python-ags4
 
-- A library to read and write AGS4 files using [Pandas DataFrames](https://pandas.pydata.org/)
-- Release at [pypi.org/project/python-ags4/](https://pypi.org/project/python-ags4/)
-- Maintained by the [AGS Data Format WG](https://gitlab.com/ags-data-format-wg) 
-
 [[_TOC_]]
 
 ## Introduction
 `python-ags4` is a library of functions that
-- imports/reads [AGS4](http://www.agsdataformat.com/datatransferv4/intro.php) files to a collection of Pandas DataFrames. 
+
+- imports/reads [AGS4](http://www.agsdataformat.com/datatransferv4/intro.php) files to a collection of [Pandas DataFrames](https://pandas.pydata.org/). 
 - data can be analyzed, manipulated, and updated using Pandas 
 - and then exported/written back to an AGS4 file
 
+Release available at [pypi.org/project/python-ags4/](https://pypi.org/project/python-ags4/)
+
+This project is maintained by the [AGS Data Format Working Group](https://gitlab.com/ags-data-format-wg) 
 
 >>>
 **Note**
- This repo has been forked from [github.com/asitha-sena/python-ags4](https://github.com/asitha-sena/python-ags4) which is now read-only
+ This repo was forked from [github.com/asitha-sena/python-ags4](https://github.com/asitha-sena/python-ags4) which is now archived and read-only
  
  HEAD is  [gitlab.com/ags-data-format-wg/ags-python-library](https://gitlab.com/ags-data-format-wg/ags-python-library)
-
 >>>
 
-## Examples
+## Documentation
 
-### Notebook
+### Juypter Notebook
 
-We have created an example Juypter Notebook which imports an AGS file, plots boreholes on a map and creates a Striplog 
+We have created an example Juypter Notebook which imports an AGS file, plots boreholes on a map and creates a Striplog.  
 
-[See here](examples\ags.ipynb)
+[See here](./examples/ags.ipynb)
 
 ### Installation
 
@@ -71,7 +70,7 @@ LOCA_txt = AGS4.convert_to_text(LOCA, 'DICT.ags')
 
 Tables converted to numeric using the ```AGS4.convert_to_numeric()``` function should always be converted back to text before exporting to an AGS4 file. (*Note: The UNIT and TYPE rows will be added back in addition to formatting the numeric columns.*) 
 
-## Command Line Interface 
+### Command Line Interface 
 
 A cli tool was added in version 0.2.0. It should be available from the terminal (or on the Anaconda Powershell prompt in Windows) after running ```python pip install python-ags4>=0.2.0```
 
@@ -85,7 +84,7 @@ A checking tool is available as of version 0.3.0 and it can be used to make sure
 
 [![asciicast](https://asciinema.org/a/OOVN1rtqpvggzt9ZlHAlLBb6M.svg)](https://asciinema.org/a/OOVN1rtqpvggzt9ZlHAlLBb6M)
 
-## Graphical User Interface using *pandasgui*
+### Graphical User Interface using *pandasgui*
 
 The output from `python-ags4` can be directly used with [`pandasgui`](https://github.com/adamerose/pandasgui) to view and edit AGS4 files using an interactive graphical user interface. It also provides funtionality to plot and visualize the data.
 
