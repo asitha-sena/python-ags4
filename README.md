@@ -11,19 +11,29 @@
 - and then exported/written back to an AGS4 file
 
 
-**NOTE**
- - this repo has been forked from [github.com/asitha-sena/python-ags4](https://github.com/asitha-sena/python-ags4) which is now read-only
- - HEAD is  [gitlab.com/ags-data-format-wg/ags-python-library](https://gitlab.com/ags-data-format-wg/ags-python-library)
+<div class="panel panel-warning">
+**Warning**
+{: .panel-heading}
+<div class="panel-body">
 
+ This repo has been forked from [github.com/asitha-sena/python-ags4](https://github.com/asitha-sena/python-ags4) which is now read-only
+ 
+ HEAD is  [gitlab.com/ags-data-format-wg/ags-python-library](https://gitlab.com/ags-data-format-wg/ags-python-library)
 
-## Installation
+</div>
+</div>
+
+## Examples
+
+### Notebook
+
+### Installation
 
 ```bash
 pip install python-ags4
 ```
 
-
-## Code Examples
+### Code Examples
 
 first import the module
 ```python
@@ -31,6 +41,7 @@ from python_ags4 import AGS4
 ```
 
 #### Import data from an AG4 file:
+
 ```python
 tables, headings = AGS4.AGS4_to_dataframe('/home/asitha/Projects/python-AGS4/tests/test_data.ags')
 ```
@@ -58,7 +69,7 @@ LOCA_txt = AGS4.convert_to_text(LOCA, 'DICT.ags')
 
 Tables converted to numeric using the ```AGS4.convert_to_numeric()``` function should always be converted back to text before exporting to an AGS4 file. (*Note: The UNIT and TYPE rows will be added back in addition to formatting the numeric columns.*) 
 
-## Command Line Interface ##
+## Command Line Interface 
 
 A cli tool was added in version 0.2.0. It should be available from the terminal (or on the Anaconda Powershell prompt in Windows) after running ```python pip install python-ags4>=0.2.0```
 
