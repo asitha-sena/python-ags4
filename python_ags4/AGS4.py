@@ -20,11 +20,11 @@
 
 # Read functions #
 
-def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False):
+def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, rename_duplicate_headers=True):
     """Load all the data in a AGS4 file to a dictionary of dictionaries.
     This GROUP in the AGS4 file is assigned its own dictionary.
 
-    'AGS4_to_dataframe' uses this funtion to load AGS4 data in to Pandas
+    'AGS4_to_dataframe' uses this function to load AGS4 data in to Pandas
     dataframes.
 
     Parameters
@@ -36,6 +36,10 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False):
     get_line_numbers : bool
         Add line number column to each table (for UNIT, TYPE, and DATA rows) and return
         a dictionary with line numbers for GROUP and HEADING lines (default False)
+    rename_duplicate_headers: bool
+        Rename duplicate headers if found. Neither AGS4 tables nor Pandas
+        dataframes allow duplicate headers, therefore a number will be appended
+        to duplicates to make them unique. (default True)
 
     Returns
     -------
@@ -94,6 +98,10 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False):
                 # arrays of unequal lengths and cause a ValueError when trying to convert to a
                 # Pandas DataFrame
                 if len(temp) != len(set(temp)):
+
+                    if rename_duplicate_headers is False:
+                        raise AGS4Error(f"HEADER row in {group} (Line {i}) has duplicate entries")
+
                     rprint(f"[yellow]  WARNING: HEADER row in [bold]{group}[/bold] (Line {i}) has duplicate entries.[/yellow]")
 
                     # Rename duplicate headers by appending a number
@@ -152,7 +160,7 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False):
     return data, headings
 
 
-def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=False):
+def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, rename_duplicate_headers=True):
     """Load all the tables in a AGS4 file to a Pandas dataframes. The output is
     a Python dictionary of dataframes with the name of each AGS4 table (i.e.
     GROUP) as the primary key.
@@ -166,6 +174,10 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=Fal
     get_line_numbers : bool
         Add line number column to each table (for UNIT, TYPE, and DATA rows) and return
         a dictionary with line numbers for GROUP and HEADING lines (default False)
+    rename_duplicate_headers: bool
+        Rename duplicate headers if found. Neither AGS4 tables nor Pandas
+        dataframes allow duplicate headers, therefore a number will be appended
+        to duplicates to make them unique. (default True)
 
     Returns
     -------
@@ -185,7 +197,8 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=Fal
     # Extract AGS4 file into a dictionary of dictionaries
     # A dictionary with group line numbers is returned, in addition to data and headings, for checking purposes
     if get_line_numbers is True:
-        data, headings, line_numbers = AGS4_to_dict(filepath_or_buffer, encoding=encoding, get_line_numbers=get_line_numbers)
+        data, headings, line_numbers = AGS4_to_dict(filepath_or_buffer, encoding=encoding, get_line_numbers=get_line_numbers,
+                                                    rename_duplicate_headers=rename_duplicate_headers)
 
         # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
         df = {}
@@ -195,7 +208,8 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=Fal
         return df, headings, line_numbers
 
     # Otherwise only the data and the headings are returned
-    data, headings = AGS4_to_dict(filepath_or_buffer, encoding=encoding)
+    data, headings = AGS4_to_dict(filepath_or_buffer, encoding=encoding,
+                                  rename_duplicate_headers=rename_duplicate_headers)
 
     # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
     df = {}
@@ -205,7 +219,7 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=Fal
     return df, headings
 
 
-def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
+def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_headers=True):
     """Load all the tables in a AGS4 file to an Excel spreasheet.
 
     Parameters
@@ -214,6 +228,10 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
         Path to AGS4 file
     output_file : str
         Path to Excel file
+    rename_duplicate_headers: bool
+        Rename duplicate headers if found. Neither AGS4 tables nor Pandas
+        dataframes allow duplicate headers, therefore a number will be appended
+        to duplicates to make them unique. (default False)
 
     Returns
     -------
@@ -224,7 +242,8 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8'):
     from rich import print as rprint
 
     # Extract AGS4 file into a dictionary of dictionaries
-    tables, headings = AGS4_to_dataframe(input_file, encoding=encoding)
+    tables, headings = AGS4_to_dataframe(input_file, encoding=encoding,
+                                         rename_duplicate_headers=rename_duplicate_headers)
 
     # Write to Excel file
     with ExcelWriter(output_file) as writer:
@@ -587,7 +606,7 @@ def _format_SF(value, TYPE):
         return f"{value:.{i}f}"
 
 
-def check_file(input_file, standard_AGS4_dictionary=None):
+def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_headers=True):
     """This function checks the input AGS4 file for errors.
 
     Parameters
@@ -596,6 +615,10 @@ def check_file(input_file, standard_AGS4_dictionary=None):
         Path to AGS4 file (*.ags) to be checked
     standard_AGS4_dict : str
         Path to .ags file with standard AGS4 dictionary
+    rename_duplicate_headers: bool
+        Rename duplicate headers if found. Neither AGS4 tables nor Pandas
+        dataframes allow duplicate headers, therefore a number will be appended
+        to duplicates to make them unique. (default True)
 
     Returns
     -------
@@ -652,7 +675,11 @@ def check_file(input_file, standard_AGS4_dictionary=None):
     # Import file into Pandas DataFrame to run group checks
     try:
         rprint('[green]  Loading tables...[/green]')
-        tables, headings, line_numbers = AGS4_to_dataframe(input_file, get_line_numbers=True)
+        tables, headings, line_numbers = AGS4_to_dataframe(input_file, get_line_numbers=True, rename_duplicate_headers=rename_duplicate_headers)
+
+    except AGS4Error as err:
+        rprint('[red] ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
+        raise err
 
     except:
         # TODO: Add specific errors to except clause to conform to flake8
@@ -708,6 +735,8 @@ def check_file(input_file, standard_AGS4_dictionary=None):
     return ags_errors
 
 
+# Helper functions/classes #
+
 def is_file_like(obj):
     """Check if object is file like
 
@@ -724,3 +753,7 @@ def is_file_like(obj):
         return False
 
     return True
+
+
+class AGS4Error(Exception):
+    pass
