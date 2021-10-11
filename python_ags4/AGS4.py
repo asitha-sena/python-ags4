@@ -293,23 +293,28 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
     # Open file and write/append data
     with open(filepath, mode, newline='', encoding=encoding) as f:
         for key in data:
+            # First make copy of table to avoid unexpected side-effects
+            df = data[key].copy()
+
+            # Take care of an edge case where quoted text is present in a field.
+            # The to_csv function automatically adds an extra pair of quotes
+            # around any quoted strings that is encountered and there is no way
+            # work around it as of Pandas v1.1.5. Therefore, double-double
+            # quotes required by AGS4 Rule 5 are changed to single-double quotes
+            # before the to_csv function is called. This ensures that the output
+            # file has the quoted string in double-double quotes.
+            for col in df:
+                # Loop through all columns, find entries with '""', and replace
+                # them with '""
+                mask = df[col].str.contains('""', na=False)
+                df.loc[mask, :] = df.loc[mask, :].apply(lambda x: x.str.replace('""', '"'))
 
             try:
                 columns = headings[key]
 
                 rprint(f'[green]Writing data from... [bold]{key}[/bold][green]')
                 f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
-                data[key].apply(lambda x: x.str.replace('""', '"'))\
-                         .to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
-                # The lambda funtion is applied to the dataframe to take care of
-                # an edge case where quoted text is present in a field. The
-                # to_csv function automatiically adds an extra pair of quotes
-                # around any quoted strings that is encountered and there is not
-                # way work around for it as of Pandas v1.1.5. Therefore,
-                # double-double quotes required by AGS4 Rule 5 are changed to
-                # single-double quotes before the to_csv function is called.
-                # This ensures that the output file has the quoted string in
-                # double-double quotes.
+                df.to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
                 f.write("\r\n")
 
             except KeyError:
@@ -322,7 +327,7 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
                     rprint("[italic yellow]           Please check column order and ensure AGS4 Rule 7 is still satisfied.[/italic yellow]")
 
                 f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
-                data[key].apply(lambda x: x.str.replace('""', '"')).to_csv(f, index=index, quoting=1, line_terminator='\r\n', encoding=encoding)
+                df.to_csv(f, index=index, quoting=1, line_terminator='\r\n', encoding=encoding)
                 f.write("\r\n")
 
 

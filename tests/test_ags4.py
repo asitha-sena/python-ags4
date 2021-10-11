@@ -165,6 +165,23 @@ def test_excel_to_AGS4():
     assert tables['LOCA'].loc[4, 'LOCA_NATN'] == '5000000.10'
 
 
+def test_excel_to_AGS4_with_numeric_column_with_missing_TYPE():
+    # Read LLPL table from xlsx file directly
+    # LLPL_425 has numeric data but TYPE is erroneously set to ''
+    LLPL = pd.read_excel('tests/test.xlsx', sheet_name='LLPL', engine='openpyxl')
+    LLPL_425_from_xlsx = LLPL.loc[LLPL.HEADING.eq('DATA'), 'LLPL_425']\
+                             .apply(pd.to_numeric, errors='coerce')\
+
+    # Convert .xlsx file to AGS4 file and read it back
+    AGS4.excel_to_AGS4('tests/test.xlsx', 'tests/test.out')
+    tables, _ = AGS4.AGS4_to_dataframe('tests/test.out')
+    LLPL_425_from_ags = tables['LLPL'].pipe(lambda df: df.loc[df.HEADING.eq('DATA'), 'LLPL_425'])\
+                                      .apply(pd.to_numeric, errors='coerce')
+
+    # Check whether LLPL_425 was exported even though TYPE is not specified
+    assert LLPL_425_from_ags.equals(LLPL_425_from_xlsx)
+
+
 def test_check_file():
     error_list = AGS4.check_file('tests/test_data.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
     # assert error_list == ['Rule 1\t Line 12:\t Has one or more non-ASCII characters.',
