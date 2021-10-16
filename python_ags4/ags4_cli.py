@@ -212,7 +212,7 @@ def print_to_screen(ags_errors):
 
     # Print other error messages
     for key in [x for x in ags_errors if 'Rule' in x]:
-        console.print(f'''[white underline]{key}[/white underline]:''')
+        console.print(f'''[white underline]{key.split('Standard')[-1].strip()}[/white underline]:''')
         for entry in ags_errors[key]:
             console.print(f'''  Line {entry['line']}\t [bold]{entry['group'].strip('"')}[/bold]\t {entry['desc']}''')
         console.print('')
