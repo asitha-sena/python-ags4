@@ -489,18 +489,18 @@ def convert_to_text(dataframe, dictionary=None):
         DICT = temp['DICT']
 
         # Check whether UNIT and TYPE rows are already in dataframe
-        UNIT_row_present = 'UNIT' in df.HEADING.values
-        TYPE_row_present = 'TYPE' in df.HEADING.values
+        is_UNIT_row_present = 'UNIT' in df.HEADING.values
+        is_TYPE_row_present = 'TYPE' in df.HEADING.values
 
         # Format columns and add UNIT/TYPE rows if necessary
         for col in df.columns:
 
             if col == 'HEADING':
 
-                if not UNIT_row_present:
+                if not is_UNIT_row_present:
                     df.loc[-2, 'HEADING'] = 'UNIT'
 
-                if not TYPE_row_present:
+                if not is_TYPE_row_present:
                     df.loc[-1, 'HEADING'] = 'TYPE'
 
             else:
@@ -510,14 +510,14 @@ def convert_to_text(dataframe, dictionary=None):
                     TYPE = DICT.loc[DICT.DICT_HDNG == col, 'DICT_DTYP'].iloc[0]
                     UNIT = DICT.loc[DICT.DICT_HDNG == col, 'DICT_UNIT'].iloc[0]
 
-                    if UNIT_row_present:
+                    if is_UNIT_row_present:
                         # Overwrite existing UNIT with one from the dictionary
                         df.loc[df.HEADING == 'UNIT', col] = UNIT
                     else:
                         # Add UNIT row if one is not already there
                         df.loc[-2, col] = UNIT
 
-                    if TYPE_row_present:
+                    if is_TYPE_row_present:
                         # Overwrite existing TYPE with one from the dictionary
                         df.loc[df.HEADING == 'TYPE', col] = TYPE
                     else:
