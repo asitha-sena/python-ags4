@@ -219,7 +219,7 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=Fal
     return df, headings
 
 
-def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_headers=True):
+def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_headers=True, sort_tables=False):
     """Load all the tables in a AGS4 file to an Excel spreasheet.
 
     Parameters
@@ -232,6 +232,10 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
         Rename duplicate headers if found. Neither AGS4 tables nor Pandas
         dataframes allow duplicate headers, therefore a number will be appended
         to duplicates to make them unique. (default False)
+    sort_tables : bool
+        Alphabetically sort worksheets in Excel file. (default False)
+        WARNING: The original order of groups will be lost and cannot be
+        restored when .xlsx file is converted back to .ags.
 
     Returns
     -------
@@ -246,9 +250,17 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
     tables, headings = AGS4_to_dataframe(input_file, encoding=encoding,
                                          rename_duplicate_headers=rename_duplicate_headers)
 
+    # Create list of tables that can be sorted
+    if sort_tables is True:
+        list_of_tables = sorted(tables.keys())
+        rprint('[yellow]WARNING: Worksheets in Excel file will be sorted alphabetically.[/yellow]')
+        rprint('[yellow]         The original group order will not be restored if this .xlsx file is converted back to .ags.[/yellow]')
+    else:
+        list_of_tables = tables.keys()
+
     # Write to Excel file
     with ExcelWriter(output_file) as writer:
-        for key in tables:
+        for key in list_of_tables:
             rprint(f'[green]Writing data from... [bold]{key}[/bold][/green]')
 
             # Check table size and issue warning for large files that could crash the program

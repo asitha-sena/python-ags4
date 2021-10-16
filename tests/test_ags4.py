@@ -142,6 +142,16 @@ def test_AGS4_to_excel(LOCA=LOCA, LLPL=LLPL):
     assert tables['LOCA'].loc[:, 'LOCA_ID'].values[2] == 'Location_1'
 
 
+def test_AGS4_to_sorted_excel():
+    tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
+    AGS4.AGS4_to_excel('tests/test_data.ags', 'tests/test_data.xlsx', sort_tables=True)
+
+    sorted_tables = pd.read_excel('tests/test_data.xlsx', sheet_name=None, engine='openpyxl')
+
+    # dict keys first converted to lists to check order
+    assert list(sorted(tables.keys())) == list(sorted_tables.keys())
+
+
 def test_excel_to_AGS4():
     AGS4.excel_to_AGS4('tests/test.xlsx', 'tests/test.out')
 
