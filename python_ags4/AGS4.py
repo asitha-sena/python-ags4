@@ -57,7 +57,7 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
     from rich import print as rprint
     import sys
 
-    if is_file_like(filepath_or_buffer):
+    if _is_file_like(filepath_or_buffer):
         f = filepath_or_buffer
         close_file = False
     else:
@@ -742,7 +742,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
 
 # Helper functions/classes #
 
-def is_file_like(obj):
+def _is_file_like(obj):
     """Check if object is file like
 
     Returns
