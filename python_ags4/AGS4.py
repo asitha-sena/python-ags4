@@ -471,16 +471,14 @@ def convert_to_text(dataframe, dictionary=None):
     # Check whether to use UNIT and TYPE rows in dataframe or to
     # retrieve values from the dictionary file
     if dictionary is None:
-        try:
-            # Check whether dataframe has "UNIT" and "TYPE" rows
-            assert 'UNIT' in df.HEADING.values
-            assert 'TYPE' in df.HEADING.values
+        # Check whether dataframe has "UNIT" and "TYPE" rows
+        if ('UNIT' in df.HEADING.values) and ('TYPE' in df.HEADING.values):
 
             for col in df.columns:
                 TYPE = df.loc[df.HEADING == 'TYPE', col].values[0]
                 df = format_numeric_column(df, col, TYPE)
 
-        except AssertionError:
+        else:
             rprint("[red]  ERROR: Cannot convert to text as UNIT and/or TYPE row(s) are missing.")
             rprint("[red]         Please provide dictonary file or add UNIT & TYPE rows to input file to proceed.[/red]")
             sys.exit()
