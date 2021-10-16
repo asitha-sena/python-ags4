@@ -45,7 +45,9 @@ def main():
               help="Path to AGS4 dictionary file. Numeric data will be formatted based on TYPE values from this file if converting from .xlsx to .ags.")
 @click.option('-r', '--rename_duplicate_headers', type=click.BOOL, default=True,
               help="Rename duplicate headers when converting to Excel (default True)")
-def convert(input_file, output_file, format_columns, dictionary, rename_duplicate_headers):
+@click.option('-s', '--sort_tables', type=click.BOOL, default=False,
+              help="Alphabetically sort worksheets Excel file. (WARNING: Original table/group order will be lost) (default False)")
+def convert(input_file, output_file, format_columns, dictionary, rename_duplicate_headers, sort_tables):
     '''Convert .ags file to .xlsx file or vice versa.
 
     INPUT_FILE   Path to input file. The file should be either .ags or .xlsx
@@ -70,7 +72,8 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
             print('')
 
             try:
-                AGS4.AGS4_to_excel(input_file, output_file, rename_duplicate_headers=rename_duplicate_headers)
+                AGS4.AGS4_to_excel(input_file, output_file, rename_duplicate_headers=rename_duplicate_headers,
+                                   sort_tables=sort_tables)
                 console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
                 sys.exit(0)
             except AGS4.AGS4Error as exc:
