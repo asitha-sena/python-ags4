@@ -867,7 +867,7 @@ def rule_11c(tables, dictionary, delimiter, concatenator, ags_errors={}):
                 # Filter out rows with blank RL entries
                 rows_with_record_links = df.loc[df.HEADING.eq('DATA') & df[col].str.contains(r'.+', regex=True), :]
 
-                for i, row in rows_with_record_links.iterrows():
+                for row in rows_with_record_links.to_dict('records'):
                     record_link = row[col]
                     line_number = int(row['line_number'])
                     # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
