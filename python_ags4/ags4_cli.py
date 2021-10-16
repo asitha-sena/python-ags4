@@ -39,8 +39,8 @@ def main():
 @main.command()
 @click.argument('input_file', type=click.Path('r'))
 @click.argument('output_file', type=click.Path(writable=True))
-@click.option('-f', '--format_columns', default="true",
-              help='Format numeric data based on TYPE values if converting from .xlsx to .ags (true [default] or false)')
+@click.option('-f', '--format_columns', type=click.BOOL, default=True,
+              help='Format numeric data based on TYPE values if converting from .xlsx to .ags (default True)')
 @click.option('-d', '--dictionary', type=click.File('r'), default=None,
               help="Path to AGS4 dictionary file. Numeric data will be formatted based on TYPE values from this file if converting from .xlsx to .ags.")
 @click.option('-r', '--rename_duplicate_headers', type=click.BOOL, default=True,
@@ -81,14 +81,11 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
             console.print(f'[green]Exporting data to... [bold]{output_file}[/bold][/green]')
             print('')
 
-            # Process optional arguments
-            format_numeric_columns = format_columns.lower() in ['true', 'yes']
-
             if dictionary is not None:
                 dictionary = dictionary.name
 
             # Call export function
-            AGS4.excel_to_AGS4(input_file, output_file, format_numeric_columns=format_numeric_columns,
+            AGS4.excel_to_AGS4(input_file, output_file, format_numeric_columns=format_columns,
                                dictionary=dictionary)
 
             console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
