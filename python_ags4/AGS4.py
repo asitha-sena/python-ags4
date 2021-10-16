@@ -341,7 +341,7 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
         e.g. output from AGS4.AGS4_to_excel)
     output_file : str
         Path to AGS4 file
-    reformat_numeric_columns : bool, optional
+    format_numeric_columns : bool, optional
         Format numeric columns to match specified TYPE
     dictionary : str
         Filepath to dictionary if the UNIT and TYPE data in tables need to be
