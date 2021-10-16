@@ -240,6 +240,7 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
 
     from pandas import ExcelWriter
     from rich import print as rprint
+    from openpyxl.utils import get_column_letter
 
     # Extract AGS4 file into a dictionary of dictionaries
     tables, headings = AGS4_to_dataframe(input_file, encoding=encoding,
@@ -258,6 +259,13 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
                 rprint('[yellow]           The program will terminate if it runs out of memory in the process.[/yellow]')
 
             tables[key].to_excel(writer, sheet_name=key, index=False)
+
+            # Update column widths in xlxs file to fit contents
+            for i, col in enumerate(tables[key], start=1):
+                # 13 < colummn_width < 75 characters (approximately)
+                max_width = min(max(13, tables[key][col].map(len).max() + 1), 75)
+
+                writer.sheets[key].column_dimensions[get_column_letter(i)].width = max_width
 
 
 # Write functions #
