@@ -374,37 +374,45 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
 
     from pandas import read_excel
     from rich import print as rprint
+    import re
 
     # Read data from Excel file in to DataFrames
     tables = read_excel(input_file, sheet_name=None, engine='openpyxl')
 
-    # Format numeric columns
-    if format_numeric_columns is True:
+    # Not all worksheets in the spreadsheet may contain valid AGS4 tables, therefore
+    # initiate variables to keep track of worksheets and headings/columns to export
+    valid_tables = []
+    valid_headings = {}
 
-        for key in tables:
-            # First drop columns with non-compliant names (AGS Rule 19)
-            columns_to_drop = []
+    for key in tables:
+        # Assume that only worksheets with a 'HEADING' column contain valid AGS4 data
+        if 'HEADING' in tables[key]:
+            valid_tables.append(key)
+            valid_headings[key] = []
+        else:
+            rprint(f'[yellow]  WARNING: Worksheet [bold]{key}[/bold] dropped as it does not have a HEADING column.[/yellow]')
+            continue
 
-            for col_name in tables[key].columns:
-                if col_name == 'HEADING':
-                    pass
-                elif col_name.isupper() & (len(col_name) <= 9) & (len(col_name.split('_')[0]) <= 4):
-                    pass
-                else:
-                    columns_to_drop.append(col_name)
-                    rprint(f'[yellow]  WARNING: Column [bold]{col_name}[/bold] dropped as name does not conform to AGS4 Rule 19.[/yellow]')
+        # Drop rows and columns with non-compliant names (AGS Rule 3 & Rule 19)
+        for col in tables[key]:
+            if (col == 'HEADING') or (re.match('^[A-Z0-9]{4}_[A-Z0-9]{1,4}$', col) is not None):
+                valid_headings[key].append(col)
 
-            tables[key].drop(columns=columns_to_drop, inplace=True)
+            else:
+                rprint(f'[yellow]  WARNING: Column [bold]{col}[/bold] dropped as name does not conform to AGS4 Rule 19.[/yellow]')
 
-            # Then drop rows without a proper HEADING
-            tables[key] = tables[key].loc[tables[key].HEADING.isin(['UNIT', 'TYPE', 'DATA']), :]
+        tables[key] = tables[key].loc[tables[key].HEADING.isin(['UNIT', 'TYPE', 'DATA']), valid_headings[key]]
 
-            # Finally format numeric column
+        # Finally format numeric column if required
+        if format_numeric_columns is True:
             rprint(f'[green]Formatting columns in... [bold]{key}[/bold][/green]')
             tables[key] = convert_to_text(tables[key], dictionary=dictionary)
 
     # Export dictionary of DataFrames to AGS4 file
-    dataframe_to_AGS4(tables, {}, output_file, warnings=False)
+    if len(valid_tables) == 0:
+        rprint(f'[red]  ERROR: No valid AGS4 data found in input file. Please see warning messages above.[/red]')
+    else:
+        dataframe_to_AGS4({key: tables[key] for key in valid_tables}, valid_headings, output_file, warnings=False)
 
 
 # Formatting functions #
