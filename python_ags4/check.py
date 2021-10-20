@@ -61,7 +61,7 @@ def combine_DICT_tables(*ags_tables):
     to determine duplicate rows. Precedence will be given to files in the order in
     which they appear in the input_files list.
     IMPORTANT: The standard AGS4 dictionary has to be the first entry in order for
-    order of headings (AGS Standard Rule 7) to checked correctly.
+    order of headings (AGS Format Rule 7) to checked correctly.
 
     Parameters
     ----------
@@ -239,27 +239,27 @@ def add_meta_data(input_file, standard_dictionary, ags_errors={}):
 # Line Rules
 
 def rule_1(line, line_number=0, ags_errors={}):
-    '''AGS Standard Rule 1: The file shall be entirely composed of ASCII characters.
+    '''AGS Format Rule 1: The file shall be entirely composed of ASCII characters.
     '''
 
     if line.isascii() is False:
-        add_error_msg(ags_errors, 'AGS Standard Rule 1', line_number, '', 'Has Non-ASCII character(s).')
+        add_error_msg(ags_errors, 'AGS Format Rule 1', line_number, '', 'Has Non-ASCII character(s).')
 
     return ags_errors
 
 
 def rule_2a(line, line_number=0, ags_errors={}):
-    '''AGS Standard Rule 2a: Each line should be delimited by a carriage return and line feed.
+    '''AGS Format Rule 2a: Each line should be delimited by a carriage return and line feed.
     '''
 
     if line[-2:] != '\r\n':
-        add_error_msg(ags_errors, 'AGS Standard Rule 2a', line_number, '', 'Is not terminated by <CR> and <LF> characters.')
+        add_error_msg(ags_errors, 'AGS Format Rule 2a', line_number, '', 'Is not terminated by <CR> and <LF> characters.')
 
     return ags_errors
 
 
 def rule_2c(line, line_number=0, ags_errors={}):
-    '''AGS Standard Rule 2c: HEADING row should fully define the data. Therefore, it should not have duplicate fields.
+    '''AGS Format Rule 2c: HEADING row should fully define the data. Therefore, it should not have duplicate fields.
     '''
 
     if line.strip('"').startswith('HEADING'):
@@ -267,13 +267,13 @@ def rule_2c(line, line_number=0, ags_errors={}):
         temp = [item.strip('"') for item in temp]
 
         if len(temp) != len(set(temp)):
-            add_error_msg(ags_errors, 'AGS Standard Rule 2c', line_number, '', 'HEADER row has duplicate fields.')
+            add_error_msg(ags_errors, 'AGS Format Rule 2c', line_number, '', 'HEADER row has duplicate fields.')
 
     return ags_errors
 
 
 def rule_3(line, line_number=0, ags_errors={}):
-    '''AGS Standard Rule 3: Each line should be start with a data descriptor that defines its contents.
+    '''AGS Format Rule 3: Each line should be start with a data descriptor that defines its contents.
     '''
 
     if not line.isspace():
@@ -281,13 +281,13 @@ def rule_3(line, line_number=0, ags_errors={}):
         temp = [item.strip('"') for item in temp]
 
         if temp[0] not in ['GROUP', 'HEADING', 'TYPE', 'UNIT', 'DATA']:
-            add_error_msg(ags_errors, 'AGS Standard Rule 3', line_number, '', 'Does not start with a valid data descriptor.')
+            add_error_msg(ags_errors, 'AGS Format Rule 3', line_number, '', 'Does not start with a valid data descriptor.')
 
     return ags_errors
 
 
 def rule_4a(line, line_number=0, ags_errors={}):
-    '''AGS Standard Rule 4a: A GROUP row should only contain the GROUP name as data
+    '''AGS Format Rule 4a: A GROUP row should only contain the GROUP name as data
     '''
 
     if line.startswith('"GROUP"'):
@@ -295,15 +295,15 @@ def rule_4a(line, line_number=0, ags_errors={}):
         temp = [item.strip('"') for item in temp]
 
         if len(temp) > 2:
-            add_error_msg(ags_errors, 'AGS Standard Rule 4a', line_number, temp[1], 'GROUP row has more than one field.')
+            add_error_msg(ags_errors, 'AGS Format Rule 4a', line_number, temp[1], 'GROUP row has more than one field.')
         elif len(temp) < 2:
-            add_error_msg(ags_errors, 'AGS Standard Rule 4a', line_number, '', 'GROUP row is malformed.')
+            add_error_msg(ags_errors, 'AGS Format Rule 4a', line_number, '', 'GROUP row is malformed.')
 
     return ags_errors
 
 
 def rule_4b(line, line_number=0, group='', headings=[], ags_errors={}):
-    '''AGS Standard Rule 4b: UNIT, TYPE, and DATA rows should have entries defined by the HEADING row.
+    '''AGS Format Rule 4b: UNIT, TYPE, and DATA rows should have entries defined by the HEADING row.
     '''
 
     if line.strip('"').startswith(('UNIT', 'TYPE', 'DATA')):
@@ -314,33 +314,33 @@ def rule_4b(line, line_number=0, group='', headings=[], ags_errors={}):
             # Avoid repetitions of same error by adding it only it is not already there
             try:
 
-                if not any([(d['group'] == group) and (d['desc'] == 'Headings row missing.') for d in ags_errors['AGS Standard Rule 4b']]):
-                    add_error_msg(ags_errors, 'AGS Standard Rule 4b', '-', group, 'Headings row missing.')
+                if not any([(d['group'] == group) and (d['desc'] == 'Headings row missing.') for d in ags_errors['AGS Format Rule 4b']]):
+                    add_error_msg(ags_errors, 'AGS Format Rule 4b', '-', group, 'Headings row missing.')
 
             except KeyError:
-                add_error_msg(ags_errors, 'AGS Standard Rule 4b', '-', group, 'Headings row missing.')
+                add_error_msg(ags_errors, 'AGS Format Rule 4b', '-', group, 'Headings row missing.')
 
         elif len(temp) != len(headings):
-            add_error_msg(ags_errors, 'AGS Standard Rule 4b', line_number, group, 'Number of fields does not match the HEADING row.')
+            add_error_msg(ags_errors, 'AGS Format Rule 4b', line_number, group, 'Number of fields does not match the HEADING row.')
 
     return ags_errors
 
 
 def rule_5(line, line_number=0, ags_errors={}):
-    '''AGS Standard Rule 5: All fields should be enclosed in double quotes.
+    '''AGS Format Rule 5: All fields should be enclosed in double quotes.
     '''
 
     import re
 
     if not line.isspace():
         if not line.startswith('"') or not line.strip('\r\n').endswith('"'):
-            add_error_msg(ags_errors, 'AGS Standard Rule 5', line_number, '', 'Contains fields that are not enclosed in double quotes.')
+            add_error_msg(ags_errors, 'AGS Format Rule 5', line_number, '', 'Contains fields that are not enclosed in double quotes.')
 
         elif line.strip('"').startswith(('HEADING', 'UNIT', 'TYPE')):
             # If all fields are enclosed in double quotes then splitting by
             # ',' and '","' will return the same number of filelds
             if len(line.split('","')) != len(line.split(',')):
-                add_error_msg(ags_errors, 'AGS Standard Rule 5', line_number, '', 'Contains fields that are not enclosed in double quotes.')
+                add_error_msg(ags_errors, 'AGS Format Rule 5', line_number, '', 'Contains fields that are not enclosed in double quotes.')
 
             # This check is not applied to DATA rows as it is possible that commas could be
             # present in fields with string data (i.e TYPE="X"). However, fields in DATA
@@ -358,19 +358,19 @@ def rule_5(line, line_number=0, ags_errors={}):
             # Find orphan double quotes
             if '"' in re.findall(r'"', temp):
                 msg = 'Contains quotes within a data field. All such quotes should be enclosed by a second quote.'
-                add_error_msg(ags_errors, 'AGS Standard Rule 5', line_number, '', msg)
+                add_error_msg(ags_errors, 'AGS Format Rule 5', line_number, '', msg)
 
     elif (line == '\r\n') or (line == '\n'):
         pass
 
     else:
-        add_error_msg(ags_errors, 'AGS Standard Rule 5', line_number, '', 'Contains only spaces.')
+        add_error_msg(ags_errors, 'AGS Format Rule 5', line_number, '', 'Contains only spaces.')
 
     return ags_errors
 
 
 def rule_6(line, line_number=0, ags_errors={}):
-    '''AGS Standard Rule 6: All fields should be separated by commas and carriage returns are not
+    '''AGS Format Rule 6: All fields should be separated by commas and carriage returns are not
     allowed within a data field.
     '''
 
@@ -380,7 +380,7 @@ def rule_6(line, line_number=0, ags_errors={}):
 
 
 def rule_19(line, line_number=0, ags_errors={}):
-    '''AGS Standard Rule 19: GROUP name should consist of four uppercase letters.
+    '''AGS Format Rule 19: GROUP name should consist of four uppercase letters.
     '''
 
     if line.strip('"').startswith('GROUP'):
@@ -389,13 +389,13 @@ def rule_19(line, line_number=0, ags_errors={}):
 
         if len(temp) >= 2:
             if (len(temp[1]) != 4) or not temp[1].isupper():
-                add_error_msg(ags_errors, 'AGS Standard Rule 19', line_number, temp[1], 'GROUP name should consist of four uppercase letters.')
+                add_error_msg(ags_errors, 'AGS Format Rule 19', line_number, temp[1], 'GROUP name should consist of four uppercase letters.')
 
     return ags_errors
 
 
 def rule_19a(line, line_number=0, group='', ags_errors={}):
-    '''AGS Standard Rule 19a: HEADING names should consist of uppercase letters.
+    '''AGS Format Rule 19a: HEADING names should consist of uppercase letters.
     '''
 
     import re
@@ -408,20 +408,20 @@ def rule_19a(line, line_number=0, group='', ags_errors={}):
             for item in temp[1:]:
                 if len(re.findall(r'[^A-Z0-9_]', item)) > 0:
                     msg = f'Heading {item} should consist of only uppercase letters, numbers, and an underscore character.'
-                    add_error_msg(ags_errors, 'AGS Standard Rule 19a', line_number, group, msg)
+                    add_error_msg(ags_errors, 'AGS Format Rule 19a', line_number, group, msg)
 
                 if len(item) > 9:
                     msg = f'Heading {item} is more than 9 characters in length.'
-                    add_error_msg(ags_errors, 'AGS Standard Rule 19a', line_number, group, msg)
+                    add_error_msg(ags_errors, 'AGS Format Rule 19a', line_number, group, msg)
 
         else:
-            add_error_msg(ags_errors, 'AGS Standard Rule 19a', line_number, group, 'Headings row does not seem to have any fields.')
+            add_error_msg(ags_errors, 'AGS Format Rule 19a', line_number, group, 'Headings row does not seem to have any fields.')
 
     return ags_errors
 
 
 def rule_19b_1(line, line_number=0, group='', ags_errors={}):
-    '''AGS Standard Rule 19b: HEADING names shall start with the group name followed by an underscore character.
+    '''AGS Format Rule 19b: HEADING names shall start with the group name followed by an underscore character.
     Where a HEADING refers to an existing HEADING within another GROUP, it shall bear the same name.
     '''
 
@@ -434,13 +434,13 @@ def rule_19b_1(line, line_number=0, group='', ags_errors={}):
                 try:
                     if (len(item.split('_')[0]) != 4) or (len(item.split('_')[1]) > 4):
                         msg = f'Heading {item} should consist of a 4 character group name and a field name of up to 4 characters.'
-                        add_error_msg(ags_errors, 'AGS Standard Rule 19b', line_number, group, msg)
+                        add_error_msg(ags_errors, 'AGS Format Rule 19b', line_number, group, msg)
 
                     # TODO: Check whether heading name is present in the standard AGS4 dictionary or in the DICT group in the input file
 
                 except IndexError:
                     msg = f'Heading {item} should consist of group name and field name separated by "_".'
-                    add_error_msg(ags_errors, 'AGS Standard Rule 19b', line_number, group, msg)
+                    add_error_msg(ags_errors, 'AGS Format Rule 19b', line_number, group, msg)
 
     return ags_errors
 
@@ -448,7 +448,7 @@ def rule_19b_1(line, line_number=0, group='', ags_errors={}):
 # Group Rules
 
 def rule_2(tables, headings, line_numbers, ags_errors={}):
-    '''AGS Standard Rule 2: Each file should consist of one or more GROUPs and each GROUP should
+    '''AGS Format Rule 2: Each file should consist of one or more GROUPs and each GROUP should
     consist of one or more DATA rows.
     '''
 
@@ -461,13 +461,13 @@ def rule_2(tables, headings, line_numbers, ags_errors={}):
         #       ref: https://stackoverflow.com/questions/40659212/futurewarning-elementwise-comparison-failed-returning-scalar-but-in-the-futur
         if 'DATA' not in tables[key]['HEADING'].tolist():
             line_number = line_numbers[key]['GROUP']
-            add_error_msg(ags_errors, 'AGS Standard Rule 2', line_number, key, 'No DATA rows in group.')
+            add_error_msg(ags_errors, 'AGS Format Rule 2', line_number, key, 'No DATA rows in group.')
 
     return ags_errors
 
 
 def rule_2b(tables, headings, line_numbers, ags_errors={}):
-    '''AGS Standard Rule 2b: UNIT and TYPE rows should be defined at the start of each GROUP
+    '''AGS Format Rule 2b: UNIT and TYPE rows should be defined at the start of each GROUP
     '''
 
     for key in tables:
@@ -479,7 +479,7 @@ def rule_2b(tables, headings, line_numbers, ags_errors={}):
         #       ref: https://stackoverflow.com/questions/40659212/futurewarning-elementwise-comparison-failed-returning-scalar-but-in-the-futur
         if 'UNIT' not in tables[key]['HEADING'].tolist():
             line_number = line_numbers[key]['GROUP']
-            add_error_msg(ags_errors, 'AGS Standard Rule 2b', line_number, key, 'UNIT row missing from group.')
+            add_error_msg(ags_errors, 'AGS Format Rule 2b', line_number, key, 'UNIT row missing from group.')
 
         # Check if the UNIT row is in the correct location within the table
         elif tables[key].loc[0, 'HEADING'] != 'UNIT':
@@ -487,25 +487,25 @@ def rule_2b(tables, headings, line_numbers, ags_errors={}):
             # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
             # that Pandas returns by default
             msg = 'UNIT row is misplaced. It should be immediately below the HEADING row.'
-            add_error_msg(ags_errors, 'AGS Standard Rule 2b', line_number, key, msg)
+            add_error_msg(ags_errors, 'AGS Format Rule 2b', line_number, key, msg)
 
         # Check if there is a TYPE row in the table
         if 'TYPE' not in tables[key]['HEADING'].tolist():
             line_number = line_numbers[key]['GROUP']
-            add_error_msg(ags_errors, 'AGS Standard Rule 2b', line_number, key, 'TYPE row missing from group.')
+            add_error_msg(ags_errors, 'AGS Format Rule 2b', line_number, key, 'TYPE row missing from group.')
 
         # Check if the UNIT row is in the correct location within the table
         elif tables[key].loc[1, 'HEADING'] != 'TYPE':
             line_number = int(tables[key].loc[tables[key]['HEADING'] == 'TYPE', 'line_number'].values[0])
             # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
             # that Pandas returns by default
-            add_error_msg(ags_errors, 'AGS Standard Rule 2b', line_number, key, 'TYPE row is misplaced. It should be immediately below the UNIT row.')
+            add_error_msg(ags_errors, 'AGS Format Rule 2b', line_number, key, 'TYPE row is misplaced. It should be immediately below the UNIT row.')
 
     return ags_errors
 
 
 def rule_7(headings, dictionary, line_numbers, ags_errors={}):
-    '''AGS Standard Rule 7: HEADINGs shall be in the order described in the AGS4 dictionary.
+    '''AGS Format Rule 7: HEADINGs shall be in the order described in the AGS4 dictionary.
     '''
 
     for key in headings:
@@ -526,21 +526,21 @@ def rule_7(headings, dictionary, line_numbers, ags_errors={}):
                 if item != temp[i]:
                     line_number = line_numbers[key]['HEADING']
                     msg = f'Headings not in order starting from {item}. Expected order: ...{"|".join(temp[i:])}'
-                    add_error_msg(ags_errors, 'AGS Standard Rule 7', line_number, key, msg)
+                    add_error_msg(ags_errors, 'AGS Format Rule 7', line_number, key, msg)
 
                     return ags_errors
 
         else:
             line_number = line_numbers[key]['HEADING']
             msg = 'Order of headings could not be checked as one or more fields were not found in either the DICT table or the standard dictionary. '\
-                  'Check error log under AGS Standard Rule 9.'
-            add_error_msg(ags_errors, 'AGS Standard Rule 7', line_number, key, msg)
+                  'Check error log under AGS Format Rule 9.'
+            add_error_msg(ags_errors, 'AGS Format Rule 7', line_number, key, msg)
 
     return ags_errors
 
 
 def rule_8(tables, headings, line_numbers, ags_errors={}):
-    '''AGS Standard Rule 8: Data variables shall be presented in units of measurements
+    '''AGS Format Rule 8: Data variables shall be presented in units of measurements
     and type that are described by the appropriate data field UNIT and data
     field TYPE defined at the start of the GROUP.
     '''
@@ -570,7 +570,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                         # that Pandas returns by default
                         msg = f'Value {row[col]} in {col} not of data type {data_type}.'
-                        add_error_msg(ags_errors, 'AGS Standard Rule 8', line_number, group, msg)
+                        add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
                 elif 'SCI' in data_type:
                     i = int(data_type.strip('SCI'))
@@ -581,7 +581,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                         # that Pandas returns by default
                         msg = f'Value {row[col]} in {col} not of data type {data_type}.'
-                        add_error_msg(ags_errors, 'AGS Standard Rule 8', line_number, group, msg)
+                        add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
                 elif 'SF' in data_type:
                     i = int(data_type.strip('SF'))
@@ -603,7 +603,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
 
                         expected_val = row['temp']
                         msg = f'Value {row[col]} in {col} not of data type {data_type}. (Expected: {expected_val})'
-                        add_error_msg(ags_errors, 'AGS Standard Rule 8', line_number, group, msg)
+                        add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
                 elif data_type == 'DT':
                     mask = df.HEADING.eq('DATA') & ~df[col].eq('') & pd.to_datetime(df[col], errors='coerce', format='%Y-%m-%d').isna()
@@ -614,7 +614,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                         # that Pandas returns by default
                         msg = f'Value {row[col]} in {col} not in the ISO date/time format or is an invalid date/time.'
-                        add_error_msg(ags_errors, 'AGS Standard Rule 8', line_number, group, msg)
+                        add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
                 elif data_type == 'U':
                     # Column can contain any numeric value
@@ -626,7 +626,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                         # that Pandas returns by default
                         msg = f'Value {row[col]} in {col} not of data type {data_type}. Numeric value expected.'
-                        add_error_msg(ags_errors, 'AGS Standard Rule 8', line_number, group, msg)
+                        add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
                 elif data_type == 'YN':
                     mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.lower().str.match(r'^(yes|no|y|n)$')
@@ -636,7 +636,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                         # that Pandas returns by default
                         msg = f'Value {row[col]} in {col} not of data type {data_type}.'
-                        add_error_msg(ags_errors, 'AGS Standard Rule 8', line_number, group, msg)
+                        add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
                 elif data_type == 'DMS':
                     mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(r'^\d+:[0-5]\d:[0-5]\d.?\d*$')
@@ -646,14 +646,14 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                         # that Pandas returns by default
                         msg = f'Value {row[col]} in {col} not of data type {data_type} or is an invalid value.'
-                        add_error_msg(ags_errors, 'AGS Standard Rule 8', line_number, group, msg)
+                        add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
                 # elif data_type == 'MC':
                 #     # TODO Add check for MC
                 #     pass
 
                 # elif data_type == 'RL':
-                #     # AGS Standard Rule 11 should flag invalid RL entries
+                #     # AGS Format Rule 11 should flag invalid RL entries
                 #     pass
 
                 # elif data_type in ['X', 'XN']:
@@ -668,7 +668,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
 
 
 def rule_9(headings, dictionary, line_numbers, ags_errors={}):
-    '''AGS Standard Rule 9: GROUP and HEADING names will be taken from the standard AGS4 dictionary or
+    '''AGS Format Rule 9: GROUP and HEADING names will be taken from the standard AGS4 dictionary or
     defined in DICT table in the .ags file.
     '''
 
@@ -680,13 +680,13 @@ def rule_9(headings, dictionary, line_numbers, ags_errors={}):
         for item in [x for x in headings[key] if x not in ['HEADING', 'line_number']]:
             if item not in reference_headings_list:
                 line_number = line_numbers[key]['HEADING']
-                add_error_msg(ags_errors, 'AGS Standard Rule 9', line_number, key, f'{item} not found in DICT table or the standard AGS4 dictionary.')
+                add_error_msg(ags_errors, 'AGS Format Rule 9', line_number, key, f'{item} not found in DICT table or the standard AGS4 dictionary.')
 
     return ags_errors
 
 
 def rule_10a(tables, headings, dictionary, line_numbers, ags_errors={}):
-    '''AGS Standard Rule 10a: KEY fields in a GROUP must be present (even if null). There should not be any dupliate KEY field combinations.
+    '''AGS Format Rule 10a: KEY fields in a GROUP must be present (even if null). There should not be any dupliate KEY field combinations.
     '''
 
     for group in tables:
@@ -698,7 +698,7 @@ def rule_10a(tables, headings, dictionary, line_numbers, ags_errors={}):
         for heading in key_fields:
             if heading not in headings[group]:
                 line_number = line_numbers[group]['HEADING']
-                add_error_msg(ags_errors, 'AGS Standard Rule 10a', line_number, group, f'Key field {heading} not found.')
+                add_error_msg(ags_errors, 'AGS Format Rule 10a', line_number, group, f'Key field {heading} not found.')
 
         # Check for duplicate KEY field combinations if all KEY fields are present
         if set(key_fields).issubset(set(headings[group])):
@@ -713,13 +713,13 @@ def rule_10a(tables, headings, dictionary, line_numbers, ags_errors={}):
                 line_number = int(row['line_number'])
                 # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                 # that Pandas returns by default
-                add_error_msg(ags_errors, 'AGS Standard Rule 10a', line_number, group, f'Duplicate key field combination: {duplicate_key_combo}')
+                add_error_msg(ags_errors, 'AGS Format Rule 10a', line_number, group, f'Duplicate key field combination: {duplicate_key_combo}')
 
     return ags_errors
 
 
 def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
-    '''AGS Standard Rule 10b: REQUIRED fields in a GROUP must be present and cannot be empty.
+    '''AGS Format Rule 10b: REQUIRED fields in a GROUP must be present and cannot be empty.
     '''
 
     for group in tables:
@@ -731,7 +731,7 @@ def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
         for heading in required_fields:
             if heading not in headings[group]:
                 line_number = line_numbers[group]['HEADING']
-                add_error_msg(ags_errors, 'AGS Standard Rule 10b', line_number, group, f'Required field {heading} not found.')
+                add_error_msg(ags_errors, 'AGS Format Rule 10b', line_number, group, f'Required field {heading} not found.')
 
         # Check for missing entries in REQUIRED fields
         # First make copy of table so that it can be modified without unexpected side-effects
@@ -752,13 +752,13 @@ def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
                 line_number = int(row['line_number'])
                 # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                 # that Pandas returns by default
-                add_error_msg(ags_errors, 'AGS Standard Rule 10b', line_number, group, f'Empty REQUIRED fields: {msg}')
+                add_error_msg(ags_errors, 'AGS Format Rule 10b', line_number, group, f'Empty REQUIRED fields: {msg}')
 
     return ags_errors
 
 
 def rule_10c(tables, headings, dictionary, line_numbers, ags_errors={}):
-    '''AGS Standard Rule 10c: Each DATA row should have a parent entry in the parent GROUP.
+    '''AGS Format Rule 10c: Each DATA row should have a parent entry in the parent GROUP.
     '''
 
     for group in tables:
@@ -772,7 +772,7 @@ def rule_10c(tables, headings, dictionary, line_numbers, ags_errors={}):
 
                 # Check whether parent entries exist
                 if parent_group == '':
-                    add_error_msg(ags_errors, 'AGS Standard Rule 10c', '-', group, 'Parent group left blank in dictionary.')
+                    add_error_msg(ags_errors, 'AGS Format Rule 10c', '-', group, 'Parent group left blank in dictionary.')
 
                 else:
                     # Extract KEY fields from dictionary
@@ -793,27 +793,27 @@ def rule_10c(tables, headings, dictionary, line_numbers, ags_errors={}):
                             msg = '|'.join([row[x] for x in row if x in parent_key_fields])
                             msg = f'Parent entry for line not found in {parent_group}: {msg}'
                             line_number = int(row['line_number_x'])  # 'line_number_x' because merge appends '_x' to column name in the left table
-                            add_error_msg(ags_errors, 'AGS Standard Rule 10c', line_number, group, msg)
+                            add_error_msg(ags_errors, 'AGS Format Rule 10c', line_number, group, msg)
 
                     else:
                         msg = f'Could not check parent entries due to missing key fields in {group} or {parent_group}. '\
-                               'Check error log under AGS Standard Rule 10a.'
+                               'Check error log under AGS Format Rule 10a.'
                         line_number = line_numbers[group]['HEADING']
-                        add_error_msg(ags_errors, 'AGS Standard Rule 10c', line_number, group, msg)
-                        # Missing key fields in child and/or parent groups. AGS Standard Rule 10a should catch this error.
+                        add_error_msg(ags_errors, 'AGS Format Rule 10c', line_number, group, msg)
+                        # Missing key fields in child and/or parent groups. AGS Format Rule 10a should catch this error.
 
             except IndexError:
                 msg = 'Could not check parent entries since group definitions not found in standard dictionary or DICT table.'
-                add_error_msg(ags_errors, 'AGS Standard Rule 10c', '-', group, msg)
+                add_error_msg(ags_errors, 'AGS Format Rule 10c', '-', group, msg)
 
             except KeyError:
-                add_error_msg(ags_errors, 'AGS Standard Rule 10c', '-', group, f'Could not find parent group {parent_group}.')
+                add_error_msg(ags_errors, 'AGS Format Rule 10c', '-', group, f'Could not find parent group {parent_group}.')
 
     return ags_errors
 
 
 def rule_11(tables, headings, dictionary, ags_errors={}):
-    '''AGS Standard Rule 11: Data of TYPE "RL" shall be delimited by a single character defined under TRAN_DLIM.
+    '''AGS Format Rule 11: Data of TYPE "RL" shall be delimited by a single character defined under TRAN_DLIM.
     '''
 
     try:
@@ -828,34 +828,34 @@ def rule_11(tables, headings, dictionary, ags_errors={}):
         # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
         # that Pandas returns by default
 
-        # Check AGS Standard Rule 11a
+        # Check AGS Format Rule 11a
         if delimiter == '':
-            add_error_msg(ags_errors, 'AGS Standard Rule 11a', line_number, 'TRAN', 'TRAN_DLIM missing.')
+            add_error_msg(ags_errors, 'AGS Format Rule 11a', line_number, 'TRAN', 'TRAN_DLIM missing.')
 
-        # Check AGS Standard Rule 11b
+        # Check AGS Format Rule 11b
         if concatenator == '':
-            add_error_msg(ags_errors, 'AGS Standard Rule 11b', line_number, 'TRAN', 'TRAN_RCON missing.')
+            add_error_msg(ags_errors, 'AGS Format Rule 11b', line_number, 'TRAN', 'TRAN_RCON missing.')
 
-        # Check AGS Standard Rule 11c (only if AGS Standard Rule 11a and AGS Standard Rule 11b are satisfied)
-        if 'AGS Standard Rule 11a' in ags_errors or 'AGS Standard Rule 11b' in ags_errors:
+        # Check AGS Format Rule 11c (only if AGS Format Rule 11a and AGS Format Rule 11b are satisfied)
+        if 'AGS Format Rule 11a' in ags_errors or 'AGS Format Rule 11b' in ags_errors:
             return ags_errors
 
         else:
             ags_errors = rule_11c(tables, dictionary, delimiter, concatenator, ags_errors=ags_errors)
 
     except KeyError:
-        # TRAN group missing. AGS Standard Rule 14 should catch this error.
+        # TRAN group missing. AGS Format Rule 14 should catch this error.
         pass
 
     except IndexError:
-        # TRAN group has no DATA rows. AGS Standard Rule 14 should catch this error.
+        # TRAN group has no DATA rows. AGS Format Rule 14 should catch this error.
         pass
 
     return ags_errors
 
 
 def rule_11c(tables, dictionary, delimiter, concatenator, ags_errors={}):
-    '''AGS Standard Rule 11c: Data type "RL" can cross-reference to any group in an AGS4 file
+    '''AGS Format Rule 11c: Data type "RL" can cross-reference to any group in an AGS4 file
     '''
 
     # Check for columns of data type RL
@@ -876,7 +876,7 @@ def rule_11c(tables, dictionary, delimiter, concatenator, ags_errors={}):
                     # Return error message if delimiter is not found
                     if delimiter not in record_link:
                         msg = f'Invalid record link: "{record_link}". "{delimiter}" should be used as delimiter.'
-                        add_error_msg(ags_errors, 'AGS Standard Rule 11c', line_number, group, msg)
+                        add_error_msg(ags_errors, 'AGS Format Rule 11c', line_number, group, msg)
                         continue
 
                     # Convert record link to list and split using concatenator
@@ -886,68 +886,68 @@ def rule_11c(tables, dictionary, delimiter, concatenator, ags_errors={}):
                     for item in record_link:
                         if fetch_record(item.split(delimiter), tables).shape[0] < 1:
                             msg = f'Invalid record link: "{item}". No such record found.'
-                            add_error_msg(ags_errors, 'AGS Standard Rule 11c', line_number, group, msg)
+                            add_error_msg(ags_errors, 'AGS Format Rule 11c', line_number, group, msg)
 
                         elif fetch_record(item.split(delimiter), tables).shape[0] > 1:
                             msg = f'Invalid record link: "{item}". Link refers to more than one record.'
-                            add_error_msg(ags_errors, 'AGS Standard Rule 11c', line_number, group, msg)
+                            add_error_msg(ags_errors, 'AGS Format Rule 11c', line_number, group, msg)
 
     return ags_errors
 
 
 def rule_12(tables, headings, ags_errors={}):
-    '''AGS Standard Rule 12: Only REQUIRED fields needs to be filled. Others can be null.
+    '''AGS Format Rule 12: Only REQUIRED fields needs to be filled. Others can be null.
     '''
 
-    # This is already checked by AGS Standard Rule 10b. No additional checking necessary
+    # This is already checked by AGS Format Rule 10b. No additional checking necessary
 
     return ags_errors
 
 
 def rule_13(tables, headings, line_numbers, ags_errors={}):
-    '''AGS Standard Rule 13: File shall contain a PROJ group with only one DATA row. All REQUIRED fields in this
+    '''AGS Format Rule 13: File shall contain a PROJ group with only one DATA row. All REQUIRED fields in this
     row should be filled.
     '''
 
     if 'PROJ' not in tables.keys():
-        add_error_msg(ags_errors, 'AGS Standard Rule 13', '-', 'PROJ', 'PROJ table not found.')
+        add_error_msg(ags_errors, 'AGS Format Rule 13', '-', 'PROJ', 'PROJ table not found.')
 
     elif tables['PROJ'].loc[tables['PROJ']['HEADING'] == 'DATA', :].shape[0] < 1:
         line_number = line_numbers['PROJ']['GROUP']
-        add_error_msg(ags_errors, 'AGS Standard Rule 13', line_number, 'PROJ', 'There should be at least one DATA row in the PROJ table.')
+        add_error_msg(ags_errors, 'AGS Format Rule 13', line_number, 'PROJ', 'There should be at least one DATA row in the PROJ table.')
 
     elif tables['PROJ'].loc[tables['PROJ']['HEADING'] == 'DATA', :].shape[0] > 1:
 
         # Return an error for all DATA rows after the first one
         for line_number in tables['PROJ'].loc[tables['PROJ']['HEADING'] == 'DATA', 'line_number'].tolist()[1:]:
-            add_error_msg(ags_errors, 'AGS Standard Rule 13', line_number, 'PROJ', 'There should not be more than one DATA row in the PROJ table.')
+            add_error_msg(ags_errors, 'AGS Format Rule 13', line_number, 'PROJ', 'There should not be more than one DATA row in the PROJ table.')
 
     return ags_errors
 
 
 def rule_14(tables, headings, line_numbers, ags_errors={}):
-    '''AGS Standard Rule 14: File shall contain a TRAN group with only one DATA row. All REQUIRED fields in this
+    '''AGS Format Rule 14: File shall contain a TRAN group with only one DATA row. All REQUIRED fields in this
     row should be filled.
     '''
 
     if 'TRAN' not in tables.keys():
-        add_error_msg(ags_errors, 'AGS Standard Rule 14', '-', 'TRAN', 'TRAN table not found.')
+        add_error_msg(ags_errors, 'AGS Format Rule 14', '-', 'TRAN', 'TRAN table not found.')
 
     elif tables['TRAN'].loc[tables['TRAN']['HEADING'] == 'DATA', :].shape[0] < 1:
         line_number = line_numbers['TRAN']['GROUP']
-        add_error_msg(ags_errors, 'AGS Standard Rule 14', line_number, 'TRAN', 'There should be at least one DATA row in the TRAN table.')
+        add_error_msg(ags_errors, 'AGS Format Rule 14', line_number, 'TRAN', 'There should be at least one DATA row in the TRAN table.')
 
     elif tables['TRAN'].loc[tables['TRAN']['HEADING'] == 'DATA', :].shape[0] > 1:
 
         # Return an error for all DATA rows after the first one
         for line_number in tables['TRAN'].loc[tables['TRAN']['HEADING'] == 'DATA', 'line_number'].tolist()[1:]:
-            add_error_msg(ags_errors, 'AGS Standard Rule 14', line_number, 'TRAN', 'There should not be more than one DATA row in the TRAN table.')
+            add_error_msg(ags_errors, 'AGS Format Rule 14', line_number, 'TRAN', 'There should not be more than one DATA row in the TRAN table.')
 
     return ags_errors
 
 
 def rule_15(tables, headings, line_numbers, ags_errors={}):
-    '''AGS Standard Rule 15: The UNIT group shall list all units used in within the data file.
+    '''AGS Format Rule 15: The UNIT group shall list all units used in within the data file.
     '''
 
     try:
@@ -968,20 +968,20 @@ def rule_15(tables, headings, line_numbers, ags_errors={}):
                 if entry not in UNIT.loc[UNIT['HEADING'] == 'DATA', 'UNIT_UNIT'].to_list() and entry not in ['', 'UNIT']:
                     # Returns the line number of the UNIT group, not the line number of the missing unit
                     line_number = line_numbers['UNIT']['GROUP']
-                    add_error_msg(ags_errors, 'AGS Standard Rule 15', line_number, 'UNIT', f'Unit "{entry}" not found in UNIT table.')
+                    add_error_msg(ags_errors, 'AGS Format Rule 15', line_number, 'UNIT', f'Unit "{entry}" not found in UNIT table.')
 
         except KeyError:
-            # TYPE_TYPE column missing. AGS Standard Rule 10a and 10b should catch this error
+            # TYPE_TYPE column missing. AGS Format Rule 10a and 10b should catch this error
             pass
 
     except KeyError:
-        add_error_msg(ags_errors, 'AGS Standard Rule 15', '-', 'UNIT', 'UNIT table not found.')
+        add_error_msg(ags_errors, 'AGS Format Rule 15', '-', 'UNIT', 'UNIT table not found.')
 
     return ags_errors
 
 
 def rule_16(tables, headings, dictionary, ags_errors={}):
-    '''AGS Standard Rule 16: Data file shall contain an ABBR group with definitions for all abbreviations used in the file.
+    '''AGS Format Rule 16: Data file shall contain an ABBR group with definitions for all abbreviations used in the file.
     '''
 
     try:
@@ -1007,16 +1007,16 @@ def rule_16(tables, headings, dictionary, ags_errors={}):
                         entries = [item for sublist in entries for item in sublist]
 
                     except KeyError:
-                        # KeyError will be raised if TRAN or TRAN_RCON does not exist. AGS Standard Rule 14 will catch this error.
+                        # KeyError will be raised if TRAN or TRAN_RCON does not exist. AGS Format Rule 14 will catch this error.
                         pass
 
                     except IndexError:
-                        # IndexError will be raised if no DATA rows in ABBR table. AGS Standard Rule 14 will catch this error.
+                        # IndexError will be raised if no DATA rows in ABBR table. AGS Format Rule 14 will catch this error.
                         pass
 
                     except ValueError:
                         # ValueError will be raised by entry.split(concatenator) if TRAN_RCON is empty.
-                        # This error should be caught by AGS Standard Rule 11b.
+                        # This error should be caught by AGS Format Rule 11b.
                         pass
 
                     try:
@@ -1024,10 +1024,10 @@ def rule_16(tables, headings, dictionary, ags_errors={}):
                         for entry in entries:
                             if entry not in ABBR.loc[ABBR['ABBR_HDNG'] == heading, 'ABBR_CODE'].to_list() and entry not in ['']:
                                 msg = f'"{entry}" under {heading} in {group} not found in ABBR table.'
-                                add_error_msg(ags_errors, 'AGS Standard Rule 16', '-', group, msg)
+                                add_error_msg(ags_errors, 'AGS Format Rule 16', '-', group, msg)
 
                     except KeyError:
-                        # ABBR_HDNG and/or ABBR_CODE column missing. AGS Standard Rule 10a and 10b should catch this error.
+                        # ABBR_HDNG and/or ABBR_CODE column missing. AGS Format Rule 10a and 10b should catch this error.
                         pass
 
     except KeyError:
@@ -1039,7 +1039,7 @@ def rule_16(tables, headings, dictionary, ags_errors={}):
             for heading in headings[group]:
                 # Check whether column is of data type PA
                 if 'PA' in df.loc[df['HEADING'] == 'TYPE', heading].tolist():
-                    add_error_msg(ags_errors, 'AGS Standard Rule 16', '-', 'ABBR', 'ABBR table not found.')
+                    add_error_msg(ags_errors, 'AGS Format Rule 16', '-', 'ABBR', 'ABBR table not found.')
 
                     # Break out of function as soon as first column of data type PA is found to
                     # avoid duplicate error entries
@@ -1049,7 +1049,7 @@ def rule_16(tables, headings, dictionary, ags_errors={}):
 
 
 def rule_17(tables, headings, dictionary, ags_errors={}):
-    '''AGS Standard Rule 17: Data file shall contain a TYPE group with definitions for all data types used in the file.
+    '''AGS Format Rule 17: Data file shall contain a TYPE group with definitions for all data types used in the file.
     '''
 
     try:
@@ -1068,35 +1068,35 @@ def rule_17(tables, headings, dictionary, ags_errors={}):
             # Check whether entries in the type_list are defined in the TYPE table
             for entry in set(type_list):
                 if entry not in TYPE.loc[TYPE['HEADING'] == 'DATA', 'TYPE_TYPE'].to_list() and entry not in ['TYPE']:
-                    add_error_msg(ags_errors, 'AGS Standard Rule 17', '-', 'TYPE', f'Data type "{entry}" not found in TYPE table.')
+                    add_error_msg(ags_errors, 'AGS Format Rule 17', '-', 'TYPE', f'Data type "{entry}" not found in TYPE table.')
 
         except KeyError:
-            # TYPE_TYPE column missing. AGS Standard Rule 10a and 10b should catch this error
+            # TYPE_TYPE column missing. AGS Format Rule 10a and 10b should catch this error
             pass
 
     except KeyError:
-        add_error_msg(ags_errors, 'AGS Standard Rule 17', '-', 'TYPE', 'TYPE table not found.')
+        add_error_msg(ags_errors, 'AGS Format Rule 17', '-', 'TYPE', 'TYPE table not found.')
 
     return ags_errors
 
 
 def rule_18(tables, headings, ags_errors={}):
-    '''AGS Standard Rule 18: Data file shall contain a DICT group with definitions for all non-standard headings in the file.
+    '''AGS Format Rule 18: Data file shall contain a DICT group with definitions for all non-standard headings in the file.
 
     Note: Check is based on rule_9(). The 'ags_errors' input should be the output from rule_9() in order for this to work.
     '''
 
-    if 'DICT' not in tables.keys() and 'AGS Standard Rule 9' in ags_errors.keys():
-        # If AGS Standard Rule 9 has been violated that means a non-standard has been found
+    if 'DICT' not in tables.keys() and 'AGS Format Rule 9' in ags_errors.keys():
+        # If AGS Format Rule 9 has been violated that means a non-standard has been found
         msg = 'DICT table not found. '\
-              'See error log under AGS Standard Rule 9 for a list of non-standard headings that need to be defined in a DICT table.'
-        add_error_msg(ags_errors, 'AGS Standard Rule 18', '-', 'DICT', f'{msg}')
+              'See error log under AGS Format Rule 9 for a list of non-standard headings that need to be defined in a DICT table.'
+        add_error_msg(ags_errors, 'AGS Format Rule 18', '-', 'DICT', f'{msg}')
 
     return ags_errors
 
 
 def rule_19b_2(headings, dictionary, line_numbers, ags_errors={}):
-    '''AGS Standard Rule 19b: HEADING names shall start with the group name followed by an underscore character.
+    '''AGS Format Rule 19b: HEADING names shall start with the group name followed by an underscore character.
     Where a HEADING referes to an existing HEADING within another GROUP, it shall bear the same name.
     '''
 
@@ -1106,7 +1106,7 @@ def rule_19b_2(headings, dictionary, line_numbers, ags_errors={}):
         for heading in [x for x in headings[group] if x not in ['HEADING', 'line_number']]:
             ref_group_name = heading.split('_')[0]
 
-            # The standard dictionaries allow fields like 'SPEC_REF' and 'TEST_STAT' which break AGS Standard Rule 19b
+            # The standard dictionaries allow fields like 'SPEC_REF' and 'TEST_STAT' which break AGS Format Rule 19b
             # so headings starting with 'SPEC' and 'TEST' are considered exceptions to the rule
             if ref_group_name not in [group, 'SPEC', 'TEST']:
                 ref_headings_list_1 = dictionary.loc[dictionary.HEADING.eq('DATA') & dictionary.DICT_GRP.eq(ref_group_name), 'DICT_HDNG'].tolist()
@@ -1115,23 +1115,23 @@ def rule_19b_2(headings, dictionary, line_numbers, ags_errors={}):
                 if not ref_headings_list_1:
                     msg = f'Group {ref_group_name} referred to in {heading} could not be found in either the standard dictionary or the DICT table.'
                     line_number = line_numbers[group]['HEADING']
-                    add_error_msg(ags_errors, 'AGS Standard Rule 19b', line_number, group, msg)
+                    add_error_msg(ags_errors, 'AGS Format Rule 19b', line_number, group, msg)
 
                 elif heading not in ref_headings_list_1 and heading in ref_headings_list_2:
                     msg = f'Definition for {heading} not found under group {ref_group_name}. '\
                            'Either rename heading or add definition under correct group.'
                     line_number = line_numbers[group]['HEADING']
-                    add_error_msg(ags_errors, 'AGS Standard Rule 19b', line_number, group, msg)
+                    add_error_msg(ags_errors, 'AGS Format Rule 19b', line_number, group, msg)
 
                 else:
-                    # Heading is not defined at all. This will be caught by AGS Standard Rule 9
+                    # Heading is not defined at all. This will be caught by AGS Format Rule 9
                     pass
 
     return ags_errors
 
 
 def rule_19c(tables, headings, dictionary, line_numbers, ags_errors={}):
-    '''AGS Standard Rule 19b: HEADING names shall start with the group name followed by an underscore character.
+    '''AGS Format Rule 19b: HEADING names shall start with the group name followed by an underscore character.
     Where a HEADING referes to an existing HEADING within another GROUP, it shall bear the same name.
     '''
 
@@ -1148,17 +1148,17 @@ def rule_19c(tables, headings, dictionary, line_numbers, ags_errors={}):
                 if (temp[0] != key) and heading not in dictionary.DICT_HDNG.to_list():
                     msg = f'{heading} does not start with the name of this group, nor is it defined in another group.'
                     line_number = line_numbers[key]['HEADING']
-                    add_error_msg(ags_errors, 'AGS Standard Rule 19b', line_number, key, msg)
+                    add_error_msg(ags_errors, 'AGS Format Rule 19b', line_number, key, msg)
 
             except IndexError:
-                # Heading does not have an underscore in it. AGS Standard Rule 19b should catch this error.
+                # Heading does not have an underscore in it. AGS Format Rule 19b should catch this error.
                 pass
 
     return ags_errors
 
 
 def rule_20(tables, headings, filepath, ags_errors={}):
-    '''AGS Standard Rule 20: Additional computer files included within a data submission shall be defined in a FILE GROUP.
+    '''AGS Format Rule 20: Additional computer files included within a data submission shall be defined in a FILE GROUP.
     '''
 
     import os
@@ -1182,14 +1182,14 @@ def rule_20(tables, headings, filepath, ags_errors={}):
 
                         for line_number in line_numbers:
                             msg = f'FILE_FSET entry "{entry}" not found in FILE table.'
-                            add_error_msg(ags_errors, 'AGS Standard Rule 20', line_number, group, msg)
+                            add_error_msg(ags_errors, 'AGS Format Rule 20', line_number, group, msg)
 
         # Verify that a sub-directory named "FILE" exists in the same directory as the AGS4 file being checked
         current_dir = os.path.dirname(filepath)
 
         if not os.path.isdir(os.path.join(current_dir, 'FILE')):
             msg = 'Folder named "FILE" not found. Files defined in the FILE table should be saved in this folder.'
-            add_error_msg(ags_errors, 'AGS Standard Rule 20', '-', 'FILE', msg)
+            add_error_msg(ags_errors, 'AGS Format Rule 20', '-', 'FILE', msg)
 
         # Verify entries in FILE group
         for file_fset in set(FILE.loc[FILE.HEADING == 'DATA', 'FILE_FSET'].tolist()):
@@ -1197,7 +1197,7 @@ def rule_20(tables, headings, filepath, ags_errors={}):
 
             if not os.path.isdir(file_fset_path):
                 msg = f'Sub-folder named "{os.path.join("FILE", file_fset)}" not found even though it is defined in the FILE table.'
-                add_error_msg(ags_errors, 'AGS Standard Rule 20', '-', 'FILE', msg)
+                add_error_msg(ags_errors, 'AGS Format Rule 20', '-', 'FILE', msg)
 
             else:
                 # If sub-directory exists, then continue to check files
@@ -1211,7 +1211,7 @@ def rule_20(tables, headings, filepath, ags_errors={}):
                         line_numbers = FILE.loc[FILE['FILE_NAME'] == file_name, 'line_number'].tolist()
 
                         for line_number in line_numbers:
-                            add_error_msg(ags_errors, 'AGS Standard Rule 20', line_number, 'FILE', msg)
+                            add_error_msg(ags_errors, 'AGS Format Rule 20', line_number, 'FILE', msg)
 
     except KeyError:
         # FILE group not found. It is only required if FILE_FSET entries are found in other groups
@@ -1225,7 +1225,7 @@ def rule_20(tables, headings, filepath, ags_errors={}):
 
                 if len(file_list) > 0:
                     msg = 'FILE table not found even though there are FILE_FSET entries in other tables.'
-                    add_error_msg(ags_errors, 'AGS Standard Rule 20', '-', 'FILE', msg)
+                    add_error_msg(ags_errors, 'AGS Format Rule 20', '-', 'FILE', msg)
 
                     # Break out of function as soon as a group with a FILE_FSET entry is found to
                     # avoid duplicate error entries
