@@ -717,6 +717,10 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         err = traceback.format_exc()
         rprint('[red] ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
         rprint(f'[red]\n{err}[/red]')
+
+        # Add metadata
+        ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors)
+
         return ags_errors
 
     # Group Checks

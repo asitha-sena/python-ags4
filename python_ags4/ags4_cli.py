@@ -176,6 +176,9 @@ def check(input_file, dictionary, output_file):
                 console.print(f'\n[yellow]Error report saved in {output_file}[/yellow]\n')
 
         else:
+            # Print only metadata to screen
+            print_to_screen({'Metadata': ags_errors['Metadata']})
+
             console.print(f'\n[yellow]File check complete! {error_count} errors found![/yellow]')
             console.print('\n[yellow]Error report too long to print to screen.[/yellow]')
 
