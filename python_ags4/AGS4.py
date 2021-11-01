@@ -323,8 +323,8 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
             # quotes required by AGS4 Rule 5 are changed to single-double quotes
             # before the to_csv function is called. This ensures that the output
             # file has the quoted string in double-double quotes.
-            for col in df:
-                # Loop through all columns, find entries with '""', and replace
+            for col in df.select_dtypes(include='object'):
+                # Loop through columns that contain strings, find entries with '""', and replace
                 # them with '""
                 mask = df[col].str.contains('""', na=False)
                 df.loc[mask, :] = df.loc[mask, :].apply(lambda x: x.str.replace('""', '"'))
