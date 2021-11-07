@@ -165,6 +165,16 @@ def check(input_file, dictionary, output_file):
             # End here with successful exit code if no errors found
             sys.exit(0)
 
+        # Print that checking was aborted if AGS3 file was detected
+        elif ('AGS Format Rule 3' in ags_errors) and ('AGS3' in ags_errors['AGS Format Rule 3'][0]['desc']):
+            print_to_screen(ags_errors)
+
+            console.print('\n[yellow]Checking aborted as AGS3 files are not supported![/yellow]')
+
+            if output_file is not None:
+                save_to_file(output_file, ags_errors, input_file, error_count)
+                console.print(f'\n[yellow]Error report saved in {output_file}[/yellow]\n')
+
         # Print errors to screen if list is short enough
         elif error_count < 100:
             print_to_screen(ags_errors)
@@ -238,6 +248,11 @@ def save_to_file(output_file, ags_errors, input_file, error_count):
             # Summary of errors log
             if error_count == 0:
                 f.write('All checks passed!\n')
+
+            elif ('AGS Format Rule 3' in ags_errors) and ('AGS3' in ags_errors['AGS Format Rule 3'][0]['desc']):
+                f.write('Checking aborted as AGS3 files are not supported!\n')
+                f.write('\n')
+
             else:
                 f.write(f'{error_count} error(s) found in file!\n')
                 f.write('\n')

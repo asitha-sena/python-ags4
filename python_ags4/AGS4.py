@@ -668,6 +668,18 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
     # Line checks
     with open(input_file, 'r', newline='', encoding='utf-8', errors='replace') as f:
 
+        # Preflight check for AGS3 files
+        for i, line in enumerate(f, start=1):
+            ags_errors = check.is_ags3_like(line, i, ags_errors=ags_errors)
+
+            # Exit if ags3_like line is found
+            if ('AGS Format Rule 3' in ags_errors) and ('AGS3' in ags_errors['AGS Format Rule 3'][0]['desc']):
+                ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors)
+                return ags_errors
+
+        # Reset file stream to the beginning to start AGS4 checks
+        f.seek(0)
+
         # Initiate group name and headings list
         group = ''
         headings = []
@@ -762,9 +774,6 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
     ags_errors = check.rule_18(tables, headings, ags_errors=ags_errors)
     ags_errors = check.rule_19b_2(headings, dictionary, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_19c(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
-
-    # Check if file is likely to in AGS3 format
-    ags_errors = check.is_ags3(tables, input_file, ags_errors=ags_errors)
 
     # Add metadata
     ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors)

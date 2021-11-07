@@ -562,5 +562,5 @@ def test_rule_STNDandPREMCheck():
 def test_rule_AGS3():
     error_list = AGS4.check_file('tests/test_files/AGS3.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
-    assert 'General' in error_list.keys()
-    assert 'AGS3' in error_list['General'][0]['desc']
+    assert 'AGS Format Rule 3' in error_list.keys()
+    assert 'AGS3' in error_list['AGS Format Rule 3'][0]['desc']

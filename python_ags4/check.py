@@ -1256,3 +1256,14 @@ def is_ags3(tables, input_file, ags_errors={}):
                 add_error_msg(ags_errors, 'General', '', '', msg)
 
     return ags_errors
+
+
+def is_ags3_like(line, line_number=0, ags_errors={}):
+    '''Check if file is likely to be in AGS3 format and issue warning.
+    '''
+
+    if line.startswith(r'"**PROJ"'):
+        msg = 'Line starts with "**PROJ" instead of a valid data descriptor. This indicates that file is in the AGS3 format which is not supported.'
+        add_error_msg(ags_errors, 'AGS Format Rule 3', line_number, '', msg)
+
+    return ags_errors
