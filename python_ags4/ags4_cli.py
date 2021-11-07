@@ -242,7 +242,7 @@ def save_to_file(output_file, ags_errors, input_file, error_count):
             # Write metadata
             if 'Metadata' in ags_errors.keys():
                 for entry in ags_errors['Metadata']:
-                    f.write(f'''{entry['line']}: \t {entry['desc']}\n''')
+                    f.write(f'''{entry['line']+':':<12} {entry['desc']}\n''')
                 f.write('\n')
 
             # Summary of errors log
@@ -268,7 +268,7 @@ def save_to_file(output_file, ags_errors, input_file, error_count):
             for key in [x for x in ags_errors if 'Rule' in x]:
                 f.write(f'{key}:\n')
                 for entry in ags_errors[key]:
-                    f.write(f'''  Line {entry['line']}\t {entry['group'].strip('"')}\t {entry['desc']}\n''')
+                    f.write(f'''  Line {entry['line']:<8} {entry['group'].strip('"'):<7} {entry['desc']}\n''')
                 f.write('\n')
 
     except FileNotFoundError:
