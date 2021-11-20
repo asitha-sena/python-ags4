@@ -24,3 +24,11 @@ test_py39:
     - python -m pip install .
     - python -m pip install pytest
     - python -m pytest -v -s
+
+test_py310:
+  image: python:3.10
+  stage: test
+  script:
+    - python -m pip install .
+    - python -m pip install pytest
+    - python -m pytest -v
