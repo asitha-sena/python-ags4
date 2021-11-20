@@ -598,7 +598,7 @@ def format_numeric_column(dataframe, column_name, TYPE):
             # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
             # as "" rather than "nan"
             mask = (df.HEADING == "DATA") & df[col].notna()
-            df.loc[mask, col] = df.loc[mask, col].apply(lambda x: f"{x:.{i}e}")
+            df.loc[mask, col] = df.loc[mask, col].apply(lambda x: f"{x:.{i}E}")
 
         elif 'SF' in TYPE:
 
