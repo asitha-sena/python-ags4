@@ -5,7 +5,7 @@ name: Test package
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, test_github_actions ]
   pull_request:
     branches: [ master ]
 
