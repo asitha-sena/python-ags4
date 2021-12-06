@@ -190,6 +190,15 @@ def test_rule_8_7():
     assert error_list['AGS Format Rule 8'][5]['desc'] == 'Value 10 in SAMP_XXXX not of data type YN.'
 
 
+def test_rule_8_8():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule8-6.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule 8' in error_list.keys()
+    assert error_list['AGS Format Rule 8'][0]['line'] == 83
+    assert error_list['AGS Format Rule 8'][0]['group'] == 'SAMP'
+    assert error_list['AGS Format Rule 8'][0]['desc'] == 'Value ABC121415010 in SAMP_ID is not unique.'
+
+
 # def test_rule_9():
 #    error_list = AGS4.check_file('tests/test_files/4.1-rule9.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 #

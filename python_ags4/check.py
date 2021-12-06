@@ -648,6 +648,16 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         msg = f'Value {row[col]} in {col} not of data type {data_type} or is an invalid value.'
                         add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
+                elif (data_type == 'ID') and col.startswith(group):
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & df.duplicated(col, keep=False)
+
+                    for row in df.loc[mask, :].to_dict('records'):
+                        line_number = int(row['line_number'])
+                        # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+                        # that Pandas returns by default
+                        msg = f'Value {row[col]} in {col} is not unique.'
+                        add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
+
                 # elif data_type == 'MC':
                 #     # TODO Add check for MC
                 #     pass
