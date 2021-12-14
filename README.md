@@ -1,27 +1,48 @@
-### NOTE - this repo has been ported from (https://github.com/asitha-sena/python-ags4) which is now read-only
-
-----
-
 # python-ags4
-A library to read and write AGS4 files using Pandas DataFrames
 
-## Installation
+[[_TOC_]]
+
+## Introduction
+`python-ags4` is a library of functions that
+
+- imports/reads [AGS4](http://www.agsdataformat.com/datatransferv4/intro.php) files to a collection of [Pandas DataFrames](https://pandas.pydata.org/). 
+- data can be analyzed, manipulated, and updated using Pandas 
+- and then exported/written back to an AGS4 file
+
+Release available at [pypi.org/project/python-ags4/](https://pypi.org/project/python-ags4/)
+
+This project is maintained by the [AGS Data Format Working Group](https://gitlab.com/ags-data-format-wg) 
+
+>>>
+**Note**
+ This repo was forked from [github.com/asitha-sena/python-ags4](https://github.com/asitha-sena/python-ags4) which is now archived and read-only
+ 
+ HEAD is  [gitlab.com/ags-data-format-wg/ags-python-library](https://gitlab.com/ags-data-format-wg/ags-python-library)
+>>>
+
+## Documentation
+
+### Juypter Notebook
+
+We have created an example Juypter Notebook which imports an AGS file, plots boreholes on a map and creates a Striplog.  
+
+[See here](./examples/ags.ipynb)
+
+### Installation
 
 ```bash
 pip install python-ags4
 ```
 
-## Introduction
-`python-ags4` is a library of functions that lets a user import [AGS4](http://www.agsdataformat.com/datatransferv4/intro.php) files to a collection of Pandas DataFrames. The data can be analyzed, manipulated, and updated using Pandas and then exported back to an AGS4 file.
+### Code Examples
 
-## Examples
-
-#### Import module:
+first import the module
 ```python
 from python_ags4 import AGS4
 ```
 
 #### Import data from an AG4 file:
+
 ```python
 tables, headings = AGS4.AGS4_to_dataframe('/home/asitha/Projects/python-AGS4/tests/test_data.ags')
 ```
@@ -49,7 +70,7 @@ LOCA_txt = AGS4.convert_to_text(LOCA, 'DICT.ags')
 
 Tables converted to numeric using the ```AGS4.convert_to_numeric()``` function should always be converted back to text before exporting to an AGS4 file. (*Note: The UNIT and TYPE rows will be added back in addition to formatting the numeric columns.*) 
 
-## Command Line Interface ##
+### Command Line Interface 
 
 A cli tool was added in version 0.2.0. It should be available from the terminal (or on the Anaconda Powershell prompt in Windows) after running ```python pip install python-ags4>=0.2.0```
 
@@ -63,7 +84,7 @@ A checking tool is available as of version 0.3.0 and it can be used to make sure
 
 [![asciicast](https://asciinema.org/a/OOVN1rtqpvggzt9ZlHAlLBb6M.svg)](https://asciinema.org/a/OOVN1rtqpvggzt9ZlHAlLBb6M)
 
-## Graphical User Interface using *pandasgui*
+### Graphical User Interface using *pandasgui*
 
 The output from `python-ags4` can be directly used with [`pandasgui`](https://github.com/adamerose/pandasgui) to view and edit AGS4 files using an interactive graphical user interface. It also provides funtionality to plot and visualize the data.
 
@@ -83,3 +104,11 @@ updated_tables = gui.get_dataframes()
 
 AGS4.dataframe_to_AGS4(updated_tables, headings, '/home/asitha/Documents/output.ags')
 ```
+## Implementations
+
+This library has been used to create
+
+- Windows Desktop Application - https://gitlab.com/ags-data-format-wg/ags-checker-desktop-app 
+- Web application and API (pyagsapi) - https://github.com/BritishGeologicalSurvey/pyagsapi 
+  - Deployed as https://agsapi.bgs.ac.uk/
+- Excel Add On - https://gitlab.com/RogerChandler/ags-validator-excel-add-in  

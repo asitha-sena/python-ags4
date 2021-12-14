@@ -1,13 +1,11 @@
-# import sys
-# Prepend path so that AGS4.py is loaded from project file
-# instead of current installation
-# sys.path.insert(0, './')
-from python_ags4 import AGS4, __version__
+
+
 import toml
 import pandas as pd
 import pathlib
 import pytest
 
+from python_ags4 import AGS4, __version__
 
 # Data in LOCA table in test_data.ags
 LOCA = {'HEADING': ['UNIT', 'TYPE', 'DATA', 'DATA', 'DATA', 'DATA'],
@@ -144,6 +142,16 @@ def test_AGS4_to_excel(LOCA=LOCA, LLPL=LLPL):
     assert tables['LOCA'].loc[:, 'LOCA_ID'].values[2] == 'Location_1'
 
 
+def test_AGS4_to_sorted_excel():
+    tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
+    AGS4.AGS4_to_excel('tests/test_data.ags', 'tests/test_data.xlsx', sort_tables=True)
+
+    sorted_tables = pd.read_excel('tests/test_data.xlsx', sheet_name=None, engine='openpyxl')
+
+    # dict keys first converted to lists to check order
+    assert list(sorted(tables.keys())) == list(sorted_tables.keys())
+
+
 def test_excel_to_AGS4():
     AGS4.excel_to_AGS4('tests/test.xlsx', 'tests/test.out')
 
@@ -167,6 +175,23 @@ def test_excel_to_AGS4():
     assert tables['LOCA'].loc[4, 'LOCA_NATN'] == '5000000.10'
 
 
+def test_excel_to_AGS4_with_numeric_column_with_missing_TYPE():
+    # Read LLPL table from xlsx file directly
+    # LLPL_425 has numeric data but TYPE is erroneously set to ''
+    LLPL = pd.read_excel('tests/test.xlsx', sheet_name='LLPL', engine='openpyxl')
+    LLPL_425_from_xlsx = LLPL.loc[LLPL.HEADING.eq('DATA'), 'LLPL_425']\
+                             .apply(pd.to_numeric, errors='coerce')\
+
+    # Convert .xlsx file to AGS4 file and read it back
+    AGS4.excel_to_AGS4('tests/test.xlsx', 'tests/test.out')
+    tables, _ = AGS4.AGS4_to_dataframe('tests/test.out')
+    LLPL_425_from_ags = tables['LLPL'].pipe(lambda df: df.loc[df.HEADING.eq('DATA'), 'LLPL_425'])\
+                                      .apply(pd.to_numeric, errors='coerce')
+
+    # Check whether LLPL_425 was exported even though TYPE is not specified
+    assert LLPL_425_from_ags.equals(LLPL_425_from_xlsx)
+
+
 def test_check_file():
     error_list = AGS4.check_file('tests/test_data.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
     # assert error_list == ['Rule 1\t Line 12:\t Has one or more non-ASCII characters.',
@@ -176,3 +201,16 @@ def test_check_file():
     # File without any errors
     error_list = AGS4.check_file('tests/test_files/example1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
     assert 'Rule' not in error_list.keys()
+
+
+@pytest.mark.parametrize("function", [AGS4.AGS4_to_dict, AGS4.AGS4_to_dataframe])
+def test_duplicate_headers_with_rename_renames(function):
+    tables, headers = function('tests/test_files/DuplicateHeaders.ags', rename_duplicate_headers=True)
+
+    assert "SAMP_BASE_1" in headers['SAMP']
+
+
+@pytest.mark.parametrize("function", [AGS4.AGS4_to_dict, AGS4.AGS4_to_dataframe, AGS4.check_file])
+def test_duplicate_headers_without_rename_raises_error(function):
+    with pytest.raises(AGS4.AGS4Error, match=r'HEADER row.*has duplicate entries'):
+        function('tests/test_files/DuplicateHeaders.ags', rename_duplicate_headers=False)

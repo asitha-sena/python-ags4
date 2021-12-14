@@ -18,12 +18,13 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 # https://github.com/asitha-sena/python-ags4
+import os
+import sys
 
 import click
-from python_ags4 import AGS4, __version__
 from rich.console import Console
-import os
 
+from python_ags4 import AGS4, __version__
 # Create rich console for pretty printing
 console = Console()
 
@@ -38,11 +39,15 @@ def main():
 @main.command()
 @click.argument('input_file', type=click.Path('r'))
 @click.argument('output_file', type=click.Path(writable=True))
-@click.option('-f', '--format_columns', default="true",
-              help='Format numeric data based on TYPE values if converting from .xlsx to .ags (true [default] or false)')
+@click.option('-f', '--format_columns', type=click.BOOL, default=True,
+              help='Format numeric data based on TYPE values if converting from .xlsx to .ags (default True)')
 @click.option('-d', '--dictionary', type=click.File('r'), default=None,
               help="Path to AGS4 dictionary file. Numeric data will be formatted based on TYPE values from this file if converting from .xlsx to .ags.")
-def convert(input_file, output_file, format_columns, dictionary):
+@click.option('-r', '--rename_duplicate_headers', type=click.BOOL, default=True,
+              help="Rename duplicate headers when converting to Excel (default True)")
+@click.option('-s', '--sort_tables', type=click.BOOL, default=False,
+              help="Alphabetically sort worksheets Excel file. (WARNING: Original table/group order will be lost) (default False)")
+def convert(input_file, output_file, format_columns, dictionary, rename_duplicate_headers, sort_tables):
     '''Convert .ags file to .xlsx file or vice versa.
 
     INPUT_FILE   Path to input file. The file should be either .ags or .xlsx
@@ -55,6 +60,9 @@ def convert(input_file, output_file, format_columns, dictionary):
 
     Windows:   ags4_cli convert c:\Temp\data.ags c:\Temp\data.xlsx
 
+    Exit codes:
+        0 - Conversion succeeded
+        1 - Conversion failed
     '''
 
     try:
@@ -63,25 +71,28 @@ def convert(input_file, output_file, format_columns, dictionary):
             console.print(f'[green]Exporting data to... [bold]{output_file}[/bold][/green]')
             print('')
 
-            AGS4.AGS4_to_excel(input_file, output_file)
-
-            console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
+            try:
+                AGS4.AGS4_to_excel(input_file, output_file, rename_duplicate_headers=rename_duplicate_headers,
+                                   sort_tables=sort_tables)
+                console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
+                sys.exit(0)
+            except AGS4.AGS4Error as exc:
+                console.print(f'[red]Error: {exc.args[0]}[/red]')
 
         elif input_file.endswith('.xlsx') & output_file.endswith('.ags'):
             console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
             console.print(f'[green]Exporting data to... [bold]{output_file}[/bold][/green]')
             print('')
 
-            # Process optional arguments
-            format_numeric_columns = format_columns.lower() in ['true', 'yes']
-
             if dictionary is not None:
                 dictionary = dictionary.name
 
             # Call export function
-            AGS4.excel_to_AGS4(input_file, output_file, format_numeric_columns=format_numeric_columns, dictionary=dictionary)
+            AGS4.excel_to_AGS4(input_file, output_file, format_numeric_columns=format_columns,
+                               dictionary=dictionary)
 
             console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
+            sys.exit(0)
 
         elif (input_file.endswith('.ags') & output_file.endswith('.ags')) | (input_file.endswith('.xlsx') & output_file.endswith('.xlsx')):
             file_type = input_file.split('.')[-1]
@@ -109,6 +120,9 @@ def convert(input_file, output_file, format_columns, dictionary):
         console.print('[red]ERROR: Invalid output file path. Converted file could not be saved.[/red]')
         console.print('[red]       Please ensure that the specified directory exists.[/red]')
 
+    # All error cases exit here
+    sys.exit(1)
+
 
 @main.command()
 @click.argument('input_file', type=click.Path(exists=True))
@@ -117,9 +131,13 @@ def convert(input_file, output_file, format_columns, dictionary):
 @click.option('-d', '--dictionary', type=click.Path(exists=True), default=None,
               help="Path to AGS4 dictionary file.")
 def check(input_file, dictionary, output_file):
-    '''Check .ags file for error based AGS4 rules.
+    '''Check .ags file for errors according to AGS4 rules.
 
     INPUT_FILE   Path to .ags file to be checked
+
+    Exit codes:
+        0 - All checks passed
+        1 - Errors found or file read error
     '''
 
     if input_file.endswith('.ags'):
@@ -144,6 +162,19 @@ def check(input_file, dictionary, output_file):
                 save_to_file(output_file, ags_errors, input_file, error_count)
                 console.print(f'\n[green]Report saved in {output_file}[/green]\n')
 
+            # End here with successful exit code if no errors found
+            sys.exit(0)
+
+        # Print that checking was aborted if AGS3 file was detected
+        elif ('AGS Format Rule 3' in ags_errors) and ('AGS3' in ags_errors['AGS Format Rule 3'][0]['desc']):
+            print_to_screen(ags_errors)
+
+            console.print('\n[yellow]Checking aborted as AGS3 files are not supported![/yellow]')
+
+            if output_file is not None:
+                save_to_file(output_file, ags_errors, input_file, error_count)
+                console.print(f'\n[yellow]Error report saved in {output_file}[/yellow]\n')
+
         # Print errors to screen if list is short enough
         elif error_count < 100:
             print_to_screen(ags_errors)
@@ -155,6 +186,9 @@ def check(input_file, dictionary, output_file):
                 console.print(f'\n[yellow]Error report saved in {output_file}[/yellow]\n')
 
         else:
+            # Print only metadata to screen
+            print_to_screen({'Metadata': ags_errors['Metadata']})
+
             console.print(f'\n[yellow]File check complete! {error_count} errors found![/yellow]')
             console.print('\n[yellow]Error report too long to print to screen.[/yellow]')
 
@@ -168,6 +202,9 @@ def check(input_file, dictionary, output_file):
 
     else:
         console.print('[red]ERROR: Only .ags files are accepted as input.[/red]')
+
+    # Any errors in file or other problems will exit with failure code
+    sys.exit(1)
 
 
 def print_to_screen(ags_errors):
@@ -191,7 +228,7 @@ def print_to_screen(ags_errors):
 
     # Print other error messages
     for key in [x for x in ags_errors if 'Rule' in x]:
-        console.print(f'''[white underline]{key}[/white underline]:''')
+        console.print(f'''[white underline]{key.split('Standard')[-1].strip()}[/white underline]:''')
         for entry in ags_errors[key]:
             console.print(f'''  Line {entry['line']}\t [bold]{entry['group'].strip('"')}[/bold]\t {entry['desc']}''')
         console.print('')
@@ -205,12 +242,17 @@ def save_to_file(output_file, ags_errors, input_file, error_count):
             # Write metadata
             if 'Metadata' in ags_errors.keys():
                 for entry in ags_errors['Metadata']:
-                    f.write(f'''{entry['line']}: \t {entry['desc']}\n''')
+                    f.write(f'''{entry['line']+':':<12} {entry['desc']}\n''')
                 f.write('\n')
 
             # Summary of errors log
             if error_count == 0:
                 f.write('All checks passed!\n')
+
+            elif ('AGS Format Rule 3' in ags_errors) and ('AGS3' in ags_errors['AGS Format Rule 3'][0]['desc']):
+                f.write('Checking aborted as AGS3 files are not supported!\n')
+                f.write('\n')
+
             else:
                 f.write(f'{error_count} error(s) found in file!\n')
                 f.write('\n')
@@ -226,7 +268,7 @@ def save_to_file(output_file, ags_errors, input_file, error_count):
             for key in [x for x in ags_errors if 'Rule' in x]:
                 f.write(f'{key}:\n')
                 for entry in ags_errors[key]:
-                    f.write(f'''  Line {entry['line']}\t {entry['group'].strip('"')}\t {entry['desc']}\n''')
+                    f.write(f'''  Line {entry['line']:<8} {entry['group'].strip('"'):<7} {entry['desc']}\n''')
                 f.write('\n')
 
     except FileNotFoundError:
