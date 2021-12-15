@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "python-AGS4"
-version = "0.3.6"
+version = "0.3.7"
 description = "A library to read and write AGS4 files using Pandas DataFrames"
 authors = ["Asitha Senanayake <asitha_sena@yahoo.com>"]
 license = "GPL-3.0"
@@ -12,7 +12,7 @@ repository = "https://gitlab.com/ags-data-format-wg/ags-python-library"
 python = "^3.7"
 pandas = "^1.0"
 openpyxl = "^3.0"
-defusedxml = "^0.6.0"
+defusedxml = "^0.6"
 click = "^7.0"
 rich = "^9.0"
 
