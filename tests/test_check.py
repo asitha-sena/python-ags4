@@ -3,6 +3,7 @@ import os
 
 from python_ags4 import AGS4, __version__
 
+
 def test_rule_2():
     error_list = AGS4.check_file('tests/test_files/4.1-rule2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
@@ -269,6 +270,24 @@ def test_rule_10_6():
     assert error_list['AGS Format Rule 10b'][0]['line'] == 15
     assert error_list['AGS Format Rule 10b'][0]['group'] == 'ABBR'
     assert error_list['AGS Format Rule 10b'][0]['desc'] == 'Required field ABBR_DESC not found.'
+
+
+def test_rule_10_7():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule10-7.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule 10c' in error_list.keys()
+    assert error_list['AGS Format Rule 10c'][1]['line'] == '-'
+    assert error_list['AGS Format Rule 10c'][1]['group'] == 'TES1'
+    assert error_list['AGS Format Rule 10c'][1]['desc'] == 'No key fields have been defined in parent group (TEST). Please check DICT group.'
+
+
+def test_rule_10_8():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule10-8.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule 10c' in error_list.keys()
+    assert error_list['AGS Format Rule 10c'][1]['line'] == '-'
+    assert error_list['AGS Format Rule 10c'][1]['group'] == 'TES1'
+    assert error_list['AGS Format Rule 10c'][1]['desc'] == 'TEST_A defined as key field(s) in the parent group (TEST) but not in the child group. Please check DICT group.'
 
 
 def test_rule_11_1():

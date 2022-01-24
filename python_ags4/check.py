@@ -790,27 +790,43 @@ def rule_10c(tables, headings, dictionary, line_numbers, ags_errors={}):
                     parent_key_fields = dictionary.loc[mask, 'DICT_HDNG'].tolist()
                     parent_df = tables[parent_group].copy()
 
+                    mask = (dictionary.DICT_GRP == group) & (dictionary.DICT_STAT.str.contains('key', case=False))
+                    child_key_fields = dictionary.loc[mask, 'DICT_HDNG'].tolist()
                     child_df = tables[group].copy()
 
-                    # Check that both child and parent groups have the parent key fields. Otherwise an IndexError will occur
-                    # when merge operation is attempted
-                    if set(parent_key_fields).issubset(set(headings[group])) and set(parent_key_fields).issubset(headings[parent_group]):
-                        # Merge parent and child tables using parent key fields and find entries that not in the
-                        # parent table
-                        orphan_rows = child_df.merge(parent_df, how='left', on=parent_key_fields, indicator=True).query('''_merge=="left_only"''')
+                    # Return error message if parent group does not have any key fields
+                    if not parent_key_fields:
+                        msg = f'No key fields have been defined in parent group ({parent_group}). '\
+                            'Please check DICT group.'
+                        add_error_msg(ags_errors, 'AGS Format Rule 10c', '-', group, msg)
 
-                        for row in orphan_rows.to_dict('records'):
-                            msg = '|'.join([row[x] for x in row if x in parent_key_fields])
-                            msg = f'Parent entry for line not found in {parent_group}: {msg}'
-                            line_number = int(row['line_number_x'])  # 'line_number_x' because merge appends '_x' to column name in the left table
-                            add_error_msg(ags_errors, 'AGS Format Rule 10c', line_number, group, msg)
+                    # Return error message if child group key fileds is not a superset of parent group key fields
+                    elif not set(child_key_fields).issuperset(set(parent_key_fields)):
+                        missing_key_fields = set(parent_key_fields).difference(set(child_key_fields))
+                        msg = f'{", ".join(missing_key_fields)} defined as key field(s) in the parent group ({parent_group}) '\
+                            'but not in the child group. Please check DICT group.'
+                        add_error_msg(ags_errors, 'AGS Format Rule 10c', '-', group, msg)
 
                     else:
-                        msg = f'Could not check parent entries due to missing key fields in {group} or {parent_group}. '\
-                               'Check error log under AGS Format Rule 10a.'
-                        line_number = line_numbers[group]['HEADING']
-                        add_error_msg(ags_errors, 'AGS Format Rule 10c', line_number, group, msg)
-                        # Missing key fields in child and/or parent groups. AGS Format Rule 10a should catch this error.
+                        # Check that both child and parent groups have the parent key fields. Otherwise an IndexError will occur
+                        # when merge operation is attempted
+                        if set(parent_key_fields).issubset(set(headings[group])) and set(parent_key_fields).issubset(headings[parent_group]):
+                            # Merge parent and child tables using parent key fields and find entries that not in the
+                            # parent table
+                            orphan_rows = child_df.merge(parent_df, how='left', on=parent_key_fields, indicator=True).query('''_merge=="left_only"''')
+
+                            for row in orphan_rows.to_dict('records'):
+                                msg = '|'.join([row[x] for x in row if x in parent_key_fields])
+                                msg = f'Parent entry for line not found in {parent_group}: {msg}'
+                                line_number = int(row['line_number_x'])  # 'line_number_x' because merge appends '_x' to column name in the left table
+                                add_error_msg(ags_errors, 'AGS Format Rule 10c', line_number, group, msg)
+
+                        else:
+                            msg = f'Could not check parent entries due to missing key fields in {group} or {parent_group}. '\
+                                'Check error log under AGS Format Rule 10a.'
+                            line_number = line_numbers[group]['HEADING']
+                            add_error_msg(ags_errors, 'AGS Format Rule 10c', line_number, group, msg)
+                            # Missing key fields in child and/or parent groups. AGS Format Rule 10a should catch this error.
 
             except IndexError:
                 msg = 'Could not check parent entries since group definitions not found in standard dictionary or DICT table.'
