@@ -67,14 +67,6 @@ def test_rule_2b_4():
     assert error_list['AGS Format Rule 2b'][1]['desc'] == 'TYPE row is misplaced. It should be immediately below the UNIT row.'
 
 
-def test_rule_2c():
-    error_list = AGS4.check_file('tests/test_files/DuplicateHeaders.ags')
-
-    assert 'AGS Format Rule 2c' in error_list.keys()
-    assert error_list['AGS Format Rule 2c'][0]['line'] == 81
-    assert error_list['AGS Format Rule 2c'][0]['desc'] == 'HEADER row has duplicate fields.'
-
-
 def test_rule_3():
     error_list = AGS4.check_file('tests/test_files/4.1-rule3.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
@@ -83,7 +75,15 @@ def test_rule_3():
     assert error_list['AGS Format Rule 3'][0]['desc'] == 'Does not start with a valid data descriptor.'
 
 
-def test_rule_7():
+def test_rule_7_1():
+    error_list = AGS4.check_file('tests/test_files/DuplicateHeaders.ags')
+
+    assert 'AGS Format Rule 7' in error_list.keys()
+    assert error_list['AGS Format Rule 7'][0]['line'] == 81
+    assert error_list['AGS Format Rule 7'][0]['desc'] == 'HEADER row has duplicate fields.'
+
+
+def test_rule_7_2():
     error_list = AGS4.check_file('tests/test_files/4.1-rule7-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
     assert 'AGS Format Rule 7' in error_list.keys()

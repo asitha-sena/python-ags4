@@ -266,20 +266,6 @@ def rule_2a(line, line_number=0, ags_errors={}):
     return ags_errors
 
 
-def rule_2c(line, line_number=0, ags_errors={}):
-    '''AGS Format Rule 2c: HEADING row should fully define the data. Therefore, it should not have duplicate fields.
-    '''
-
-    if line.strip('"').startswith('HEADING'):
-        temp = line.rstrip().split('","')
-        temp = [item.strip('"') for item in temp]
-
-        if len(temp) != len(set(temp)):
-            add_error_msg(ags_errors, 'AGS Format Rule 2c', line_number, '', 'HEADER row has duplicate fields.')
-
-    return ags_errors
-
-
 def rule_3(line, line_number=0, ags_errors={}):
     '''AGS Format Rule 3: Each line should be start with a data descriptor that defines its contents.
     '''
@@ -383,6 +369,21 @@ def rule_6(line, line_number=0, ags_errors={}):
     '''
 
     # This will be satisfied if rule_2a, rule_4b and rule_5 are satisfied
+
+    return ags_errors
+
+
+def rule_7_1(line, line_number=0, ags_errors={}):
+    '''AGS Format Rule 7: HEADINGs shall be in the order described in the AGS4 dictionary.
+    Therefore, it should not have duplicated headings.
+    '''
+
+    if line.strip('"').startswith('HEADING'):
+        temp = line.rstrip().split('","')
+        temp = [item.strip('"') for item in temp]
+
+        if len(temp) != len(set(temp)):
+            add_error_msg(ags_errors, 'AGS Format Rule 7', line_number, '', 'HEADER row has duplicate fields.')
 
     return ags_errors
 
@@ -510,7 +511,7 @@ def rule_2b(tables, headings, line_numbers, ags_errors={}):
     return ags_errors
 
 
-def rule_7(headings, dictionary, line_numbers, ags_errors={}):
+def rule_7_2(headings, dictionary, line_numbers, ags_errors={}):
     '''AGS Format Rule 7: HEADINGs shall be in the order described in the AGS4 dictionary.
     '''
 

@@ -708,12 +708,12 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
             # Call line Checks
             ags_errors = check.rule_1(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_2a(line, i, ags_errors=ags_errors)
-            ags_errors = check.rule_2c(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_3(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_4_1(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_4_2(line, i, group=group, headings=headings, ags_errors=ags_errors)
             ags_errors = check.rule_5(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_6(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_7_1(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_19(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_19a(line, i, group=group, ags_errors=ags_errors)
             ags_errors = check.rule_19b_1(line, i, group=group, ags_errors=ags_errors)
@@ -767,7 +767,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
     dictionary = check.combine_DICT_tables(tables_std_dict, tables)
 
     rprint('[green]  Checking file schema...[/green]')
-    ags_errors = check.rule_7(headings, dictionary, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_7_2(headings, dictionary, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_9(headings, dictionary, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_10a(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_10b(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
