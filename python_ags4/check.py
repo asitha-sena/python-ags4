@@ -1127,14 +1127,14 @@ def rule_18(tables, headings, ags_errors={}):
     return ags_errors
 
 
-def rule_19b_2(headings, dictionary, line_numbers, ags_errors={}):
+def rule_19b_2(tables, headings, dictionary, line_numbers, ags_errors={}):
     '''AGS Format Rule 19b: HEADING names shall start with the group name followed by an underscore character.
-    Where a HEADING referes to an existing HEADING within another GROUP, it shall bear the same name.
+    Where a HEADING refers to an existing HEADING within another GROUP, it shall bear the same name.
     '''
 
-    for group in headings:
-        # List of headings defined under other groups
+    for group in tables:
 
+        # Check heading names in current table not including 'HEADING' and 'line_number'
         for heading in [x for x in headings[group] if x not in ['HEADING', 'line_number']]:
             ref_group_name = heading.split('_')[0]
 
@@ -1164,23 +1164,21 @@ def rule_19b_2(headings, dictionary, line_numbers, ags_errors={}):
 
 def rule_19b_3(tables, headings, dictionary, line_numbers, ags_errors={}):
     '''AGS Format Rule 19b: HEADING names shall start with the group name followed by an underscore character.
-    Where a HEADING referes to an existing HEADING within another GROUP, it shall bear the same name.
+    Where a HEADING refers to an existing HEADING within another GROUP, it shall bear the same name.
     '''
 
-    for key in headings:
+    for group in tables:
 
-        # Pick list of headings in current table not including 'HEADING' and 'line_number'
-        headings_list = [x for x in headings[key] if x not in ['HEADING', 'line_number']]
-
-        for heading in headings_list:
+        # Check heading names in current table not including 'HEADING' and 'line_number'
+        for heading in [x for x in headings[group] if x not in ['HEADING', 'line_number']]:
 
             try:
-                temp = heading.split('_')
+                ref_group_name = heading.split('_')[0]
 
-                if (temp[0] != key) and heading not in dictionary.DICT_HDNG.to_list():
+                if (ref_group_name != group) and heading not in dictionary.DICT_HDNG.to_list():
                     msg = f'{heading} does not start with the name of this group, nor is it defined in another group.'
-                    line_number = line_numbers[key]['HEADING']
-                    add_error_msg(ags_errors, 'AGS Format Rule 19b', line_number, key, msg)
+                    line_number = line_numbers[group]['HEADING']
+                    add_error_msg(ags_errors, 'AGS Format Rule 19b', line_number, group, msg)
 
             except IndexError:
                 # Heading does not have an underscore in it. AGS Format Rule 19b should catch this error.

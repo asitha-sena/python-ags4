@@ -777,7 +777,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
     ags_errors = check.rule_17(tables, headings, dictionary, ags_errors=ags_errors)
     # Note: rule_18() has to be called after rule_9() as it relies on rule_9() to flag non-standard headings.
     ags_errors = check.rule_18(tables, headings, ags_errors=ags_errors)
-    ags_errors = check.rule_19b_2(headings, dictionary, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_19b_2(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_19b_3(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
 
     # Add metadata
