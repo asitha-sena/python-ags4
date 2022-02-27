@@ -444,8 +444,6 @@ def rule_19b_1(line, line_number=0, group='', ags_errors={}):
                         msg = f'Heading {item} should consist of a 4 character group name and a field name of up to 4 characters.'
                         add_error_msg(ags_errors, 'AGS Format Rule 19b', line_number, group, msg)
 
-                    # TODO: Check whether heading name is present in the standard AGS4 dictionary or in the DICT group in the input file
-
                 except IndexError:
                     msg = f'Heading {item} should consist of group name and field name separated by "_".'
                     add_error_msg(ags_errors, 'AGS Format Rule 19b', line_number, group, msg)
