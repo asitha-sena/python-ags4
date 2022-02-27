@@ -294,8 +294,8 @@ def rule_3(line, line_number=0, ags_errors={}):
     return ags_errors
 
 
-def rule_4a(line, line_number=0, ags_errors={}):
-    '''AGS Format Rule 4a: A GROUP row should only contain the GROUP name as data
+def rule_4_1(line, line_number=0, ags_errors={}):
+    '''AGS Format Rule 4: A GROUP row should only contain the GROUP name as data
     '''
 
     if line.startswith('"GROUP"'):
@@ -303,15 +303,15 @@ def rule_4a(line, line_number=0, ags_errors={}):
         temp = [item.strip('"') for item in temp]
 
         if len(temp) > 2:
-            add_error_msg(ags_errors, 'AGS Format Rule 4a', line_number, temp[1], 'GROUP row has more than one field.')
+            add_error_msg(ags_errors, 'AGS Format Rule 4', line_number, temp[1], 'GROUP row has more than one field.')
         elif len(temp) < 2:
-            add_error_msg(ags_errors, 'AGS Format Rule 4a', line_number, '', 'GROUP row is malformed.')
+            add_error_msg(ags_errors, 'AGS Format Rule 4', line_number, '', 'GROUP row is malformed.')
 
     return ags_errors
 
 
-def rule_4b(line, line_number=0, group='', headings=[], ags_errors={}):
-    '''AGS Format Rule 4b: UNIT, TYPE, and DATA rows should have entries defined by the HEADING row.
+def rule_4_2(line, line_number=0, group='', headings=[], ags_errors={}):
+    '''AGS Format Rule 4: UNIT, TYPE, and DATA rows should have entries defined by the HEADING row.
     '''
 
     if line.strip('"').startswith(('UNIT', 'TYPE', 'DATA')):
@@ -322,14 +322,14 @@ def rule_4b(line, line_number=0, group='', headings=[], ags_errors={}):
             # Avoid repetitions of same error by adding it only it is not already there
             try:
 
-                if not any([(d['group'] == group) and (d['desc'] == 'Headings row missing.') for d in ags_errors['AGS Format Rule 4b']]):
-                    add_error_msg(ags_errors, 'AGS Format Rule 4b', '-', group, 'Headings row missing.')
+                if not any([(d['group'] == group) and (d['desc'] == 'Headings row missing.') for d in ags_errors['AGS Format Rule 4']]):
+                    add_error_msg(ags_errors, 'AGS Format Rule 4', '-', group, 'Headings row missing.')
 
             except KeyError:
-                add_error_msg(ags_errors, 'AGS Format Rule 4b', '-', group, 'Headings row missing.')
+                add_error_msg(ags_errors, 'AGS Format Rule 4', '-', group, 'Headings row missing.')
 
         elif len(temp) != len(headings):
-            add_error_msg(ags_errors, 'AGS Format Rule 4b', line_number, group, 'Number of fields does not match the HEADING row.')
+            add_error_msg(ags_errors, 'AGS Format Rule 4', line_number, group, 'Number of fields does not match the HEADING row.')
 
     return ags_errors
 
