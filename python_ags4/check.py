@@ -1162,7 +1162,7 @@ def rule_19b_2(headings, dictionary, line_numbers, ags_errors={}):
     return ags_errors
 
 
-def rule_19c(tables, headings, dictionary, line_numbers, ags_errors={}):
+def rule_19b_3(tables, headings, dictionary, line_numbers, ags_errors={}):
     '''AGS Format Rule 19b: HEADING names shall start with the group name followed by an underscore character.
     Where a HEADING referes to an existing HEADING within another GROUP, it shall bear the same name.
     '''
