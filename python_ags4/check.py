@@ -1129,6 +1129,35 @@ def rule_16(tables, headings, dictionary, ags_errors={}):
     return ags_errors
 
 
+def rule_16_1(tables, headings, standard_ABBR, ags_errors={}):
+    '''AGS Format Rule 16: Verify ABBR_DESC for entries already defined in the standard dictionaries are correct.
+    '''
+
+    if 'ABBR' in tables:
+        ABBR = tables['ABBR'].copy()
+
+        if 'ABBR_DESC' in ABBR.columns:
+            # Find ABBR entries that are already defined in the standard dictionary
+            df = ABBR.merge(standard_ABBR.loc[:, ['ABBR_HDNG', 'ABBR_CODE', 'ABBR_DESC']], on=['ABBR_HDNG', 'ABBR_CODE'], how='inner')
+
+            # Check for entries with ABBR_DESC enries that do not match (comparison is case insensitive)
+            df = df.loc[~df.ABBR_DESC_x.str.lower().eq(df.ABBR_DESC_y.str.lower()), :]
+
+            for row in df.to_dict('records'):
+                msg = f'{row["ABBR_HDNG"]}: Description of abbreviation "{row["ABBR_CODE"]}" is "{row["ABBR_DESC_x"]}" '\
+                    f'but it should be "{row["ABBR_DESC_y"]}" according to the standard abbreviations list.'
+                line_number = int(row['line_number'])
+
+                add_error_msg(ags_errors, 'AGS Format Rule 16', line_number, 'ABBR', msg)
+
+            else:
+                # ABBR_DESC field not available to continue with check
+                # rule_16() should catch and report this error
+                pass
+
+    return ags_errors
+
+
 def rule_17(tables, headings, dictionary, ags_errors={}):
     """AGS Format Rule 17: Data file shall contain a TYPE group with definitions for all data types used in the file.
     """
