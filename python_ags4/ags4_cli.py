@@ -128,7 +128,7 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
 @click.argument('input_file', type=click.Path(exists=True))
 @click.option('-o', '--output_file', type=click.Path(writable=True), default=None,
               help="Path to save error log")
-@click.option('-d', '--dictionary_path', type=click.Path(exists=True), default=None,
+@click.option('-d', '--dictionary_path', type=click.File('r'), default=None,
               help="Path to AGS4 dictionary file.")
 @click.option('-v', '--dictionary_version',
               type=click.Choice(['4.1', '4.0.4', '4.0.3', '4.0']),
@@ -152,7 +152,7 @@ def check(input_file, output_file, dictionary_path, dictionary_version):
         if dictionary_version:
             ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_version)
         else:
-            ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_path)
+            ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_path.name)
 
         # Count number of entries in error log
         error_count = 0
