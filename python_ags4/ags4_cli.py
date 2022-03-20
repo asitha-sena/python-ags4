@@ -128,9 +128,13 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
 @click.argument('input_file', type=click.Path(exists=True))
 @click.option('-o', '--output_file', type=click.Path(writable=True), default=None,
               help="Path to save error log")
-@click.option('-d', '--dictionary', type=click.Path(exists=True), default=None,
+@click.option('-d', '--dictionary_path', type=click.Path(exists=True), default=None,
               help="Path to AGS4 dictionary file.")
-def check(input_file, dictionary, output_file):
+@click.option('-v', '--dictionary_version',
+              type=click.Choice(['4.1', '4.0.4', '4.0.3', '4.0']),
+              help='Version of standard dictionary to use. (Warning: Overrides version specified in TRAN_AGS '
+                   'and custom dictionary specifed by --dictionary_path)')
+def check(input_file, output_file, dictionary_path, dictionary_version):
     '''Check .ags file for errors according to AGS4 rules.
 
     INPUT_FILE   Path to .ags file to be checked
@@ -145,7 +149,10 @@ def check(input_file, dictionary, output_file):
         console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
         console.print('')
 
-        ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary)
+        if dictionary_version:
+            ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_version)
+        else:
+            ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_path)
 
         # Count number of entries in error log
         error_count = 0

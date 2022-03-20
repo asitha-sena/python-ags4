@@ -155,13 +155,16 @@ def fetch_record(record_link, tables):
         return DataFrame()
 
 
-def pick_standard_dictionary(tables):
+def pick_standard_dictionary(tables=None, dict_version=None):
     '''Pick standard dictionary to check file.
 
     Parameters
     ----------
     tables : dict
         Dictionary of Pandas DataFrames with all AGS4 data in file
+    dict_version : str, optional
+        String with version number to override TRAN_AGS. Should be one of '4.1',
+        '4.0.4', 4.0.3', '4.0'.
 
     Returns
     -------
@@ -174,9 +177,9 @@ def pick_standard_dictionary(tables):
 
     # Select standard dictionary based on TRAN_AGS
     try:
-        TRAN = tables['TRAN']
-
-        dict_version = TRAN.loc[TRAN.HEADING.eq('DATA'), 'TRAN_AGS'].values[0]
+        if dict_version not in ['4.1', '4.0.4', '4.0.3', '4.0']:
+            TRAN = tables['TRAN']
+            dict_version = TRAN.loc[TRAN.HEADING.eq('DATA'), 'TRAN_AGS'].values[0]
 
         if dict_version == '4.0.3':
             path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_0_3.ags')
@@ -197,6 +200,11 @@ def pick_standard_dictionary(tables):
     except IndexError:
         # No DATA rows in TRAN table
         rprint('[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v4.1.[/yellow]')
+        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1.ags')
+
+    except TypeError:
+        # TRAN table not found and dict_version not valid
+        rprint('[yellow]  WARNING: Neither TRAN_AGS nor dict_version is valid. Defaulting to standard dictionary v4.1.[/yellow]')
         path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1.ags')
 
     return path_to_standard_dictionary

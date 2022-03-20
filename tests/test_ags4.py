@@ -203,6 +203,13 @@ def test_check_file():
     assert 'Rule' not in error_list.keys()
 
 
+@pytest.mark.parametrize("dict_version", ['4.1', '4.0.4', '4.0.3'])
+def test_check_file_with_specified_dictionary_version(dict_version):
+    error_list = AGS4.check_file('tests/test_data.ags', standard_AGS4_dictionary=dict_version)
+
+    assert dict_version.replace('.', '_') in error_list['Metadata'][3]['desc']
+
+
 @pytest.mark.parametrize("function", [AGS4.AGS4_to_dict, AGS4.AGS4_to_dataframe])
 def test_duplicate_headers_with_rename_renames(function):
     tables, headers = function('tests/test_files/DuplicateHeaders.ags', rename_duplicate_headers=True)
