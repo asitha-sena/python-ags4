@@ -154,8 +154,10 @@ def check(input_file, output_file, dictionary_path, dictionary_version):
 
         if dictionary_version:
             ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_version)
-        else:
+        elif dictionary_path:
             ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_path.name)
+        else:
+            ags_errors = AGS4.check_file(input_file)
 
         # Count number of entries in error log
         error_count = 0
