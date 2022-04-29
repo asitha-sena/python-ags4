@@ -104,6 +104,11 @@ updated_tables = gui.get_dataframes()
 
 AGS4.dataframe_to_AGS4(updated_tables, headings, '/home/asitha/Documents/output.ags')
 ```
+
+### Development
+
+Please refer to the [Wiki](https://gitlab.com/ags-data-format-wg/ags-python-library/-/wikis/home) page for details about the development environment and how to get involved in the project.
+
 ## Implementations
 
 This library has been used to create
