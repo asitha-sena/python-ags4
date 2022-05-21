@@ -265,7 +265,7 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
         return None
 
     # Write to Excel file
-    with ExcelWriter(output_file) as writer:
+    with ExcelWriter(output_file, engine='openpyxl') as writer:
         for key in list_of_tables:
             rprint(f'[green]Writing data from... [bold]{key}[/bold][/green]')
 
