@@ -491,7 +491,6 @@ def convert_to_text(dataframe, dictionary=None):
     >>LOCA_text = convert_to_text(LOCA, 'DICT.ags')
     """
 
-    import sys
     from rich import print as rprint
 
     # Make copy of dataframe and reset index to make sure numbering
@@ -511,7 +510,8 @@ def convert_to_text(dataframe, dictionary=None):
         else:
             rprint("[red]  ERROR: Cannot convert to text as UNIT and/or TYPE row(s) are missing.")
             rprint("[red]         Please provide dictonary file or add UNIT & TYPE rows to input file to proceed.[/red]")
-            sys.exit()
+            raise AGS4Error("Cannot convert to text as UNIT and/or TYPE row(s) are missing. "
+                            "Please provide dictonary file or add UNIT & TYPE rows to input file to proceed.")
 
     else:
         # Read dictionary file

@@ -226,3 +226,11 @@ def test_duplicate_headers_without_rename_raises_error(function):
 def test_row_with_missing_field_raises_error():
     with pytest.raises(AGS4.AGS4Error, match=r'.*does not have the same number of entries as the HEADING row.*'):
         AGS4.AGS4_to_dict('tests/test_files/Row_with_missing_field.ags')
+
+
+def test_converting_dataframe_without_UNIT_TYPE_to_text_raises_error():
+    tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
+    LOCA = AGS4.convert_to_numeric(tables['LOCA'])
+
+    with pytest.raises(AGS4.AGS4Error, match=r'Cannot convert to text.*'):
+        _ = AGS4.convert_to_text(LOCA)
