@@ -234,3 +234,12 @@ def test_converting_dataframe_without_UNIT_TYPE_to_text_raises_error():
 
     with pytest.raises(AGS4.AGS4Error, match=r'Cannot convert to text.*'):
         _ = AGS4.convert_to_text(LOCA)
+
+
+def test_checking_without_dictionary_raises_error():
+    with pytest.raises(AGS4.AGS4Error, match=r'No DICT tables available to proceed with checking.*'):
+        # Check file without a DICT table
+        # The same file is passed as the standard dictionary to
+        # force exception to be raised
+        _ = AGS4.check_file('tests/test_files/4.1-rule1.ags',
+                            standard_AGS4_dictionary='tests/test_files/4.1-rule1.ags')

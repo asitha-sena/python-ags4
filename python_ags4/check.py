@@ -77,7 +77,7 @@ def combine_DICT_tables(*ags_tables):
     '''
 
     from pandas import DataFrame, concat
-    import sys
+    from .AGS4 import AGS4Error
     from rich import print as rprint
 
     # Initialize DataFrame to hold all dictionary entries
@@ -96,7 +96,9 @@ def combine_DICT_tables(*ags_tables):
     if master_DICT.shape[0] == 0:
         rprint('[red]  ERROR: No DICT tables available to proceed with checking.[/red]')
         rprint('[red]         Please ensure the input file has a DICT table or provide file with standard AGS4 dictionary.[/red]')
-        sys.exit()
+        raise AGS4Error("No DICT tables available to proceed with checking. "
+                        "Please ensure the input file has a DICT table or provide file with standard AGS4 dictionary.")
+
 
     # Drop duplicate entries
     master_DICT.drop_duplicates(['HEADING', 'DICT_TYPE', 'DICT_GRP', 'DICT_HDNG'], keep='first', inplace=True)
