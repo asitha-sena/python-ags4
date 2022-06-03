@@ -243,3 +243,8 @@ def test_checking_without_dictionary_raises_error():
         # force exception to be raised
         _ = AGS4.check_file('tests/test_files/4.1-rule1.ags',
                             standard_AGS4_dictionary='tests/test_files/4.1-rule1.ags')
+
+
+def test_converting_empty_ags_file_to_xlsx_raises_error():
+    with pytest.raises(AGS4.AGS4Error, match=r'No valid AGS4 data found in input file.'):
+        _ = AGS4.AGS4_to_excel('tests/test_files/EmptyFile.ags', 'tests/test_files/EmptyFile.xlsx')

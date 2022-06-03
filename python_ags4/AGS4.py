@@ -261,7 +261,7 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
     # Exit if there is no AGS4 tables in the input file
     if len(list_of_tables) == 0:
         rprint(f'[red]  ERROR: No valid AGS4 data found in input file.[/red]')
-        return None
+        raise AGS4Error('No valid AGS4 data found in input file.')
 
     # Write to Excel file
     with ExcelWriter(output_file, engine='openpyxl') as writer:
