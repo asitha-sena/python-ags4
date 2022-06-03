@@ -56,7 +56,6 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
     """
 
     from rich import print as rprint
-    import sys
 
     if _is_file_like(filepath_or_buffer):
         f = filepath_or_buffer
@@ -144,7 +143,7 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                 # If not, print error and exit
                 if len(temp) != len(headings[group]):
                     rprint(f"[red]  Error: Line {i} does not have the same number of entries as the HEADING row in [bold]{group}[/bold].[/red]")
-                    sys.exit()
+                    raise AGS4Error(f"Line {i} does not have the same number of entries as the HEADING row in {group}.")
 
                 for i in range(0, len(temp)):
                     data[group][headings[group][i]].append(temp[i])

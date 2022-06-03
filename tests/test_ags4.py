@@ -221,3 +221,8 @@ def test_duplicate_headers_with_rename_renames(function):
 def test_duplicate_headers_without_rename_raises_error(function):
     with pytest.raises(AGS4.AGS4Error, match=r'HEADER row.*has duplicate entries'):
         function('tests/test_files/DuplicateHeaders.ags', rename_duplicate_headers=False)
+
+
+def test_row_with_missing_field_raises_error():
+    with pytest.raises(AGS4.AGS4Error, match=r'.*does not have the same number of entries as the HEADING row.*'):
+        AGS4.AGS4_to_dict('tests/test_files/Row_with_missing_field.ags')
