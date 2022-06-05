@@ -18,6 +18,10 @@
 # https://github.com/asitha-sena/python-ags4
 # https://gitlab.com/ags-data-format-wg/ags-python-library
 
+import logging
+
+_log = logging.getLogger(__name__)
+
 
 # Filenames corresponding to dictionary versions
 STANDARD_DICT_FILES = {'4.0':     'Standard_dictionary_v4_0_3.ags',
@@ -103,11 +107,14 @@ def combine_DICT_tables(*ags_tables):
         except KeyError:
             # KeyError if there is no DICT table in an input file
             rprint('[yellow]  WARNING: DICT table not found in input file.[/yellow]')
+            _log.warning('DICT table not found in input file.')
 
     # Check whether master_DICT is empty
     if master_DICT.shape[0] == 0:
         rprint('[red]  ERROR: No DICT tables available to proceed with checking.[/red]')
         rprint('[red]         Please ensure the input file has a DICT table or provide file with standard AGS4 dictionary.[/red]')
+        _log.error('No DICT tables available to proceed with checking. '
+                   'Please ensure the input file has a DICT table or provide file with standard AGS4 dictionary.')
         raise AGS4Error("No DICT tables available to proceed with checking. "
                         "Please ensure the input file has a DICT table or provide file with standard AGS4 dictionary.")
 
@@ -202,21 +209,26 @@ def pick_standard_dictionary(tables=None, dict_version=None):
         else:
             rprint('[yellow]  WARNING: Standard dictionary for AGS4 version specified in TRAN_AGS not available.[/yellow]')
             rprint(f'[yellow]           Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
+            _log.warning('Standard dictionary for AGS4 version specified in TRAN_AGS not available. '
+                         f'Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
             path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
 
     except KeyError:
         # TRAN table not in file
         rprint(f'[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
+        _log.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
         path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
 
     except IndexError:
         # No DATA rows in TRAN table
         rprint(f'[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
+        _log.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
         path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
 
     except TypeError:
         # TRAN table not found and dict_version not valid
         rprint(f'[yellow]  WARNING: Neither TRAN_AGS nor dict_version is valid. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
+        _log.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
         path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
 
     return path_to_standard_dictionary

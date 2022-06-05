@@ -18,6 +18,10 @@
 # https://github.com/asitha-sena/python-ags4
 # https://gitlab.com/ags-data-format-wg/ags-python-library
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 # Read functions #
 
@@ -105,6 +109,7 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                         raise AGS4Error(f"HEADER row in {group} (Line {i}) has duplicate entries")
 
                     rprint(f"[yellow]  WARNING: HEADER row in [bold]{group}[/bold] (Line {i}) has duplicate entries.[/yellow]")
+                    logger.warning(f"HEADER row in {group} (Line {i}) has duplicate entries.")
 
                     # Rename duplicate headers by appending a number
                     item_count = {}
@@ -122,6 +127,9 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                             rprint(f'[blue]  INFO: Duplicate column {item} found and renamed as {item}_{count}.[/blue]')
                             rprint('[blue]        Automatically renamed columns do not conform to AGS4 Rules 19a and 19b.[/blue]')
                             rprint('[blue]        Therefore, please review the data and rename or drop duplicate columns as appropriate.[/blue]')
+                            logger.info(f'Duplicate column {item} found and renamed as {item}_{count}. '
+                                      'Automatically renamed columns do not conform to AGS4 Rules 19a and 19b. '
+                                      'Therefore, please review the data and rename or drop duplicate columns as appropriate.')
 
                 # Store HEADING line number
                 line_numbers[group]['HEADING'] = i
@@ -354,6 +362,7 @@ def dataframe_to_AGS4(tables, headings, filepath, mode='w', index=False, encodin
                 columns = headings[key]
 
                 rprint(f'[green]Writing data from... [bold]{key}[/bold][green]')
+                logger.info(f'Writing data from... {key}')
                 f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
                 df.to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
                 f.write("\r\n")
@@ -361,11 +370,15 @@ def dataframe_to_AGS4(tables, headings, filepath, mode='w', index=False, encodin
             except KeyError:
 
                 rprint(f'[green]Writing data from... [bold]{key}[/bold][green]')
+                logger.info(f'Writing data from... {key}')
 
                 if warnings is True:
                     rprint(f"[yellow]  WARNING: Input 'headings' dictionary does not have a entry named [bold]{key}[/bold].[/yellow]")
                     rprint(f"[italic yellow]           All columns in the {key} table will be exported in the default order.[/italic yellow]")
                     rprint("[italic yellow]           Please check column order and ensure AGS4 Rule 7 is still satisfied.[/italic yellow]")
+                    logger.warning(f"Input 'headings' dictionary does not have a entry named {key}. "
+                                 "All columns in the {key} table will be exported in the default order. "
+                                 "Please check column order and ensure AGS4 Rule 7 is still satisfied.")
 
                 f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
                 df.to_csv(f, index=index, quoting=1, line_terminator='\r\n', encoding=encoding)
@@ -409,11 +422,13 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
             valid_tables.append(key)
         else:
             rprint(f'[yellow]  WARNING: Worksheet [bold]{key}[/bold] dropped as it does not have a HEADING column.[/yellow]')
+            logger.warning(f'Worksheet {key} dropped as it does not have a HEADING column.')
             continue
 
         # List column names that don't conform to Rule 19 (using a negative look-ahead regex)
         for col_name in df.filter(regex=r'^(?!HEADING|^[A-Z0-9]{4}_[A-Z0-9]{1,4}$)', axis='columns'):
             rprint(f'[yellow]  WARNING: Column [bold]{col_name}[/bold] dropped as name does not conform to AGS4 Rule 19.[/yellow]')
+            logger.warning(f'Column {col_name} dropped as name does not conform to AGS4 Rule 19.')
 
         # Drop columns that don't conform to Rule 19
         df = df.filter(regex=r'HEADING|^[A-Z0-9]{4}_[A-Z0-9]{1,4}$', axis='columns')
@@ -424,11 +439,13 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
         # Finally format numeric column if required
         if format_numeric_columns is True:
             rprint(f'[green]Formatting columns in... [bold]{key}[/bold][/green]')
+            logger.info(f'Formatting columns in... {key}')
             tables[key] = convert_to_text(df, dictionary=dictionary)
 
     # Export dictionary of DataFrames to AGS4 file
     if len(valid_tables) == 0:
         rprint('[red]  ERROR: No valid AGS4 data found in input file. Please see warning messages above.[/red]')
+        logger.warning('No valid AGS4 data found in input file. Please see warning messages above.')
     else:
         dataframe_to_AGS4({key: tables[key] for key in valid_tables}, {}, output_file, warnings=False)
 
@@ -521,6 +538,8 @@ def convert_to_text(dataframe, dictionary=None):
         else:
             rprint("[red]  ERROR: Cannot convert to text as UNIT and/or TYPE row(s) are missing.")
             rprint("[red]         Please provide dictonary file or add UNIT & TYPE rows to input file to proceed.[/red]")
+            logger.error('Cannot convert to text as UNIT and/or TYPE row(s) are missing. '
+                       'Please provide dictonary file or add UNIT & TYPE rows to input file to proceed.')
             raise AGS4Error("Cannot convert to text as UNIT and/or TYPE row(s) are missing. "
                             "Please provide dictonary file or add UNIT & TYPE rows to input file to proceed.")
 
@@ -576,6 +595,7 @@ def convert_to_text(dataframe, dictionary=None):
 
                 except IndexError:
                     rprint(f"[yellow]  WARNING: [bold]{col}[/bold] not found in the dictionary file.[/yellow]")
+                    logger.warning(f'{col} not found in the dictionary file.')
 
     return df.sort_index().reset_index(drop=True)
 
@@ -630,9 +650,11 @@ def format_numeric_column(dataframe, column_name, TYPE):
 
     except ValueError:
         rprint(f"[yellow]  WARNING: Numeric data in [bold]{col:<9}[/bold] not reformatted as it had one or more non-numeric entries.[/yellow]")
+        logger.warning(f"Numeric data in {col:<9} not reformatted as it had one or more non-numeric entries.")
 
     except TypeError:
         rprint(f"[yellow]  WARNING: Numeric data in [bold]{col:<9}[/bold] not reformatted as it had one or more non-numeric entries.[/yellow]")
+        logger.warning(f"Numeric data in {col:<9} not reformatted as it had one or more non-numeric entries.")
 
     return df
 
@@ -684,6 +706,8 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
 
     ags_errors = {}
 
+    logger.info(f'Opening file... {input_file}')
+
     # Line checks
     with open(input_file, 'r', newline='', encoding='utf-8', errors='replace') as f:
 
@@ -704,6 +728,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         headings = []
 
         rprint('[green]  Checking lines...[/green]')
+        logger.info('Checking lines...')
         for i, line in enumerate(f, start=1):
 
             # Track headings to be used with group checks
@@ -739,10 +764,12 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
     # Import data into Pandas dataframes to run group checks
     try:
         rprint('[green]  Loading tables...[/green]')
+        logger.info('Loading tables...')
         tables, headings, line_numbers = AGS4_to_dataframe(input_file, get_line_numbers=True, rename_duplicate_headers=rename_duplicate_headers)
 
     except AGS4Error as err:
         rprint('[red] ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
+        logger.exception('Could not continue with group checks on file. Please review error log and fix line errors first.')
         raise err
 
     except UnboundLocalError:
@@ -763,6 +790,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         err = traceback.format_exc()
         rprint('[red] ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
         rprint(f'[red]\n{err}[/red]')
+        logger.exception('Could not continue with group checks on file. Please review error log and fix line errors first.')
 
         # Add metadata
         ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors)
@@ -771,6 +799,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
 
     # Group Checks
     rprint('[green]  Checking headings and groups...[/green]')
+    logger.info('Checking headings and groups...')
     ags_errors = check.rule_2(tables, headings, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_2b(tables, headings, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_8(tables, headings, line_numbers, ags_errors=ags_errors)
@@ -798,6 +827,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
     dictionary = check.combine_DICT_tables(tables_std_dict, tables)
 
     rprint('[green]  Checking file schema...[/green]')
+    logger.info('Checking file schema...')
     ags_errors = check.rule_7_2(headings, dictionary, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_9(headings, dictionary, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_10a(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
