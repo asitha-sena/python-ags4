@@ -4,11 +4,12 @@ import json
 import filecmp
 import glob
 
-from python_ags4 import AGS4, __version__
+from python_ags4 import AGS4
 
-def checkandcompare (AGSFilename):
-    ErrorFilename = AGSFilename.replace(".ags",".errors")
-    CheckFilename = AGSFilename.replace(".ags",".check")
+
+def checkandcompare(AGSFilename):
+    ErrorFilename = AGSFilename.replace(".ags", ".errors")
+    CheckFilename = AGSFilename.replace(".ags", ".check")
 
     error_list = AGS4.check_file(AGSFilename, standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
@@ -21,13 +22,10 @@ def checkandcompare (AGSFilename):
     f.write(app_json)
     f.close()
 
-
-
-    
     if glob.glob(CheckFilename):
         if filecmp.cmp(ErrorFilename, CheckFilename, shallow=False):
-            os.remove(ErrorFilename) # remove the error file as this is no longer required
-            return 'Passed - ' + AGSFilename 
+            os.remove(ErrorFilename)  # remove the error file as this is no longer required
+            return 'Passed - ' + AGSFilename
         else:
             return 'Failed - ' + AGSFilename + ' - errors different from file'
     else:
@@ -43,14 +41,14 @@ AGSDirectory = "tests/test_files/"
 
 LogFilename = "tests/batchlog.txt"
 f = open(LogFilename, "w")
-    
+
 # Find all AGS files
-files = glob.glob(AGSDirectory + '**/*.ags', recursive = True)
+files = glob.glob(AGSDirectory + '**/*.ags', recursive=True)
 for AGSFilename in files:
     # Check the file and compare it
-    test = checkandcompare (AGSFilename)
+    test = checkandcompare(AGSFilename)
     # write results to the log file
     f.write(test + "\n")
 
 f.close()
-print (LogFilename + " written")
+print(LogFilename + " written")
