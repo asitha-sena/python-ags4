@@ -95,7 +95,7 @@ tables, headings = AGS4.AGS4_to_dataframe('/home/asitha/Projects/python-AGS4/tes
 gui = show(**tables)
 ```
 
-<img src="https://github.com/asitha-sena/python-ags4/blob/master/tests/pandasgui_screenshot.PNG" width=800>
+<img src="./docs/media/pandasgui_screenshot.png" width=800>
 
 Any edits made in the GUI can be saved and exported back to an AGS4 file as follows:
 
@@ -104,6 +104,11 @@ updated_tables = gui.get_dataframes()
 
 AGS4.dataframe_to_AGS4(updated_tables, headings, '/home/asitha/Documents/output.ags')
 ```
+
+### Development
+
+Please refer to the [Wiki](https://gitlab.com/ags-data-format-wg/ags-python-library/-/wikis/home) page for details about the development environment and how to get involved in the project.
+
 ## Implementations
 
 This library has been used to create

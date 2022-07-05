@@ -1,23 +1,26 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2020-2021  Asitha Senanayake
+# Copyright (C) 2020-2022  Asitha Senanayake
 #
 # This file is part of python_ags4.
 #
 # python_ags4 is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 # https://github.com/asitha-sena/python-ags4
+# https://gitlab.com/ags-data-format-wg/ags-python-library
+
+
 import os
 import sys
 
@@ -25,6 +28,7 @@ import click
 from rich.console import Console
 
 from python_ags4 import AGS4, __version__
+
 # Create rich console for pretty printing
 console = Console()
 
@@ -71,13 +75,10 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
             console.print(f'[green]Exporting data to... [bold]{output_file}[/bold][/green]')
             print('')
 
-            try:
-                AGS4.AGS4_to_excel(input_file, output_file, rename_duplicate_headers=rename_duplicate_headers,
-                                   sort_tables=sort_tables)
-                console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
-                sys.exit(0)
-            except AGS4.AGS4Error as exc:
-                console.print(f'[red]Error: {exc.args[0]}[/red]')
+            AGS4.AGS4_to_excel(input_file, output_file, rename_duplicate_headers=rename_duplicate_headers,
+                               sort_tables=sort_tables)
+            console.print('\n[green]File conversion complete! :heavy_check_mark:[/green]\n')
+            sys.exit(0)
 
         elif input_file.endswith('.xlsx') & output_file.endswith('.ags'):
             console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
@@ -120,6 +121,9 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
         console.print('[red]ERROR: Invalid output file path. Converted file could not be saved.[/red]')
         console.print('[red]       Please ensure that the specified directory exists.[/red]')
 
+    except AGS4.AGS4Error:
+        pass
+
     # All error cases exit here
     sys.exit(1)
 
@@ -128,9 +132,13 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
 @click.argument('input_file', type=click.Path(exists=True))
 @click.option('-o', '--output_file', type=click.Path(writable=True), default=None,
               help="Path to save error log")
-@click.option('-d', '--dictionary', type=click.Path(exists=True), default=None,
+@click.option('-d', '--dictionary_path', type=click.File('r'), default=None,
               help="Path to AGS4 dictionary file.")
-def check(input_file, dictionary, output_file):
+@click.option('-v', '--dictionary_version',
+              type=click.Choice(['4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']),
+              help='Version of standard dictionary to use. (Warning: Overrides version specified in TRAN_AGS '
+                   'and custom dictionary specifed by --dictionary_path)')
+def check(input_file, output_file, dictionary_path, dictionary_version):
     '''Check .ags file for errors according to AGS4 rules.
 
     INPUT_FILE   Path to .ags file to be checked
@@ -145,7 +153,18 @@ def check(input_file, dictionary, output_file):
         console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
         console.print('')
 
-        ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary)
+        # Try to check file
+        try:
+            if dictionary_version:
+                ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_version)
+            elif dictionary_path:
+                ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_path.name)
+            else:
+                ags_errors = AGS4.check_file(input_file)
+
+        # End here with unsuccessful exit code if an exception is raised
+        except AGS4.AGS4Error:
+            sys.exit(1)
 
         # Count number of entries in error log
         error_count = 0

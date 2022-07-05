@@ -1,21 +1,22 @@
-# Copyright (C) 2020-2021  Asitha Senanayake
+# Copyright (C) 2020-2022  Asitha Senanayake
 #
 # This file is part of python_ags4.
 #
 # python_ags4 is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 # https://github.com/asitha-sena/python-ags4
+# https://gitlab.com/ags-data-format-wg/ags-python-library
 
 
 # Helper functions
@@ -76,7 +77,7 @@ def combine_DICT_tables(*ags_tables):
     '''
 
     from pandas import DataFrame, concat
-    import sys
+    from .AGS4 import AGS4Error
     from rich import print as rprint
 
     # Initialize DataFrame to hold all dictionary entries
@@ -95,7 +96,9 @@ def combine_DICT_tables(*ags_tables):
     if master_DICT.shape[0] == 0:
         rprint('[red]  ERROR: No DICT tables available to proceed with checking.[/red]')
         rprint('[red]         Please ensure the input file has a DICT table or provide file with standard AGS4 dictionary.[/red]')
-        sys.exit()
+        raise AGS4Error("No DICT tables available to proceed with checking. "
+                        "Please ensure the input file has a DICT table or provide file with standard AGS4 dictionary.")
+
 
     # Drop duplicate entries
     master_DICT.drop_duplicates(['HEADING', 'DICT_TYPE', 'DICT_GRP', 'DICT_HDNG'], keep='first', inplace=True)
@@ -155,13 +158,16 @@ def fetch_record(record_link, tables):
         return DataFrame()
 
 
-def pick_standard_dictionary(tables):
+def pick_standard_dictionary(tables=None, dict_version=None):
     '''Pick standard dictionary to check file.
 
     Parameters
     ----------
     tables : dict
         Dictionary of Pandas DataFrames with all AGS4 data in file
+    dict_version : str, optional
+        String with version number to override TRAN_AGS. Should be one of
+        '4.1.1', 4.1', '4.0.4', 4.0.3', '4.0'.
 
     Returns
     -------
@@ -174,9 +180,9 @@ def pick_standard_dictionary(tables):
 
     # Select standard dictionary based on TRAN_AGS
     try:
-        TRAN = tables['TRAN']
-
-        dict_version = TRAN.loc[TRAN.HEADING.eq('DATA'), 'TRAN_AGS'].values[0]
+        if dict_version not in ['4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
+            TRAN = tables['TRAN']
+            dict_version = TRAN.loc[TRAN.HEADING.eq('DATA'), 'TRAN_AGS'].values[0]
 
         if dict_version == '4.0.3':
             path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_0_3.ags')
@@ -184,20 +190,27 @@ def pick_standard_dictionary(tables):
             path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_0_4.ags')
         elif dict_version == '4.1':
             path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1.ags')
+        elif dict_version == '4.1.1':
+            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1_1.ags')
         else:
             rprint('[yellow]  WARNING: Standard dictionary for AGS4 version specified in TRAN_AGS not available.[/yellow]')
-            rprint('[yellow]           Defaulting to standard dictionary v4.1.[/yellow]')
-            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1.ags')
+            rprint('[yellow]           Defaulting to standard dictionary v4.1.1.[/yellow]')
+            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1_1.ags')
 
     except KeyError:
         # TRAN table not in file
-        rprint('[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v4.1.[/yellow]')
-        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1.ags')
+        rprint('[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v4.1.1.[/yellow]')
+        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1_1.ags')
 
     except IndexError:
         # No DATA rows in TRAN table
-        rprint('[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v4.1.[/yellow]')
-        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1.ags')
+        rprint('[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v4.1.1.[/yellow]')
+        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1_1.ags')
+
+    except TypeError:
+        # TRAN table not found and dict_version not valid
+        rprint('[yellow]  WARNING: Neither TRAN_AGS nor dict_version is valid. Defaulting to standard dictionary v4.1.1.[/yellow]')
+        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1_1.ags')
 
     return path_to_standard_dictionary
 
@@ -258,20 +271,6 @@ def rule_2a(line, line_number=0, ags_errors={}):
     return ags_errors
 
 
-def rule_2c(line, line_number=0, ags_errors={}):
-    '''AGS Format Rule 2c: HEADING row should fully define the data. Therefore, it should not have duplicate fields.
-    '''
-
-    if line.strip('"').startswith('HEADING'):
-        temp = line.rstrip().split('","')
-        temp = [item.strip('"') for item in temp]
-
-        if len(temp) != len(set(temp)):
-            add_error_msg(ags_errors, 'AGS Format Rule 2c', line_number, '', 'HEADER row has duplicate fields.')
-
-    return ags_errors
-
-
 def rule_3(line, line_number=0, ags_errors={}):
     '''AGS Format Rule 3: Each line should be start with a data descriptor that defines its contents.
     '''
@@ -286,8 +285,8 @@ def rule_3(line, line_number=0, ags_errors={}):
     return ags_errors
 
 
-def rule_4a(line, line_number=0, ags_errors={}):
-    '''AGS Format Rule 4a: A GROUP row should only contain the GROUP name as data
+def rule_4_1(line, line_number=0, ags_errors={}):
+    '''AGS Format Rule 4: A GROUP row should only contain the GROUP name as data
     '''
 
     if line.startswith('"GROUP"'):
@@ -295,15 +294,15 @@ def rule_4a(line, line_number=0, ags_errors={}):
         temp = [item.strip('"') for item in temp]
 
         if len(temp) > 2:
-            add_error_msg(ags_errors, 'AGS Format Rule 4a', line_number, temp[1], 'GROUP row has more than one field.')
+            add_error_msg(ags_errors, 'AGS Format Rule 4', line_number, temp[1], 'GROUP row has more than one field.')
         elif len(temp) < 2:
-            add_error_msg(ags_errors, 'AGS Format Rule 4a', line_number, '', 'GROUP row is malformed.')
+            add_error_msg(ags_errors, 'AGS Format Rule 4', line_number, '', 'GROUP row is malformed.')
 
     return ags_errors
 
 
-def rule_4b(line, line_number=0, group='', headings=[], ags_errors={}):
-    '''AGS Format Rule 4b: UNIT, TYPE, and DATA rows should have entries defined by the HEADING row.
+def rule_4_2(line, line_number=0, group='', headings=[], ags_errors={}):
+    '''AGS Format Rule 4: UNIT, TYPE, and DATA rows should have entries defined by the HEADING row.
     '''
 
     if line.strip('"').startswith(('UNIT', 'TYPE', 'DATA')):
@@ -314,14 +313,14 @@ def rule_4b(line, line_number=0, group='', headings=[], ags_errors={}):
             # Avoid repetitions of same error by adding it only it is not already there
             try:
 
-                if not any([(d['group'] == group) and (d['desc'] == 'Headings row missing.') for d in ags_errors['AGS Format Rule 4b']]):
-                    add_error_msg(ags_errors, 'AGS Format Rule 4b', '-', group, 'Headings row missing.')
+                if not any([(d['group'] == group) and (d['desc'] == 'Headings row missing.') for d in ags_errors['AGS Format Rule 4']]):
+                    add_error_msg(ags_errors, 'AGS Format Rule 4', '-', group, 'Headings row missing.')
 
             except KeyError:
-                add_error_msg(ags_errors, 'AGS Format Rule 4b', '-', group, 'Headings row missing.')
+                add_error_msg(ags_errors, 'AGS Format Rule 4', '-', group, 'Headings row missing.')
 
         elif len(temp) != len(headings):
-            add_error_msg(ags_errors, 'AGS Format Rule 4b', line_number, group, 'Number of fields does not match the HEADING row.')
+            add_error_msg(ags_errors, 'AGS Format Rule 4', line_number, group, 'Number of fields does not match the HEADING row.')
 
     return ags_errors
 
@@ -375,6 +374,21 @@ def rule_6(line, line_number=0, ags_errors={}):
     '''
 
     # This will be satisfied if rule_2a, rule_4b and rule_5 are satisfied
+
+    return ags_errors
+
+
+def rule_7_1(line, line_number=0, ags_errors={}):
+    '''AGS Format Rule 7: HEADINGs shall be in the order described in the AGS4 dictionary.
+    Therefore, it should not have duplicated headings.
+    '''
+
+    if line.strip('"').startswith('HEADING'):
+        temp = line.rstrip().split('","')
+        temp = [item.strip('"') for item in temp]
+
+        if len(temp) != len(set(temp)):
+            add_error_msg(ags_errors, 'AGS Format Rule 7', line_number, '', 'HEADER row has duplicate fields.')
 
     return ags_errors
 
@@ -435,8 +449,6 @@ def rule_19b_1(line, line_number=0, group='', ags_errors={}):
                     if (len(item.split('_')[0]) != 4) or (len(item.split('_')[1]) > 4):
                         msg = f'Heading {item} should consist of a 4 character group name and a field name of up to 4 characters.'
                         add_error_msg(ags_errors, 'AGS Format Rule 19b', line_number, group, msg)
-
-                    # TODO: Check whether heading name is present in the standard AGS4 dictionary or in the DICT group in the input file
 
                 except IndexError:
                     msg = f'Heading {item} should consist of group name and field name separated by "_".'
@@ -504,7 +516,7 @@ def rule_2b(tables, headings, line_numbers, ags_errors={}):
     return ags_errors
 
 
-def rule_7(headings, dictionary, line_numbers, ags_errors={}):
+def rule_7_2(headings, dictionary, line_numbers, ags_errors={}):
     '''AGS Format Rule 7: HEADINGs shall be in the order described in the AGS4 dictionary.
     '''
 
@@ -790,27 +802,43 @@ def rule_10c(tables, headings, dictionary, line_numbers, ags_errors={}):
                     parent_key_fields = dictionary.loc[mask, 'DICT_HDNG'].tolist()
                     parent_df = tables[parent_group].copy()
 
+                    mask = (dictionary.DICT_GRP == group) & (dictionary.DICT_STAT.str.contains('key', case=False))
+                    child_key_fields = dictionary.loc[mask, 'DICT_HDNG'].tolist()
                     child_df = tables[group].copy()
 
-                    # Check that both child and parent groups have the parent key fields. Otherwise an IndexError will occur
-                    # when merge operation is attempted
-                    if set(parent_key_fields).issubset(set(headings[group])) and set(parent_key_fields).issubset(headings[parent_group]):
-                        # Merge parent and child tables using parent key fields and find entries that not in the
-                        # parent table
-                        orphan_rows = child_df.merge(parent_df, how='left', on=parent_key_fields, indicator=True).query('''_merge=="left_only"''')
+                    # Return error message if parent group does not have any key fields
+                    if not parent_key_fields:
+                        msg = f'No key fields have been defined in parent group ({parent_group}). '\
+                            'Please check DICT group.'
+                        add_error_msg(ags_errors, 'AGS Format Rule 10c', '-', group, msg)
 
-                        for row in orphan_rows.to_dict('records'):
-                            msg = '|'.join([row[x] for x in row if x in parent_key_fields])
-                            msg = f'Parent entry for line not found in {parent_group}: {msg}'
-                            line_number = int(row['line_number_x'])  # 'line_number_x' because merge appends '_x' to column name in the left table
-                            add_error_msg(ags_errors, 'AGS Format Rule 10c', line_number, group, msg)
+                    # Return error message if child group key fileds is not a superset of parent group key fields
+                    elif not set(child_key_fields).issuperset(set(parent_key_fields)):
+                        missing_key_fields = set(parent_key_fields).difference(set(child_key_fields))
+                        msg = f'{", ".join(missing_key_fields)} defined as key field(s) in the parent group ({parent_group}) '\
+                            'but not in the child group. Please check DICT group.'
+                        add_error_msg(ags_errors, 'AGS Format Rule 10c', '-', group, msg)
 
                     else:
-                        msg = f'Could not check parent entries due to missing key fields in {group} or {parent_group}. '\
-                               'Check error log under AGS Format Rule 10a.'
-                        line_number = line_numbers[group]['HEADING']
-                        add_error_msg(ags_errors, 'AGS Format Rule 10c', line_number, group, msg)
-                        # Missing key fields in child and/or parent groups. AGS Format Rule 10a should catch this error.
+                        # Check that both child and parent groups have the parent key fields. Otherwise an IndexError will occur
+                        # when merge operation is attempted
+                        if set(parent_key_fields).issubset(set(headings[group])) and set(parent_key_fields).issubset(headings[parent_group]):
+                            # Merge parent and child tables using parent key fields and find entries that not in the
+                            # parent table
+                            orphan_rows = child_df.merge(parent_df, how='left', on=parent_key_fields, indicator=True).query('''_merge=="left_only"''')
+
+                            for row in orphan_rows.to_dict('records'):
+                                msg = '|'.join([row[x] for x in row if x in parent_key_fields])
+                                msg = f'Parent entry for line not found in {parent_group}: {msg}'
+                                line_number = int(row['line_number_x'])  # 'line_number_x' because merge appends '_x' to column name in the left table
+                                add_error_msg(ags_errors, 'AGS Format Rule 10c', line_number, group, msg)
+
+                        else:
+                            msg = f'Could not check parent entries due to missing key fields in {group} or {parent_group}. '\
+                                'Check error log under AGS Format Rule 10a.'
+                            line_number = line_numbers[group]['HEADING']
+                            add_error_msg(ags_errors, 'AGS Format Rule 10c', line_number, group, msg)
+                            # Missing key fields in child and/or parent groups. AGS Format Rule 10a should catch this error.
 
             except IndexError:
                 msg = 'Could not check parent entries since group definitions not found in standard dictionary or DICT table.'
@@ -1105,14 +1133,14 @@ def rule_18(tables, headings, ags_errors={}):
     return ags_errors
 
 
-def rule_19b_2(headings, dictionary, line_numbers, ags_errors={}):
+def rule_19b_2(tables, headings, dictionary, line_numbers, ags_errors={}):
     '''AGS Format Rule 19b: HEADING names shall start with the group name followed by an underscore character.
-    Where a HEADING referes to an existing HEADING within another GROUP, it shall bear the same name.
+    Where a HEADING refers to an existing HEADING within another GROUP, it shall bear the same name.
     '''
 
-    for group in headings:
-        # List of headings defined under other groups
+    for group in tables:
 
+        # Check heading names in current table not including 'HEADING' and 'line_number'
         for heading in [x for x in headings[group] if x not in ['HEADING', 'line_number']]:
             ref_group_name = heading.split('_')[0]
 
@@ -1140,25 +1168,23 @@ def rule_19b_2(headings, dictionary, line_numbers, ags_errors={}):
     return ags_errors
 
 
-def rule_19c(tables, headings, dictionary, line_numbers, ags_errors={}):
+def rule_19b_3(tables, headings, dictionary, line_numbers, ags_errors={}):
     '''AGS Format Rule 19b: HEADING names shall start with the group name followed by an underscore character.
-    Where a HEADING referes to an existing HEADING within another GROUP, it shall bear the same name.
+    Where a HEADING refers to an existing HEADING within another GROUP, it shall bear the same name.
     '''
 
-    for key in headings:
+    for group in tables:
 
-        # Pick list of headings in current table not including 'HEADING' and 'line_number'
-        headings_list = [x for x in headings[key] if x not in ['HEADING', 'line_number']]
-
-        for heading in headings_list:
+        # Check heading names in current table not including 'HEADING' and 'line_number'
+        for heading in [x for x in headings[group] if x not in ['HEADING', 'line_number']]:
 
             try:
-                temp = heading.split('_')
+                ref_group_name = heading.split('_')[0]
 
-                if (temp[0] != key) and heading not in dictionary.DICT_HDNG.to_list():
+                if (ref_group_name != group) and heading not in dictionary.DICT_HDNG.to_list():
                     msg = f'{heading} does not start with the name of this group, nor is it defined in another group.'
-                    line_number = line_numbers[key]['HEADING']
-                    add_error_msg(ags_errors, 'AGS Format Rule 19b', line_number, key, msg)
+                    line_number = line_numbers[group]['HEADING']
+                    add_error_msg(ags_errors, 'AGS Format Rule 19b', line_number, group, msg)
 
             except IndexError:
                 # Heading does not have an underscore in it. AGS Format Rule 19b should catch this error.

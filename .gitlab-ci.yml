@@ -7,6 +7,7 @@ test_py37:
   script:
     - python -m pip install .
     - python -m pip install pytest
+    - python -m pip install toml
     - python -m pytest -v -s
 
 test_py38:
@@ -15,6 +16,7 @@ test_py38:
   script:
     - python -m pip install .
     - python -m pip install pytest
+    - python -m pip install toml
     - python -m pytest -v -s
 
 test_py39:
@@ -23,6 +25,7 @@ test_py39:
   script:
     - python -m pip install .
     - python -m pip install pytest
+    - python -m pip install toml
     - python -m pytest -v -s
 
 test_py310:
@@ -31,4 +34,5 @@ test_py310:
   script:
     - python -m pip install .
     - python -m pip install pytest
+    - python -m pip install toml
     - python -m pytest -v

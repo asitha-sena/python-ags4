@@ -1,21 +1,22 @@
-# Copyright (C) 2020-2021  Asitha Senanayake
+# Copyright (C) 2020-2022  Asitha Senanayake
 #
 # This file is part of python_ags4.
 #
 # python_ags4 is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 # https://github.com/asitha-sena/python-ags4
+# https://gitlab.com/ags-data-format-wg/ags-python-library
 
 
 # Read functions #
@@ -55,7 +56,6 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
     """
 
     from rich import print as rprint
-    import sys
 
     if _is_file_like(filepath_or_buffer):
         f = filepath_or_buffer
@@ -143,7 +143,7 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                 # If not, print error and exit
                 if len(temp) != len(headings[group]):
                     rprint(f"[red]  Error: Line {i} does not have the same number of entries as the HEADING row in [bold]{group}[/bold].[/red]")
-                    sys.exit()
+                    raise AGS4Error(f"Line {i} does not have the same number of entries as the HEADING row in {group}.")
 
                 for i in range(0, len(temp)):
                     data[group][headings[group][i]].append(temp[i])
@@ -261,10 +261,10 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
     # Exit if there is no AGS4 tables in the input file
     if len(list_of_tables) == 0:
         rprint(f'[red]  ERROR: No valid AGS4 data found in input file.[/red]')
-        return None
+        raise AGS4Error('No valid AGS4 data found in input file.')
 
     # Write to Excel file
-    with ExcelWriter(output_file) as writer:
+    with ExcelWriter(output_file, engine='openpyxl') as writer:
         for key in list_of_tables:
             rprint(f'[green]Writing data from... [bold]{key}[/bold][/green]')
 
@@ -491,7 +491,6 @@ def convert_to_text(dataframe, dictionary=None):
     >>LOCA_text = convert_to_text(LOCA, 'DICT.ags')
     """
 
-    import sys
     from rich import print as rprint
 
     # Make copy of dataframe and reset index to make sure numbering
@@ -511,7 +510,8 @@ def convert_to_text(dataframe, dictionary=None):
         else:
             rprint("[red]  ERROR: Cannot convert to text as UNIT and/or TYPE row(s) are missing.")
             rprint("[red]         Please provide dictonary file or add UNIT & TYPE rows to input file to proceed.[/red]")
-            sys.exit()
+            raise AGS4Error("Cannot convert to text as UNIT and/or TYPE row(s) are missing. "
+                            "Please provide dictonary file or add UNIT & TYPE rows to input file to proceed.")
 
     else:
         # Read dictionary file
@@ -647,7 +647,8 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
     input_file : str
         Path to AGS4 file (*.ags) to be checked
     standard_AGS4_dict : str
-        Path to .ags file with standard AGS4 dictionary
+        Path to .ags file with standard AGS4 dictionary or version number
+        (should be one of '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0').
     rename_duplicate_headers: bool
         Rename duplicate headers if found. Neither AGS4 tables nor Pandas
         dataframes allow duplicate headers, therefore a number will be appended
@@ -707,12 +708,12 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
             # Call line Checks
             ags_errors = check.rule_1(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_2a(line, i, ags_errors=ags_errors)
-            ags_errors = check.rule_2c(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_3(line, i, ags_errors=ags_errors)
-            ags_errors = check.rule_4a(line, i, ags_errors=ags_errors)
-            ags_errors = check.rule_4b(line, i, group=group, headings=headings, ags_errors=ags_errors)
+            ags_errors = check.rule_4_1(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_4_2(line, i, group=group, headings=headings, ags_errors=ags_errors)
             ags_errors = check.rule_5(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_6(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_7_1(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_19(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_19a(line, i, group=group, ags_errors=ags_errors)
             ags_errors = check.rule_19b_1(line, i, group=group, ags_errors=ags_errors)
@@ -750,9 +751,13 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
 
     # Dictionary Based Checks
 
-    # Pick standard dictionary
-    if standard_AGS4_dictionary is None:
-        standard_AGS4_dictionary = check.pick_standard_dictionary(tables)
+    # Pick path to standard dictionary
+    if standard_AGS4_dictionary in [None, '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
+        # Filepath to the standard dictionary will be picked based on version
+        # number if a valid version number is provided. If it is not specified
+        # at all, then the filepath will be selected based on the value of
+        # TRAN_AGS in the TRAN table.
+        standard_AGS4_dictionary = check.pick_standard_dictionary(tables=tables, dict_version=standard_AGS4_dictionary)
 
     # Import standard dictionary into Pandas DataFrames
     tables_std_dict, _ = AGS4_to_dataframe(standard_AGS4_dictionary)
@@ -762,7 +767,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
     dictionary = check.combine_DICT_tables(tables_std_dict, tables)
 
     rprint('[green]  Checking file schema...[/green]')
-    ags_errors = check.rule_7(headings, dictionary, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_7_2(headings, dictionary, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_9(headings, dictionary, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_10a(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_10b(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
@@ -772,8 +777,8 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
     ags_errors = check.rule_17(tables, headings, dictionary, ags_errors=ags_errors)
     # Note: rule_18() has to be called after rule_9() as it relies on rule_9() to flag non-standard headings.
     ags_errors = check.rule_18(tables, headings, ags_errors=ags_errors)
-    ags_errors = check.rule_19b_2(headings, dictionary, line_numbers, ags_errors=ags_errors)
-    ags_errors = check.rule_19c(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_19b_2(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
+    ags_errors = check.rule_19b_3(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
 
     # Add metadata
     ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors)

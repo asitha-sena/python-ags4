@@ -203,6 +203,13 @@ def test_check_file():
     assert 'Rule' not in error_list.keys()
 
 
+@pytest.mark.parametrize("dict_version", ['4.1', '4.0.4', '4.0.3'])
+def test_check_file_with_specified_dictionary_version(dict_version):
+    error_list = AGS4.check_file('tests/test_data.ags', standard_AGS4_dictionary=dict_version)
+
+    assert dict_version.replace('.', '_') in error_list['Metadata'][3]['desc']
+
+
 @pytest.mark.parametrize("function", [AGS4.AGS4_to_dict, AGS4.AGS4_to_dataframe])
 def test_duplicate_headers_with_rename_renames(function):
     tables, headers = function('tests/test_files/DuplicateHeaders.ags', rename_duplicate_headers=True)
@@ -214,3 +221,30 @@ def test_duplicate_headers_with_rename_renames(function):
 def test_duplicate_headers_without_rename_raises_error(function):
     with pytest.raises(AGS4.AGS4Error, match=r'HEADER row.*has duplicate entries'):
         function('tests/test_files/DuplicateHeaders.ags', rename_duplicate_headers=False)
+
+
+def test_row_with_missing_field_raises_error():
+    with pytest.raises(AGS4.AGS4Error, match=r'.*does not have the same number of entries as the HEADING row.*'):
+        AGS4.AGS4_to_dict('tests/test_files/Row_with_missing_field.ags')
+
+
+def test_converting_dataframe_without_UNIT_TYPE_to_text_raises_error():
+    tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
+    LOCA = AGS4.convert_to_numeric(tables['LOCA'])
+
+    with pytest.raises(AGS4.AGS4Error, match=r'Cannot convert to text.*'):
+        _ = AGS4.convert_to_text(LOCA)
+
+
+def test_checking_without_dictionary_raises_error():
+    with pytest.raises(AGS4.AGS4Error, match=r'No DICT tables available to proceed with checking.*'):
+        # Check file without a DICT table
+        # The same file is passed as the standard dictionary to
+        # force exception to be raised
+        _ = AGS4.check_file('tests/test_files/4.1-rule1.ags',
+                            standard_AGS4_dictionary='tests/test_files/4.1-rule1.ags')
+
+
+def test_converting_empty_ags_file_to_xlsx_raises_error():
+    with pytest.raises(AGS4.AGS4Error, match=r'No valid AGS4 data found in input file.'):
+        _ = AGS4.AGS4_to_excel('tests/test_files/EmptyFile.ags', 'tests/test_files/EmptyFile.xlsx')
