@@ -1,6 +1,24 @@
 Changelog
 =========
 
+0.4.0 (2022-07-05)
+------------------
+
+- Update license from GPLv3 to LGPLv3
+- Add standard dictionary v4.1.1 and make it the default
+- Fix minor errors in standard dictionary v4.1
+- Add ABBR, UNIT, and TYPE data to all standard dictionaries
+- Raise exceptions instead of silently failing with sys.exit() to provided
+  better feedback to users
+- Update example Jupyter notebook and add example .ags file
+- Update CLI to catch invalid dictionary paths
+- Make it easier to access standard dictionary files from the check_file()
+  function and the CLI. Now the version number of a standard dictionary can be
+  provided instead of having to provide the full path to the file. The full path
+  will still work if that is preferred.
+- Make rule_10c() more robust. The check will not fail if the key fields in the
+  parent and child groups are inconsistent.
+
 0.3.7 (2021-12-14)
 ------------
 - Add preflight check for AGS3 like files
