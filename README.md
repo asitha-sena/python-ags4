@@ -26,7 +26,7 @@ This project is maintained by the [AGS Data Format Working Group](https://gitlab
 
 We have created an example Juypter Notebook which imports an AGS file, plots boreholes on a map and creates a Striplog.  
 
-[See here](./examples/ags.ipynb)
+[See here](./examples/Plot_locations_and_create_strip_log.ipynb)
 
 ### Installation
 
