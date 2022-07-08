@@ -73,7 +73,7 @@ tables, headings = AGS4.AGS4_to_dataframe('/home/asitha/Projects/python-AGS4/tes
 gui = show(**tables)
 ```
 
-<img src="https://github.com/asitha-sena/python-ags4/blob/master/docs/media/pandasgui_screenshot.PNG" width=800>
+<img src="https://github.com/asitha-sena/python-ags4/blob/master/docs/media/pandasgui_screenshot.png" width=800>
 
 Any edits made in the GUI can be saved and exported back to an AGS4 file as follows:
 
