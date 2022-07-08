@@ -1,0 +1,195 @@
+Changelog
+=========
+
+0.4.0 (2022-07-05)
+------------------
+
+- Update license from GPLv3 to LGPLv3
+- Add standard dictionary v4.1.1 and make it the default
+- Fix minor errors in standard dictionary v4.1
+- Add ABBR, UNIT, and TYPE data to all standard dictionaries
+- Raise exceptions instead of silently failing with sys.exit() to provided
+  better feedback to users
+- Update example Jupyter notebook and add example .ags file
+- Update CLI to catch invalid dictionary paths
+- Make it easier to access standard dictionary files from the check_file()
+  function and the CLI. Now the version number of a standard dictionary can be
+  provided instead of having to provide the full path to the file. The full path
+  will still work if that is preferred.
+- Make rule_10c() more robust. The check will not fail if the key fields in the
+  parent and child groups are inconsistent.
+
+0.3.7 (2021-12-14)
+------------
+- Add preflight check for AGS3 like files
+- Pick standard dictionary v4.0.4 if TRAN_AGS is 4.0
+	- Previous versions defaulted to standard dictionary v4.1
+- Add rename_duplicate_headers flag to CLI convert
+- Set CLI exit code to 1 for errors or exceptions
+- Update error messages to "AGS Format Rule X" as opposed to "Rule X"
+- Remove prompts for user input
+	- Remove prompt for user input in AGS4_to_dict() when duplicate header
+	name is encountered
+	- Remove prompt for user input in AGS4_to_excel() for large tables
+- Make renaming duplicate headers optional
+	- Option added to AGS4_to_dict(), AGS4_to_dataframe(), and AGS4_to_excel()
+- Add checks for Rule 8
+	- Data type DP, SCI, SF, DT, YN, ID, and DMS checked
+- Speed up checks for Rule 10
+- Update how dictionary tables are combined
+- Fix bug in .xlsx to .ags conversion where numeric values in columns with
+mixed data (numeric and strings) got dropped
+- Add option to sort tables/worksheets when using AGS4_to_excel()
+- Rewrite excel_to_AGS4() so that it can ignore worksheets without valid AGS4
+data
+- Fix bug that caused metadata to not be added to error log if checker exited
+before completing all checks
+
+
+0.3.6 (2021-07-10)
+------------------
+- Add option to read line numbers when importing files
+- Return line numbers for group errors
+- Add CI testing in GitLab
+- Update AGS4_to_dict() handle parsing from an already opened file or
+stream. First parameter filepath to filepath_or_buffer in methods
+AGS4_to_dict() and and  AGS4_to_dataframe()
+- Added batch test routine
+- Update dataframe_to_AGS4() to correctly export double-double quoted strings
+within fields as per AGS4 Rule 5
+
+
+0.3.5 (2021-02-15)
+------------------
+- Updated check for Rule 19b
+- Update how metadata is collected and reported
+- Add functionality to auto pick standard dictionary based on TRAN_AGS field
+	- Standard dictionary v4.1 is used by default if valid entry is not found
+- Add is_ags3() to detect and warn about AGS3 files
+- Update rule_10c()
+- Added TYPE,UNIT and ABBR to standard Dictionary v4.1
+- Make CLI more robust so that it does not crash invalid filepath are given
+
+
+0.3.4 (2021-02-06)
+------------------
+- Update tests for Rule 20
+- Minor fix to check_file() [Asitha Senanayake]
+- Typo in error message from rule_19a() and rule_19b() fixed
+- Update error message from rule_17()
+- Add rule_20()
+- Update rule_5(), rule_10c(), rule_19a() and check_file()
+- Fix bug in CLI check
+- Add meta data to output file from CLI
+
+
+
+0.3.3 (2021-01-31)
+------------------
+- Update rule_16():
+	- Added two except clauses to catch IndexError and ValueError
+	- Madecheck for 'PA' in column more robust so that it won't crash if there
+	is no TYPE row in ABBR
+
+
+0.3.2 (2021-01-30)
+------------------
+- Remove check mark from being printed to screen with the CLI
+
+
+0.3.1 (2021-01-30)
+------------------
+- Add test_check.py with new tests
+- Add data to check convert_to_text() [Asitha Senanayake]
+- Minor update to test_check_file() [Asitha Senanayake]
+- Add missing group name to error messsage in rule_15()
+- Fix error in rule_11c()
+- Update rule_10b()
+- Add rule_11()
+- Added fetch_record() as helper function.
+- Update format_numeric_column()
+- Update rule_16()
+
+
+0.3.0 (2021-01-18)
+------------------
+- Added new module for check/validate AGS4 rules
+- Added a 'check' sub-command to the CLI so that it can call AGS4.check_file()
+- Added more helpful feedback messages regarding invalid file types provided as input arguments.
+- Updated doc strings in AGS4.py to conform to the NumPy style
+- Standard dictionary file added
+- Added print messages to check_file() to indicate progress
+- Update CLI to:
+	- Not crash when an UnicodeDecode error is encountered
+	- Avoid additional blank lines when called in a Windows environment
+- Added functionality to AGS4_to_dict() to catch duplicate entries in
+HEADER rows and avoid Pandas ValueErrors when attempting to convert to
+DataFrames. User is given the option to abort operation or let program
+automatically rename entries
+
+
+0.2.0 (2021-01-04)
+------------------
+- Updated thresholds for table sizes to trigger warning when exporting to Excel
+- Made the conversion to and from Excel more robust:
+	- Warnings and user input added when importing large files to Excel
+	- Stray data from Excel files filtered out when importing to .ags
+- Added rich as a dependency
+- Added CLI interface
+- Updated excel_to_AGS4() to autoformat numeric columns based to match
+the specification in the TYPE row. The data in the UNIT/TYPE rows will
+be overridden if a dictionary file is provided as input.
+- Updated convert_to_text() so that it can handle TYPEs with more than
+one digit (e.g. '10DP', '12SCI') without crashing. [Asitha Senanayake]
+- Moved import of pd.DataFrame to inside the AGS4_to_dataframe()
+function so that it does get added to the AGS4 namespace.
+- Made convert_to_text() function more robust with error catching for
+non-numeric values.
+- Added functionality to auto format columns of TYPE "nSF" with the
+convert_to_text()
+- AGS4_to_dict() now checks whether the number of columns in UNIT, TYPE,
+and DATA rows match the number in the HEADING row
+
+
+0.1.7 (2020-12-20)
+------------------
+- Added AGS4_to_excel() and excel_to_AGS4() functions to import/export
+.ags files to/from .xlsx files
+
+
+0.1.6 (2020-12-10)
+------------------
+- Updated dataframe_to_AGS4() so that it can be called without having
+explicitly provide a dictionary of headings. It can now accept an empty
+headings dictionary
+- Added convert_to_text() function to convert DataFrames containing numeric
+data back to formatted text fields that can be exported back to a .ags
+file
+
+
+0.1.5 (2020-09-19)
+------------------
+- Set default encoding to utf-8 when reading and writing files
+
+
+0.1.4 (2020-09-02)
+------------------
+- Removed the set_index_to_heading option in AGS4_to_dataframe() to avoid
+errors in AGS4 files re-exported using the dataframe_to_AGS4() function.
+dataframe_to_AGS4() does not export the index of the dataframe when
+exporting so having the headings column as the index will create an erroneous
+AGS4 file.
+- Update dataframe_to_AGS4() so that line terminations are \r\n as per AGS4
+Rule 2a.
+
+
+0.1.3 (2020-07-13)
+------------------
+- Update dataframe_to_AGS4() function to avoid unnecessary blank lines between
+rows when used in Windows.
+
+
+0.1.2 (2020-06-27)
+------------------
+- First stable release on PyPI
+
