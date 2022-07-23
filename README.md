@@ -33,7 +33,10 @@ We have created an example Juypter Notebook which imports an AGS file, plots bor
 ```bash
 pip install python-ags4
 ```
-
+>>>
+**Note**
+Installation requires Python 3.7 or later.
+>>>
 ### Code Examples
 
 first import the module
