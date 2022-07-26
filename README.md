@@ -44,13 +44,17 @@ first import the module
 from python_ags4 import AGS4
 ```
 
-#### Import data from an AG4 file:
+#### Import data from an AGS4 file:
 
 ```python
 tables, headings = AGS4.AGS4_to_dataframe('/home/asitha/Projects/python-AGS4/tests/test_data.ags')
 ```
 * *tables* is a dictionary of Pandas DataFrames. Each DataFrame contains the data from a *GROUP* in the AGS4 file. 
 * *headings* is a dictionary of lists. Each list has the header names of the corresponding *GROUP*
+
+>>> 
+**Important:** If the above code throws an exception or returns an empty dictionary, it very likely that the input file is not a valid AGS4 file. In such a case, the `AGS4.check_file()` function can be used to validate the file and see whether anything needs to be fixed before trying again. Most users will find it easier perform this step using the [command line interface](#command-line-interface) as it will provide a formatted error report that is much easier to read than the python dictionary created by directly calling the function.
+>>>
 
 All data are imported as text so they cannot be analyzed or plotted immediately. You can use the following code to convert all the numerical data in a DataFrame from text to numeric.
 
