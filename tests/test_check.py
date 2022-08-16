@@ -592,3 +592,14 @@ def test_rule_AGS3():
 
     assert 'AGS Format Rule 3' in error_list.keys()
     assert 'AGS3' in error_list['AGS Format Rule 3'][0]['desc']
+
+
+def test_file_with_BOM():
+    error_list = AGS4.check_file('tests/test_files/File_with_BOM.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    msg1 = 'This file seems to be encoded with a byte-order-mark (BOM). It is highly recommended that the '\
+           'file be saved without BOM encoding to avoid issues with other sofware.'
+    msg2 = 'Has Non-ASCII character(s) and/or a byte-order-mark (BOM).'
+
+    assert msg1 in error_list['General'][0]['desc']
+    assert msg2 in error_list['AGS Format Rule 1'][0]['desc']
