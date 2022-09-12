@@ -132,6 +132,26 @@ def test_convert_to_text(LOCA=LOCA, LLPL=LLPL):
     assert LLPL_txt.equals(pd.DataFrame(LLPL))
 
 
+@pytest.mark.parametrize("dict_version", ['4.1.1', '4.1', '4.0.4', '4.0.3'])
+def test_convert_to_text_specifying_dictionary_version(dict_version, LOCA=LOCA):
+    tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
+    LOCA_num = AGS4.convert_to_numeric(tables['LOCA'])
+
+    # Note: LLPL not used in this test because TYPE of LLPL_LL and LLPL_PL
+    # fields were changed from 2SF to 0DP in v4.1 and v4.1.1 and causes the test
+    # to fail.
+
+    LOCA_txt = AGS4.convert_to_text(LOCA_num, dict_version)
+
+    assert LOCA_txt.equals(pd.DataFrame(LOCA))
+
+    # Should return input entry without formatting if the data
+    # is not numeric
+    LOCA_txt = AGS4.convert_to_text(tables['LOCA'], dict_version)
+
+    assert LOCA_txt.equals(tables['LOCA'])
+
+
 def test_AGS4_to_excel(LOCA=LOCA, LLPL=LLPL):
     AGS4.AGS4_to_excel('tests/test_data.ags', 'tests/test_data.xlsx')
 

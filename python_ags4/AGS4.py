@@ -476,7 +476,8 @@ def convert_to_text(dataframe, dictionary=None):
         Path to AGS4 dictionary file from which to get UNIT and TYPE rows and to
         convert to numeric fields to required precision. The values from the
         dictionary will override those already in the UNIT and TYPE rows in the
-        dataframe.
+        dataframe. A standard dictionary can be picked using the one of the
+        following strings '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0'.
 
     Returns
     -------
@@ -491,6 +492,7 @@ def convert_to_text(dataframe, dictionary=None):
     >>LOCA_text = convert_to_text(LOCA, 'DICT.ags')
     """
 
+    from python_ags4 import check
     from rich import print as rprint
 
     # Make copy of dataframe and reset index to make sure numbering
@@ -515,6 +517,13 @@ def convert_to_text(dataframe, dictionary=None):
 
     else:
         # Read dictionary file
+        if dictionary in ['4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
+            # Filepath to the standard dictionary will be picked based on version
+            # number if a valid version number is provided. If it is not specified
+            # at all, then the filepath will be selected based on the value of
+            # TRAN_AGS in the TRAN table.
+            dictionary = check.pick_standard_dictionary(dict_version=dictionary)
+
         temp, _ = AGS4_to_dataframe(dictionary)
         DICT = temp['DICT']
 
