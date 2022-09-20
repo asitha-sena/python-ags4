@@ -1,38 +1,29 @@
 stages:
   - test
 
-test_py37:
-  image: python:3.7
+.test:
+  image: python:$PYTHON_VERSION
   stage: test
+  parallel:
+    matrix:
+      - PYTHON_VERSION: ["3.7", "3.8", "3.9", "3.10"]
   script:
     - python -m pip install .
     - python -m pip install pytest
     - python -m pip install toml
     - python -m pytest -v -s
 
-test_py38:
-  image: python:3.8
-  stage: test
-  script:
-    - python -m pip install .
-    - python -m pip install pytest
-    - python -m pip install toml
-    - python -m pytest -v -s
+build-linux:
+  extends: .test
+  tags:
+    - linux
 
-test_py39:
-  image: python:3.9
-  stage: test
-  script:
-    - python -m pip install .
-    - python -m pip install pytest
-    - python -m pip install toml
-    - python -m pytest -v -s
+build-mac:
+  extends: .test
+  tags:
+    - mac
 
-test_py310:
-  image: python:3.10
-  stage: test
-  script:
-    - python -m pip install .
-    - python -m pip install pytest
-    - python -m pip install toml
-    - python -m pytest -v
+build-windows:
+  extends: .test
+  tags:
+    - windows
