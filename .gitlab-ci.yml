@@ -11,7 +11,7 @@ stages:
     - python -m pip install .
     - python -m pip install pytest
     - python -m pip install toml
-    - python -m pytest -v -s
+    - python -m pytest -v --ignore=tests/test_batch.py
 
 build-linux:
   extends: .test
