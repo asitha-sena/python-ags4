@@ -17,13 +17,3 @@ build-linux:
   extends: .test
   tags:
     - linux
-
-build-mac:
-  extends: .test
-  tags:
-    - mac
-
-build-windows:
-  extends: .test
-  tags:
-    - windows
