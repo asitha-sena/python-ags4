@@ -6,6 +6,8 @@ import pathlib
 import pytest
 
 from python_ags4 import AGS4, __version__
+from python_ags4.data import TEST_DATA
+
 
 # Data in LOCA table in test_data.ags
 LOCA = {'HEADING': ['UNIT', 'TYPE', 'DATA', 'DATA', 'DATA', 'DATA'],
@@ -42,7 +44,7 @@ def test_version():
     assert __version__ == pyproject['tool']['poetry']['version']
 
 
-@pytest.mark.parametrize("test_file", ['tests/test_data.ags', pathlib.Path('tests/test_data.ags')])
+@pytest.mark.parametrize("test_file", [str(TEST_DATA), TEST_DATA])
 def test_AGS4_file_to_dict(test_file, LOCA=LOCA):
     tables, headings = AGS4.AGS4_to_dict(test_file)
 
@@ -51,21 +53,21 @@ def test_AGS4_file_to_dict(test_file, LOCA=LOCA):
 
 def test_AGS4_stream_to_dict(LOCA=LOCA):
 
-    with open('tests/test_data.ags', 'r') as file:
+    with open(TEST_DATA, 'r') as file:
         tables, headings = AGS4.AGS4_to_dict(file)
 
     assert tables['LOCA'] == LOCA
 
 
 def test_AGS4_file_to_dataframe(LOCA=LOCA):
-    tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
+    tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
 
     assert tables['LOCA'].loc[2, 'LOCA_ID'] == 'Location_1'
     assert tables['LOCA'].equals(pd.DataFrame(LOCA))
 
 
 def test_AGS4_stream_to_dataframe(LOCA=LOCA):
-    with open('tests/test_data.ags', 'r') as file:
+    with open(TEST_DATA, 'r') as file:
         tables, headings = AGS4.AGS4_to_dataframe(file)
 
     assert tables['LOCA'].loc[2, 'LOCA_ID'] == 'Location_1'
@@ -73,7 +75,7 @@ def test_AGS4_stream_to_dataframe(LOCA=LOCA):
 
 
 def test_convert_to_numeric():
-    tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
+    tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
     LOCA = AGS4.convert_to_numeric(tables['LOCA'])
 
     assert LOCA.loc[0, 'LOCA_NATE'] == 100000.01
@@ -82,7 +84,7 @@ def test_convert_to_numeric():
 
 
 def test_dataframe_to_AGS4():
-    tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
+    tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
 
     # Export with headings dictionary
     AGS4.dataframe_to_AGS4(tables, headings, 'tests/test.out')
@@ -108,7 +110,7 @@ def test_dataframe_to_AGS4():
 
 
 def test_convert_to_text(LOCA=LOCA, LLPL=LLPL):
-    tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
+    tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
     LOCA_num = AGS4.convert_to_numeric(tables['LOCA'])
     LLPL_num = AGS4.convert_to_numeric(tables['LLPL'])
 
@@ -153,7 +155,7 @@ def test_convert_to_text_specifying_dictionary_version(dict_version, LOCA=LOCA):
 
 
 def test_AGS4_to_excel(LOCA=LOCA, LLPL=LLPL):
-    AGS4.AGS4_to_excel('tests/test_data.ags', 'tests/test_data.xlsx')
+    AGS4.AGS4_to_excel(TEST_DATA, 'tests/test_data.xlsx')
 
     tables = pd.read_excel('tests/test_data.xlsx', sheet_name=None, engine='openpyxl')
 
@@ -163,8 +165,8 @@ def test_AGS4_to_excel(LOCA=LOCA, LLPL=LLPL):
 
 
 def test_AGS4_to_sorted_excel():
-    tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
-    AGS4.AGS4_to_excel('tests/test_data.ags', 'tests/test_data.xlsx', sort_tables=True)
+    tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
+    AGS4.AGS4_to_excel(TEST_DATA, 'tests/test_data.xlsx', sort_tables=True)
 
     sorted_tables = pd.read_excel('tests/test_data.xlsx', sheet_name=None, engine='openpyxl')
 
@@ -213,7 +215,7 @@ def test_excel_to_AGS4_with_numeric_column_with_missing_TYPE():
 
 
 def test_check_file():
-    error_list = AGS4.check_file('tests/test_data.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+    error_list = AGS4.check_file(TEST_DATA, standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
     # assert error_list == ['Rule 1\t Line 12:\t Has one or more non-ASCII characters.',
     #                       'Rule 3\t Line 37:\t Consists only of spaces.',
     #                       'Rule 3\t Line 54:\t Does not start with a valid tag (i.e. GROUP, HEADING, TYPE, UNIT, or DATA).']
@@ -225,7 +227,7 @@ def test_check_file():
 
 @pytest.mark.parametrize("dict_version", ['4.1', '4.0.4', '4.0.3'])
 def test_check_file_with_specified_dictionary_version(dict_version):
-    error_list = AGS4.check_file('tests/test_data.ags', standard_AGS4_dictionary=dict_version)
+    error_list = AGS4.check_file(TEST_DATA, standard_AGS4_dictionary=dict_version)
 
     assert dict_version.replace('.', '_') in error_list['Metadata'][3]['desc']
 
@@ -249,7 +251,7 @@ def test_row_with_missing_field_raises_error():
 
 
 def test_converting_dataframe_without_UNIT_TYPE_to_text_raises_error():
-    tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
+    tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
     LOCA = AGS4.convert_to_numeric(tables['LOCA'])
 
     with pytest.raises(AGS4.AGS4Error, match=r'Cannot convert to text.*'):
