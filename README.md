@@ -33,13 +33,16 @@ We have created an example Juypter Notebook which imports an AGS file, plots bor
 ```bash
 pip install python-ags4
 ```
+
 >>>
 **Note**
 Installation requires Python 3.7 or later.
 >>>
+
 ### Code Examples
 
-first import the module
+First import the module.
+
 ```python
 from python_ags4 import AGS4
 ```
@@ -48,7 +51,8 @@ from python_ags4 import AGS4
 
 ```python
 # Load from a file
-#  tables, headings = AGS4.AGS4_to_dataframe('path/to/file.ags')
+tables, headings = AGS4.AGS4_to_dataframe('path/to/file.ags')
+
 # Or use our sample data
 from python_ags4.data import load_test_data
 tables, headings = load_test_data()
