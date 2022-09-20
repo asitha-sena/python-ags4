@@ -136,7 +136,7 @@ def test_convert_to_text(LOCA=LOCA, LLPL=LLPL):
 
 @pytest.mark.parametrize("dict_version", ['4.1.1', '4.1', '4.0.4', '4.0.3'])
 def test_convert_to_text_specifying_dictionary_version(dict_version, LOCA=LOCA):
-    tables, headings = AGS4.AGS4_to_dataframe('tests/test_data.ags')
+    tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
     LOCA_num = AGS4.convert_to_numeric(tables['LOCA'])
 
     # Note: LLPL not used in this test because TYPE of LLPL_LL and LLPL_PL
