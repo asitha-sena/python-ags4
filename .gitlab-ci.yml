@@ -13,6 +13,7 @@ stages:
     - python -m pip install toml
     - python -m pytest -v --ignore=tests/test_batch.py
     - python -m doctest README.md
+    - python -m pip install striplog
     - python -m pytest -v --nbval examples/Plot_locations_and_create_strip_log.ipynb
 
 build-linux:
