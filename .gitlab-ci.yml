@@ -12,6 +12,7 @@ stages:
     - python -m pip install pytest
     - python -m pip install toml
     - python -m pytest -v --ignore=tests/test_batch.py
+    - python -m doctest README.md
 
 build-linux:
   extends: .test
