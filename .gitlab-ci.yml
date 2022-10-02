@@ -9,10 +9,11 @@ stages:
       - PYTHON_VERSION: ["3.7", "3.8", "3.9", "3.10"]
   script:
     - python -m pip install .
-    - python -m pip install pytest
+    - python -m pip install pytest nbval
     - python -m pip install toml
     - python -m pytest -v --ignore=tests/test_batch.py
     - python -m doctest README.md
+    - python -m pytest -v --nbval examples/Plot_locations_and_create_strip_log.ipynb
 
 build-linux:
   extends: .test
