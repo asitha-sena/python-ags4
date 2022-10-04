@@ -148,7 +148,7 @@ def check(input_file, output_file, dictionary_path, dictionary_version):
         1 - Errors found or file read error
     '''
 
-    if input_file.endswith('.ags'):
+    if input_file.lower().endswith('.ags'):
         console.print(f'[green]Running [bold]python_ags4 v{__version__}[/bold][/green]')
         console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
         console.print('')

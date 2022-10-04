@@ -27,7 +27,7 @@ affiliations:
    index: 3
  - name: British Geological Survey, Keyworth, UK
    index: 4
-date: 12 May 2022
+date: 24 July 2022
 bibliography: paper.bib
 ---
 
@@ -35,15 +35,15 @@ bibliography: paper.bib
 
 Data gathered from geotechnical, geoenvironmental, and geophysical
 investigations can be broadly described as "geodata". The AGS4 data format
-[@AGS:2017; @AGS:2021] is one of the most widely used data transmittal formats
-for geodata and is used across the world. It is a plain text format consisting
-of multiple tables of comma-separated values, tied together with a robust data
-schema and a comprehensive suite of validation rules. The basic structure of
-AGS4 file is is shown in Figure 1.
+[@AGS:2011; @AGS:2017; @AGS:2021; @AGS:2022] is one of the most widely used data
+transmittal formats for geodata and is used across the world. It is a plain text
+format consisting of multiple tables of comma-separated values, tied together
+with a robust data schema and a comprehensive suite of validation rules. The
+basic structure of AGS4 file is is shown in Figure 1.
 
 ![Simplified schematic of AGS4 data structure](Schematic_of_AGS4_data_structure.png)
 
-Source: @AGS:2021
+Source: @AGS:2022
 
 `python-ags4` is a Python library that provides functionality to read, write,
 and validate AGS4 geodata files. It provides users with a gateway to access the
@@ -66,7 +66,7 @@ community that uses AGS4 geodata files:
 - Provide access to the Python ecosystem to users of AGS4 geodata.
 - Provide a cross-platform tool to work with AGS4 geodata files.
 
-Having a free an open-source tool that can validate AGS4 files will help
+Having a free and open-source tool that can validate AGS4 files will help
 producers and receivers of data check that the geodata file is of the required
 standard. It also lowers the barrier to entry for those who are not familiar
 with this data format and fosters data sharing and collaboration. `python-ags4`
@@ -84,6 +84,24 @@ the git repo of this library. We provide an example for users in the git repo.
 The command-line interface included with the library is a convenient and easy to
 use tool to work with AGS4 geodata files. It is cross-platform and has been
 tested in Linux, Windows, and Mac environments.
+
+The current state of practice for validation of AGS4 files is to use one of two
+proprietary software, namely [KeyAGS
+Checker](https://communities.bentley.com/products/geotechnical1/w/wiki/50417/keyags-free-version)
+which is freeware and [gINT AGS
+Checker](https://www.bentley.com/en/products/brands/gint) which is part of the
+widely used `gINT` geotechnical data management suite. They are only available
+for the Windows operating system and can provide slightly different results in
+some cases. Therefore, validators based on `python-ags4` are expected to become
+the standard in the future and provide a single source of truth for the validity
+of AGS4 files [@AGS_website_2021; @chandler_2021].
+
+The open-source geotechnical software package
+[groundhog](https://groundhog.readthedocs.io/en/master/index.html) also provides
+functionality to import AGS4 data to Pandas DataFrames, therefore it can be used
+as an alternative to `python-ags4` in this regard. However, the main focus of
+that package is general purpose geotechnical engineering calculations so it does
+not provide functionality to validate and export AGS4 files.
 
 # Ongoing Projects
 

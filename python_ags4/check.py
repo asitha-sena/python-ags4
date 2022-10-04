@@ -256,7 +256,12 @@ def rule_1(line, line_number=0, ags_errors={}):
     '''
 
     if line.isascii() is False:
-        add_error_msg(ags_errors, 'AGS Format Rule 1', line_number, '', 'Has Non-ASCII character(s).')
+        if line_number == 1:
+            msg = 'Has Non-ASCII character(s) and/or a byte-order-mark (BOM).'
+            add_error_msg(ags_errors, 'AGS Format Rule 1', line_number, '', msg)
+
+        else:
+            add_error_msg(ags_errors, 'AGS Format Rule 1', line_number, '', 'Has Non-ASCII character(s).')
 
     return ags_errors
 

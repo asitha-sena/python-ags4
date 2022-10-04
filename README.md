@@ -34,20 +34,35 @@ We have created an example Juypter Notebook which imports an AGS file, plots bor
 pip install python-ags4
 ```
 
+>>>
+**Note**
+Installation requires Python 3.7 or later.
+>>>
+
 ### Code Examples
 
-first import the module
+First import the module.
+
 ```python
 from python_ags4 import AGS4
 ```
 
-#### Import data from an AG4 file:
+#### Import data from an AGS4 file:
 
 ```python
-tables, headings = AGS4.AGS4_to_dataframe('/home/asitha/Projects/python-AGS4/tests/test_data.ags')
+# Load from a file
+tables, headings = AGS4.AGS4_to_dataframe('path/to/file.ags')
+
+# Or use our sample data
+from python_ags4.data import load_test_data
+tables, headings = load_test_data()
 ```
 * *tables* is a dictionary of Pandas DataFrames. Each DataFrame contains the data from a *GROUP* in the AGS4 file. 
 * *headings* is a dictionary of lists. Each list has the header names of the corresponding *GROUP*
+
+>>> 
+**Important:** If the above code throws an exception or returns an empty dictionary, it very likely that the input file is not a valid AGS4 file. In such a case, the `AGS4.check_file()` function can be used to validate the file and see whether anything needs to be fixed before trying again. Most users will find it easier perform this step using the [command line interface](#command-line-interface) as it will provide a formatted error report that is much easier to read than the python dictionary created by directly calling the function.
+>>>
 
 All data are imported as text so they cannot be analyzed or plotted immediately. You can use the following code to convert all the numerical data in a DataFrame from text to numeric.
 
@@ -60,7 +75,7 @@ The `AGS4.convert_to_numeric()` function automatically converts all columns in t
 #### Export data back to an AGS4 file:
 
 ``` python
-AGS4.dataframe_to_AGS4(tables, headings, '/home/asitha/Documents/output.ags')
+AGS4.dataframe_to_AGS4(tables, headings, 'output.ags')
 ```
 
 A DataFrame with numeric columns may not get exported with the correct precision so they should be converted back to formatted text. The ```AGS4.convert_to_text()``` function will do this automatically if an AGS4 dictionary file is provided with the necessary UNIT and TYPE information. Numeric fields in the DataFrame that are not described in the dictionary file will be skipped with a warning.
@@ -90,8 +105,9 @@ The output from `python-ags4` can be directly used with [`pandasgui`](https://gi
 
 ```python
 from pandasgui import show
+from python_ags4.data import load_test_data
 
-tables, headings = AGS4.AGS4_to_dataframe('/home/asitha/Projects/python-AGS4/tests/test_data.ags')
+tables, headings = load_test_data()
 gui = show(**tables)
 ```
 
@@ -102,7 +118,7 @@ Any edits made in the GUI can be saved and exported back to an AGS4 file as foll
 ```python
 updated_tables = gui.get_dataframes()
 
-AGS4.dataframe_to_AGS4(updated_tables, headings, '/home/asitha/Documents/output.ags')
+AGS4.dataframe_to_AGS4(updated_tables, headings, 'output.ags')
 ```
 
 ### Development

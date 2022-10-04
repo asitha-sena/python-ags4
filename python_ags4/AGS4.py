@@ -476,7 +476,8 @@ def convert_to_text(dataframe, dictionary=None):
         Path to AGS4 dictionary file from which to get UNIT and TYPE rows and to
         convert to numeric fields to required precision. The values from the
         dictionary will override those already in the UNIT and TYPE rows in the
-        dataframe.
+        dataframe. A standard dictionary can be picked using the one of the
+        following strings '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0'.
 
     Returns
     -------
@@ -491,6 +492,7 @@ def convert_to_text(dataframe, dictionary=None):
     >>LOCA_text = convert_to_text(LOCA, 'DICT.ags')
     """
 
+    from python_ags4 import check
     from rich import print as rprint
 
     # Make copy of dataframe and reset index to make sure numbering
@@ -515,6 +517,13 @@ def convert_to_text(dataframe, dictionary=None):
 
     else:
         # Read dictionary file
+        if dictionary in ['4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
+            # Filepath to the standard dictionary will be picked based on version
+            # number if a valid version number is provided. If it is not specified
+            # at all, then the filepath will be selected based on the value of
+            # TRAN_AGS in the TRAN table.
+            dictionary = check.pick_standard_dictionary(dict_version=dictionary)
+
         temp, _ = AGS4_to_dataframe(dictionary)
         DICT = temp['DICT']
 
@@ -727,8 +736,21 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         rprint('[red] ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
         raise err
 
-    except:
-        # TODO: Add specific errors to except clause to conform to flake8
+    except UnboundLocalError:
+        # The presence of a byte-order-mark (BOM) in the same row as first
+        # "GROUP" line can cause this exception. This will be caught by line
+        # checks for Rule 1 (since the BOM is not an ASCII character) and Rule 3
+        # (since the BOM precedes the string "GROUP"). The BOM encoding can be
+        # ignored by setting the 'encoding' argument to 'utf-8-sig'.
+        tables, headings, line_numbers = AGS4_to_dataframe(input_file, encoding='utf-8-sig',
+                                                           get_line_numbers=True, rename_duplicate_headers=rename_duplicate_headers)
+
+        # Add warning to error log
+        msg = 'This file seems to be encoded with a byte-order-mark (BOM). It is highly recommended that the '\
+              'file be saved without BOM encoding to avoid issues with other sofware.'
+        ags_errors = check.add_error_msg(ags_errors, 'General', '', '', msg)
+
+    except Exception:
         err = traceback.format_exc()
         rprint('[red] ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
         rprint(f'[red]\n{err}[/red]')
