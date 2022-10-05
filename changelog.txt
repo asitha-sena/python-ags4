@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.4.1 (2022-09-12)
+------------------
+
+- Improve handling of files with byte-order-mark
+- Update CLI to check files with uppercase file extension
+- Make it easier to access standard dictionary files from the convert_to_text()
+  function. Now the version number of a standard dictionary can be provided
+  instead of having to provide the full path to the file. The full path will
+  still work if that is preferred.
+
 0.4.0 (2022-07-05)
 ------------------
 
