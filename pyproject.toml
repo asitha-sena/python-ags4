@@ -7,6 +7,7 @@ license = "LGPL-3.0"
 readme = "README.md"
 homepage = "https://github.com/asitha-sena/python-AGS4"
 repository = "https://gitlab.com/ags-data-format-wg/ags-python-library"
+include = ["COPYING.LESSER"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
