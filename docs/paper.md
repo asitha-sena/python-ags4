@@ -21,7 +21,7 @@ authors:
 affiliations:
  - name: Norwegian Geotechnical Institute (formerly Fugro USA Marine, Inc.)
    index: 1
- - name: Bentley Systems
+ - name: Seequent
    index: 2
  - name: Association of Geotechnical and Geoenvironmental Specialists
    index: 3
