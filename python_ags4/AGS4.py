@@ -142,25 +142,16 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                 # Check whether line has the same number of entries as the number of headings in the group
                 # If not, print error and exit
                 if len(temp) != len(headings[group]):
-                    # instead of raising an error and exiting, print the line number and the error along with its heading and data
-                    # then, attempt to concatenate the error line with the line below and continue after removing all line breaks in "DATA", "UNIT" and "TYPE" rows
-                    line_data = temp[0:len(temp)]
-                    error_heading = headings[group][len(line_data)-1]
-                    error_data = str(line_data).rsplit(',',1)[1]
+                    # instead of raising an error, print the line number with the issue and attempt to concatenate the error line with the line below
                     rprint(f"[red]  Error: Line {i} does not have the same number of entries as the HEADING row in [bold]{group}[/bold].[/red]")
                     rprint(AGS4Error(f"Line {i} does not have the same number of entries as the HEADING row in {group}."))
-                    rprint(f"{error_heading} data has a line break after: {error_data}")
-                    # use the {i} variable to get the row of data the error occured on, and pass it as an argument to a new function
-                    return concat_linebreak(line=int(i), filepath_or_buffer=filepath_or_buffer)                    
+                    return concat_linebreak(line=int(i), filepath_or_buffer=filepath_or_buffer)     
 
                 for i in range(0, len(temp)):
                     data[group][headings[group][i]].append(temp[i])
 
             else:
                 continue
-
-    except Exception as e:
-        print(e)
     finally:
         if close_file:
             f.close()
@@ -171,10 +162,8 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
     return data, headings
 
 def concat_linebreak(line,filepath_or_buffer,encoding='utf-8'):
-    # now {line} has been passed as an argument, open the readonly file and create a string from the row the error occured on with the row above it
     try:
         with open(filepath_or_buffer, "r", encoding=encoding, errors="replace") as f:
-            # get the line in the file 
             raw_data = f.readlines()
             fix = str(raw_data[line-1] + raw_data[line])
             fix = str(fix.replace("\n", ""))
