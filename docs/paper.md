@@ -122,6 +122,6 @@ It has also been used in commercial projects. (e.g.
 
 The authors acknowledge the work done by the AGS Data Format Working Group to
 develop the AGS4 data format and the support it has extended to develop this
-library.
+library. This work was supported by the British Geological Survey via NERC national capability.
 
 # References
