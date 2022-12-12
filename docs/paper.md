@@ -122,8 +122,8 @@ It has also been used in commercial projects. (e.g.
 
 The authors acknowledge the work done by the AGS Data Format Working Group to
 develop the AGS4 data format and the support it has extended to develop this
-library. Contributions to this project from the British Geological Survey were
-supported via NERC national capability.
+library. Contributions by Edward Lewis to this project and the development of https://agsapi.bgs.ac.uk/ 
+was supported by the British Geological Survey via NERC national capability.
 
 
 # References
