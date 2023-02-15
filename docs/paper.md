@@ -21,7 +21,7 @@ authors:
 affiliations:
  - name: Norwegian Geotechnical Institute (formerly Fugro USA Marine, Inc.)
    index: 1
- - name: Bentley Systems
+ - name: Seequent
    index: 2
  - name: Association of Geotechnical and Geoenvironmental Specialists
    index: 3
@@ -122,6 +122,8 @@ It has also been used in commercial projects. (e.g.
 
 The authors acknowledge the work done by the AGS Data Format Working Group to
 develop the AGS4 data format and the support it has extended to develop this
-library.
+library. Contributions by Edward Lewis to this project and the development of https://agsapi.bgs.ac.uk/ 
+were supported by the British Geological Survey via NERC national capability.
+
 
 # References
