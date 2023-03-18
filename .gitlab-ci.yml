@@ -1,5 +1,6 @@
 stages:
   - test
+  - deploy_html_docs
 
 .test:
   image: python:$PYTHON_VERSION
@@ -20,3 +21,17 @@ build-linux:
   extends: .test
   tags:
     - linux
+
+pages:
+  stage: deploy_html_docs
+  image: python:3.10
+  script:
+  - pip install -U sphinx sphinx-rtd-theme
+  - cd docs
+  - sphinx-build -b html . ../public
+  - cp custom.css ../public/_static/custom.css # Custom CSS file to increase width of html pages
+  artifacts:
+    paths:
+    - public
+  #rules:
+  #  - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
