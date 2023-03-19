@@ -131,7 +131,7 @@ AGS4.dataframe_to_AGS4(updated_tables, headings, 'output.ags')
 
 Please refer to the [Wiki](https://gitlab.com/ags-data-format-wg/ags-python-library/-/wikis/home) page for details about the development environment and how to get involved in the project.
 
-API documentation available at https://asitha-sena.gitlab.io/ags-python-library
+API documentation available at https://ags-data-format-wg.gitlab.io/ags-python-library
 
 ### Citation
 
