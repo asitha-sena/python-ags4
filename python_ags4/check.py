@@ -22,7 +22,7 @@
 # Helper functions
 
 def add_error_msg(ags_errors, rule, line, group, desc):
-    '''Store AGS4 error in a dictionary.
+    """Store AGS4 error in a dictionary.
 
     Parameters
     ----------
@@ -42,7 +42,7 @@ def add_error_msg(ags_errors, rule, line, group, desc):
     dict
         Updated Python dictionary.
 
-    '''
+    """
 
     try:
         ags_errors[rule].append({'line': line, 'group': group, 'desc': desc})
@@ -55,26 +55,26 @@ def add_error_msg(ags_errors, rule, line, group, desc):
 
 
 def combine_DICT_tables(*ags_tables):
-    '''Combine DICT tables
+    """Combine DICT tables from multiple AGS4 files.
 
-    If duplicate rows are encountered, the first will be kept and the rest dropped.
-    Only 'HEADING','DICT_TYPE','DICT_GRP','DICT_HDNG' columns will be considered
-    to determine duplicate rows. Precedence will be given to files in the order in
-    which they appear in the input_files list.
-    IMPORTANT: The standard AGS4 dictionary has to be the first entry in order for
-    order of headings (AGS Format Rule 7) to checked correctly.
+    If duplicate rows are encountered, the first will be kept and the rest
+    dropped. Only HEADING, DICT_TYPE, DICT_GRP, DICT_HDNG columns will be
+    considered to determine duplicate rows. Precedence will be given to files in
+    the order in which they appear in the input_files list.
+    IMPORTANT: The standard AGS4 dictionary has to be the first entry in order
+    for order of headings (AGS Format Rule 7) to checked correctly.
 
     Parameters
     ----------
-    ags_tables : dictionary of Pandas DataFrames
-        A dictionary of Pandas DataFrames containing data from a .ags file that is
-        output from the AGS4_to_dataframe() function
+    ags_tables : dict of dataframes
+        A dictionary of Pandas DataFrames containing data from a .ags file that
+        is output from the 'AGS4_to_dataframe()' function
 
     Returns
     -------
-    DataFrame
-        Pandas DataFrame with combined DICT tables.
-    '''
+    Pandas DataFrame
+        Dataframe with combined DICT tables.
+    """
 
     from pandas import DataFrame, concat
     from .AGS4 import AGS4Error
@@ -99,7 +99,6 @@ def combine_DICT_tables(*ags_tables):
         raise AGS4Error("No DICT tables available to proceed with checking. "
                         "Please ensure the input file has a DICT table or provide file with standard AGS4 dictionary.")
 
-
     # Drop duplicate entries
     master_DICT.drop_duplicates(['HEADING', 'DICT_TYPE', 'DICT_GRP', 'DICT_HDNG'], keep='first', inplace=True)
 
@@ -107,7 +106,7 @@ def combine_DICT_tables(*ags_tables):
 
 
 def fetch_record(record_link, tables):
-    '''Check whether record link points to an existing entry
+    """Fetch record(s) defined by an AGS4 record link.
 
     Parameters
     ----------
@@ -118,8 +117,8 @@ def fetch_record(record_link, tables):
 
     Returns
     -------
-    DataFrame
-    '''
+    Pandas DataFrame
+    """
 
     from pandas import DataFrame
     from pandas.errors import MergeError
@@ -135,8 +134,8 @@ def fetch_record(record_link, tables):
         # Assign heading names to columns
         df1.columns = field_names[0:len(record_link)-1]
 
-        # Use merge operation to check whether record link matches with entry
-        # in the linked tables
+        # Use merge operation to check whether record link matches with entry in
+        # the linked tables
         df2 = df1.merge(tables[group].filter(regex=r'[^HEADING]'), how='left', indicator=True).query(''' _merge=="both" ''')
 
         return df2.filter(regex=r'[^_merge]')
@@ -150,7 +149,8 @@ def fetch_record(record_link, tables):
         return DataFrame()
 
     except ValueError:
-        # Input record link has more entries than there are columns in the table to which it refers
+        # Input record link has more entries than there are columns in the table
+        # to which it refers
         return DataFrame()
 
     except MergeError:
@@ -159,7 +159,7 @@ def fetch_record(record_link, tables):
 
 
 def pick_standard_dictionary(tables=None, dict_version=None):
-    '''Pick standard dictionary to check file.
+    """Pick standard dictionary to check file.
 
     Parameters
     ----------
@@ -173,7 +173,7 @@ def pick_standard_dictionary(tables=None, dict_version=None):
     -------
     str
       File path to standard dictionary
-    '''
+    """
 
     import pkg_resources
     from rich import print as rprint
@@ -216,7 +216,7 @@ def pick_standard_dictionary(tables=None, dict_version=None):
 
 
 def add_meta_data(input_file, standard_dictionary, ags_errors={}):
-    '''Add meta data from input file to error list.
+    """Add meta data from input file to error list.
 
     Parameters
     ----------
@@ -231,7 +231,7 @@ def add_meta_data(input_file, standard_dictionary, ags_errors={}):
     -------
     dict
         Updated Python dictionary.
-    '''
+    """
 
     import os
     from python_ags4 import __version__
@@ -252,8 +252,8 @@ def add_meta_data(input_file, standard_dictionary, ags_errors={}):
 # Line Rules
 
 def rule_1(line, line_number=0, ags_errors={}):
-    '''AGS Format Rule 1: The file shall be entirely composed of ASCII characters.
-    '''
+    """AGS Format Rule 1: The file shall be entirely composed of ASCII characters.
+    """
 
     if line.isascii() is False:
         if line_number == 1:
@@ -267,8 +267,8 @@ def rule_1(line, line_number=0, ags_errors={}):
 
 
 def rule_2a(line, line_number=0, ags_errors={}):
-    '''AGS Format Rule 2a: Each line should be delimited by a carriage return and line feed.
-    '''
+    """AGS Format Rule 2a: Each line should be delimited by a carriage return and line feed.
+    """
 
     if line[-2:] != '\r\n':
         add_error_msg(ags_errors, 'AGS Format Rule 2a', line_number, '', 'Is not terminated by <CR> and <LF> characters.')
@@ -277,8 +277,8 @@ def rule_2a(line, line_number=0, ags_errors={}):
 
 
 def rule_3(line, line_number=0, ags_errors={}):
-    '''AGS Format Rule 3: Each line should be start with a data descriptor that defines its contents.
-    '''
+    """AGS Format Rule 3: Each line should be start with a data descriptor that defines its contents.
+    """
 
     if not line.isspace():
         temp = line.rstrip().split('","')
@@ -291,8 +291,8 @@ def rule_3(line, line_number=0, ags_errors={}):
 
 
 def rule_4_1(line, line_number=0, ags_errors={}):
-    '''AGS Format Rule 4: A GROUP row should only contain the GROUP name as data
-    '''
+    """AGS Format Rule 4: A GROUP row should only contain the GROUP name as data
+    """
 
     if line.startswith('"GROUP"'):
         temp = line.rstrip().split('","')
@@ -307,8 +307,8 @@ def rule_4_1(line, line_number=0, ags_errors={}):
 
 
 def rule_4_2(line, line_number=0, group='', headings=[], ags_errors={}):
-    '''AGS Format Rule 4: UNIT, TYPE, and DATA rows should have entries defined by the HEADING row.
-    '''
+    """AGS Format Rule 4: UNIT, TYPE, and DATA rows should have entries defined by the HEADING row.
+    """
 
     if line.strip('"').startswith(('UNIT', 'TYPE', 'DATA')):
         temp = line.rstrip().split('","')
@@ -331,8 +331,8 @@ def rule_4_2(line, line_number=0, group='', headings=[], ags_errors={}):
 
 
 def rule_5(line, line_number=0, ags_errors={}):
-    '''AGS Format Rule 5: All fields should be enclosed in double quotes.
-    '''
+    """AGS Format Rule 5: All fields should be enclosed in double quotes.
+    """
 
     import re
 
@@ -374,9 +374,9 @@ def rule_5(line, line_number=0, ags_errors={}):
 
 
 def rule_6(line, line_number=0, ags_errors={}):
-    '''AGS Format Rule 6: All fields should be separated by commas and carriage returns are not
+    """AGS Format Rule 6: All fields should be separated by commas and carriage returns are not
     allowed within a data field.
-    '''
+    """
 
     # This will be satisfied if rule_2a, rule_4b and rule_5 are satisfied
 
@@ -384,9 +384,9 @@ def rule_6(line, line_number=0, ags_errors={}):
 
 
 def rule_7_1(line, line_number=0, ags_errors={}):
-    '''AGS Format Rule 7: HEADINGs shall be in the order described in the AGS4 dictionary.
+    """AGS Format Rule 7: HEADINGs shall be in the order described in the AGS4 dictionary.
     Therefore, it should not have duplicated headings.
-    '''
+    """
 
     if line.strip('"').startswith('HEADING'):
         temp = line.rstrip().split('","')
@@ -399,8 +399,8 @@ def rule_7_1(line, line_number=0, ags_errors={}):
 
 
 def rule_19(line, line_number=0, ags_errors={}):
-    '''AGS Format Rule 19: GROUP name should consist of four uppercase letters.
-    '''
+    """AGS Format Rule 19: GROUP name should consist of four uppercase letters.
+    """
 
     if line.strip('"').startswith('GROUP'):
         temp = line.rstrip().split('","')
@@ -414,8 +414,8 @@ def rule_19(line, line_number=0, ags_errors={}):
 
 
 def rule_19a(line, line_number=0, group='', ags_errors={}):
-    '''AGS Format Rule 19a: HEADING names should consist of uppercase letters.
-    '''
+    """AGS Format Rule 19a: HEADING names should consist of uppercase letters.
+    """
 
     import re
 
@@ -440,9 +440,9 @@ def rule_19a(line, line_number=0, group='', ags_errors={}):
 
 
 def rule_19b_1(line, line_number=0, group='', ags_errors={}):
-    '''AGS Format Rule 19b: HEADING names shall start with the group name followed by an underscore character.
+    """AGS Format Rule 19b: HEADING names shall start with the group name followed by an underscore character.
     Where a HEADING refers to an existing HEADING within another GROUP, it shall bear the same name.
-    '''
+    """
 
     if line.strip('"').startswith('HEADING'):
         temp = line.rstrip().split('","')
@@ -465,9 +465,9 @@ def rule_19b_1(line, line_number=0, group='', ags_errors={}):
 # Group Rules
 
 def rule_2(tables, headings, line_numbers, ags_errors={}):
-    '''AGS Format Rule 2: Each file should consist of one or more GROUPs and each GROUP should
+    """AGS Format Rule 2: Each file should consist of one or more GROUPs and each GROUP should
     consist of one or more DATA rows.
-    '''
+    """
 
     for key in tables:
         # Re-index table to ensure row numbering starts from zero
@@ -484,8 +484,8 @@ def rule_2(tables, headings, line_numbers, ags_errors={}):
 
 
 def rule_2b(tables, headings, line_numbers, ags_errors={}):
-    '''AGS Format Rule 2b: UNIT and TYPE rows should be defined at the start of each GROUP
-    '''
+    """AGS Format Rule 2b: UNIT and TYPE rows should be defined at the start of each GROUP
+    """
 
     for key in tables:
         # Re-index table to ensure row numbering starts from zero
@@ -522,8 +522,8 @@ def rule_2b(tables, headings, line_numbers, ags_errors={}):
 
 
 def rule_7_2(headings, dictionary, line_numbers, ags_errors={}):
-    '''AGS Format Rule 7: HEADINGs shall be in the order described in the AGS4 dictionary.
-    '''
+    """AGS Format Rule 7: HEADINGs shall be in the order described in the AGS4 dictionary.
+    """
 
     for key in headings:
         # Extract list of headings defined for the group in the dictionaries
@@ -557,10 +557,10 @@ def rule_7_2(headings, dictionary, line_numbers, ags_errors={}):
 
 
 def rule_8(tables, headings, line_numbers, ags_errors={}):
-    '''AGS Format Rule 8: Data variables shall be presented in units of measurements
+    """AGS Format Rule 8: Data variables shall be presented in units of measurements
     and type that are described by the appropriate data field UNIT and data
     field TYPE defined at the start of the GROUP.
-    '''
+    """
 
     import pandas as pd
     from python_ags4.AGS4 import format_numeric_column
@@ -695,9 +695,9 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
 
 
 def rule_9(headings, dictionary, line_numbers, ags_errors={}):
-    '''AGS Format Rule 9: GROUP and HEADING names will be taken from the standard AGS4 dictionary or
+    """AGS Format Rule 9: GROUP and HEADING names will be taken from the standard AGS4 dictionary or
     defined in DICT table in the .ags file.
-    '''
+    """
 
     for key in headings:
         # Extract list of headings defined for the group in the dictionaries
@@ -713,8 +713,8 @@ def rule_9(headings, dictionary, line_numbers, ags_errors={}):
 
 
 def rule_10a(tables, headings, dictionary, line_numbers, ags_errors={}):
-    '''AGS Format Rule 10a: KEY fields in a GROUP must be present (even if null). There should not be any dupliate KEY field combinations.
-    '''
+    """AGS Format Rule 10a: KEY fields in a GROUP must be present (even if null). There should not be any dupliate KEY field combinations.
+    """
 
     for group in tables:
         # Extract KEY fields from dictionary
@@ -746,8 +746,8 @@ def rule_10a(tables, headings, dictionary, line_numbers, ags_errors={}):
 
 
 def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
-    '''AGS Format Rule 10b: REQUIRED fields in a GROUP must be present and cannot be empty.
-    '''
+    """AGS Format Rule 10b: REQUIRED fields in a GROUP must be present and cannot be empty.
+    """
 
     for group in tables:
         # Extract REQUIRED fields from dictionary
@@ -785,8 +785,8 @@ def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
 
 
 def rule_10c(tables, headings, dictionary, line_numbers, ags_errors={}):
-    '''AGS Format Rule 10c: Each DATA row should have a parent entry in the parent GROUP.
-    '''
+    """AGS Format Rule 10c: Each DATA row should have a parent entry in the parent GROUP.
+    """
 
     for group in tables:
         # Find parent group name
@@ -856,8 +856,8 @@ def rule_10c(tables, headings, dictionary, line_numbers, ags_errors={}):
 
 
 def rule_11(tables, headings, dictionary, ags_errors={}):
-    '''AGS Format Rule 11: Data of TYPE "RL" shall be delimited by a single character defined under TRAN_DLIM.
-    '''
+    """AGS Format Rule 11: Data of TYPE "RL" shall be delimited by a single character defined under TRAN_DLIM.
+    """
 
     try:
         # Extract and check TRAN_DLIM and TRAN_RCON
@@ -898,8 +898,8 @@ def rule_11(tables, headings, dictionary, ags_errors={}):
 
 
 def rule_11c(tables, dictionary, delimiter, concatenator, ags_errors={}):
-    '''AGS Format Rule 11c: Data type "RL" can cross-reference to any group in an AGS4 file
-    '''
+    """AGS Format Rule 11c: Data type "RL" can cross-reference to any group in an AGS4 file
+    """
 
     # Check for columns of data type RL
     for group in tables:
@@ -939,8 +939,8 @@ def rule_11c(tables, dictionary, delimiter, concatenator, ags_errors={}):
 
 
 def rule_12(tables, headings, ags_errors={}):
-    '''AGS Format Rule 12: Only REQUIRED fields needs to be filled. Others can be null.
-    '''
+    """AGS Format Rule 12: Only REQUIRED fields needs to be filled. Others can be null.
+    """
 
     # This is already checked by AGS Format Rule 10b. No additional checking necessary
 
@@ -948,9 +948,9 @@ def rule_12(tables, headings, ags_errors={}):
 
 
 def rule_13(tables, headings, line_numbers, ags_errors={}):
-    '''AGS Format Rule 13: File shall contain a PROJ group with only one DATA row. All REQUIRED fields in this
+    """AGS Format Rule 13: File shall contain a PROJ group with only one DATA row. All REQUIRED fields in this
     row should be filled.
-    '''
+    """
 
     if 'PROJ' not in tables.keys():
         add_error_msg(ags_errors, 'AGS Format Rule 13', '-', 'PROJ', 'PROJ table not found.')
@@ -969,9 +969,9 @@ def rule_13(tables, headings, line_numbers, ags_errors={}):
 
 
 def rule_14(tables, headings, line_numbers, ags_errors={}):
-    '''AGS Format Rule 14: File shall contain a TRAN group with only one DATA row. All REQUIRED fields in this
+    """AGS Format Rule 14: File shall contain a TRAN group with only one DATA row. All REQUIRED fields in this
     row should be filled.
-    '''
+    """
 
     if 'TRAN' not in tables.keys():
         add_error_msg(ags_errors, 'AGS Format Rule 14', '-', 'TRAN', 'TRAN table not found.')
@@ -990,8 +990,8 @@ def rule_14(tables, headings, line_numbers, ags_errors={}):
 
 
 def rule_15(tables, headings, line_numbers, ags_errors={}):
-    '''AGS Format Rule 15: The UNIT group shall list all units used in within the data file.
-    '''
+    """AGS Format Rule 15: The UNIT group shall list all units used in within the data file.
+    """
 
     try:
         # Load UNIT group
@@ -1024,8 +1024,8 @@ def rule_15(tables, headings, line_numbers, ags_errors={}):
 
 
 def rule_16(tables, headings, dictionary, ags_errors={}):
-    '''AGS Format Rule 16: Data file shall contain an ABBR group with definitions for all abbreviations used in the file.
-    '''
+    """AGS Format Rule 16: Data file shall contain an ABBR group with definitions for all abbreviations used in the file.
+    """
 
     try:
         # Load ABBR group
@@ -1092,8 +1092,8 @@ def rule_16(tables, headings, dictionary, ags_errors={}):
 
 
 def rule_17(tables, headings, dictionary, ags_errors={}):
-    '''AGS Format Rule 17: Data file shall contain a TYPE group with definitions for all data types used in the file.
-    '''
+    """AGS Format Rule 17: Data file shall contain a TYPE group with definitions for all data types used in the file.
+    """
 
     try:
         # Load TYPE group
@@ -1124,10 +1124,10 @@ def rule_17(tables, headings, dictionary, ags_errors={}):
 
 
 def rule_18(tables, headings, ags_errors={}):
-    '''AGS Format Rule 18: Data file shall contain a DICT group with definitions for all non-standard headings in the file.
+    """AGS Format Rule 18: Data file shall contain a DICT group with definitions for all non-standard headings in the file.
 
     Note: Check is based on rule_9(). The 'ags_errors' input should be the output from rule_9() in order for this to work.
-    '''
+    """
 
     if 'DICT' not in tables.keys() and 'AGS Format Rule 9' in ags_errors.keys():
         # If AGS Format Rule 9 has been violated that means a non-standard has been found
@@ -1139,9 +1139,9 @@ def rule_18(tables, headings, ags_errors={}):
 
 
 def rule_19b_2(tables, headings, dictionary, line_numbers, ags_errors={}):
-    '''AGS Format Rule 19b: HEADING names shall start with the group name followed by an underscore character.
+    """AGS Format Rule 19b: HEADING names shall start with the group name followed by an underscore character.
     Where a HEADING refers to an existing HEADING within another GROUP, it shall bear the same name.
-    '''
+    """
 
     for group in tables:
 
@@ -1174,9 +1174,9 @@ def rule_19b_2(tables, headings, dictionary, line_numbers, ags_errors={}):
 
 
 def rule_19b_3(tables, headings, dictionary, line_numbers, ags_errors={}):
-    '''AGS Format Rule 19b: HEADING names shall start with the group name followed by an underscore character.
+    """AGS Format Rule 19b: HEADING names shall start with the group name followed by an underscore character.
     Where a HEADING refers to an existing HEADING within another GROUP, it shall bear the same name.
-    '''
+    """
 
     for group in tables:
 
@@ -1199,8 +1199,8 @@ def rule_19b_3(tables, headings, dictionary, line_numbers, ags_errors={}):
 
 
 def rule_20(tables, headings, filepath, ags_errors={}):
-    '''AGS Format Rule 20: Additional computer files included within a data submission shall be defined in a FILE GROUP.
-    '''
+    """AGS Format Rule 20: Additional computer files included within a data submission shall be defined in a FILE GROUP.
+    """
 
     import os
 
@@ -1276,8 +1276,8 @@ def rule_20(tables, headings, filepath, ags_errors={}):
 
 
 def is_ags3(tables, input_file, ags_errors={}):
-    '''Check if file is likely to be in AGS3 format and issue warning.
-    '''
+    """Check if file is likely to be in AGS3 format and issue warning.
+    """
 
     import re
 
@@ -1300,8 +1300,8 @@ def is_ags3(tables, input_file, ags_errors={}):
 
 
 def is_ags3_like(line, line_number=0, ags_errors={}):
-    '''Check if file is likely to be in AGS3 format and issue warning.
-    '''
+    """Check if file is likely to be in AGS3 format and issue warning.
+    """
 
     if line.startswith(r'"**PROJ"'):
         msg = 'Line starts with "**PROJ" instead of a valid data descriptor. This indicates that file is in the AGS3 format which is not supported.'

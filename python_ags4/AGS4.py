@@ -22,37 +22,42 @@
 # Read functions #
 
 def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, rename_duplicate_headers=True):
-    """Load all the data in a AGS4 file to a dictionary of dictionaries.
-    This GROUP in the AGS4 file is assigned its own dictionary.
+    """Load all the data in an AGS4 file to a dictionary of dictionaries.
 
-    'AGS4_to_dataframe' uses this function to load AGS4 data in to Pandas
-    dataframes.
+    Each GROUP in the AGS4 file is assigned its own dictionary.
+
+    'AGS4_to_dataframe()' function uses this function to load AGS4 data in to
+    Pandas dataframes.
 
     Parameters
     ----------
     filepath_or_buffer : File path (str, pathlib.Path), or StringIO.
-        Path to AGS4 file or any object with a read() method (such as an open file or StringIO).
-    encoding : str
-        Encoding of text file (default 'utf-8')
-    get_line_numbers : bool
-        Add line number column to each table (for UNIT, TYPE, and DATA rows) and return
-        a dictionary with line numbers for GROUP and HEADING lines (default False)
-    rename_duplicate_headers: bool
+        Path to AGS4 file or any object with a read() method (such as an open
+        file or StringIO).
+    encoding : str, default='utf-8'
+        Encoding of text file. This can be set to 'utf-8-sig' to read files that
+        begin with a byte-order-mark.
+    get_line_numbers : bool, default=False
+        Add line number column to each table (for UNIT, TYPE, and DATA rows) and
+        return a dictionary with line numbers for GROUP and HEADING lines.
+    rename_duplicate_headers: bool, default=True
         Rename duplicate headers if found. Neither AGS4 tables nor Pandas
         dataframes allow duplicate headers, therefore a number will be appended
-        to duplicates to make them unique. (default True)
+        to duplicates to make them unique.
 
     Returns
     -------
-    data : dict
-        Python dictionary populated with data from the AGS4 file with AGS4 headers as keys
-    headings : dict
+    data : dict of dicts
+        Dictionary populated with data from the AGS4 file with AGS4 headers as
+        keys.
+    headings : dict of lists
         Dictionary with the headings in the each GROUP (This will be needed to
-        recall the correct column order when writing pandas dataframes back to AGS4
-        files. i.e. input for 'dataframe_to_AGS4()' function)
-    line_numbers : dict (Only if get_line_numbers=True)
-        Dictionary with the starting line numbers of GROUP and HEADING rows. This is only
-        required for checking a .ags file with 'check_file() function.
+        recall the correct column order when writing Pandas dataframes back to
+        AGS4 files. i.e. input for 'dataframe_to_AGS4()' function)
+    line_numbers : dict of int, only if get_line_numbers=True
+        Dictionary with the starting line numbers of GROUP and HEADING rows.
+        This is only required for checking a .ags file with 'check_file()'
+        function.
     """
 
     from rich import print as rprint
@@ -68,16 +73,14 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
     try:
 
         data = {}
-
-        # dict to save and output the headings. This is not really necessary
-        # for the read AGS4 function but will be needed to write the columns
-        # of pandas dataframes when writing them back to AGS4 files.
-        # (The HEADING column needs to be the first column in order to preserve
-        # the AGS data format. Other columns in certain groups have a
-        # preferred order as well)
-
         headings = {}
         line_numbers = {}
+
+        # NOTE: The 'headings' dict is not really necessary for the read AGS4
+        # function but will be needed to write the columns of Pandas dataframes
+        # when writing them back to AGS4 files. (The HEADING column needs to be
+        # the first column in order to preserve the AGS data format. Other
+        # columns in certain groups have a preferred order as well)
 
         for i, line in enumerate(f, start=1):
             temp = line.rstrip().split('","')
@@ -87,16 +90,15 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                 group = temp[1]
                 data[group] = {}
 
-                # Store GROUP line number
-                # (A default 'HEADING' entry is added to avoid KeyErrors in case of missing
-                # HEADING rows)
+                # Store GROUP line number (A default 'HEADING' entry is added to
+                # avoid KeyErrors in case of missing HEADING rows)
                 line_numbers[group] = {'GROUP': i, 'HEADING': '-'}
 
             elif temp[0] == 'HEADING':
 
-                # Catch HEADER rows with duplicate entries as it will result in a dictionary with
-                # arrays of unequal lengths and cause a ValueError when trying to convert to a
-                # Pandas DataFrame
+                # Catch HEADER rows with duplicate entries as it will result in
+                # a dictionary with arrays of unequal lengths and cause a
+                # ValueError when trying to convert to a Pandas dataframe
                 if len(temp) != len(set(temp)):
 
                     if rename_duplicate_headers is False:
@@ -139,8 +141,8 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                 if get_line_numbers is True:
                     temp.append(i)
 
-                # Check whether line has the same number of entries as the number of headings in the group
-                # If not, print error and exit
+                # Check whether line has the same number of entries as the
+                # number of headings in the group. If not, print error and exit.
                 if len(temp) != len(headings[group]):
                     rprint(f"[red]  Error: Line {i} does not have the same number of entries as the HEADING row in [bold]{group}[/bold].[/red]")
                     raise AGS4Error(f"Line {i} does not have the same number of entries as the HEADING row in {group}.")
@@ -161,41 +163,47 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
 
 
 def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, rename_duplicate_headers=True):
-    """Load all the tables in a AGS4 file to a Pandas dataframes. The output is
-    a Python dictionary of dataframes with the name of each AGS4 table (i.e.
-    GROUP) as the primary key.
+    """Load all the tables in an AGS4 file to a dictionary of Pandas dataframes.
+
+    The output is a dictionary of dataframes with the name of each AGS4 table
+    (i.e. GROUP) as the primary key.
 
     Parameters
     ----------
     filepath_or_buffer : str, StringIO
-        Path to AGS4 file or any file like object (open file or StringIO)
-    show_line_number : bool
-        Add line number column to each table (default False)
-    get_line_numbers : bool
-        Add line number column to each table (for UNIT, TYPE, and DATA rows) and return
-        a dictionary with line numbers for GROUP and HEADING lines (default False)
-    rename_duplicate_headers: bool
+        Path to AGS4 file or any file like object (open file or StringIO).
+    encoding : str, default='utf-8'
+        Encoding of text file. This can be set to 'utf-8-sig' to read files that
+        begin with a byte-order-mark.
+    get_line_numbers : bool, default=False
+        Add line number column to each table (for UNIT, TYPE, and DATA rows) and
+        return a dictionary with line numbers for GROUP and HEADING lines.
+    rename_duplicate_headers: bool, default=True
         Rename duplicate headers if found. Neither AGS4 tables nor Pandas
         dataframes allow duplicate headers, therefore a number will be appended
-        to duplicates to make them unique. (default True)
+        to duplicates to make them unique.
 
     Returns
     -------
-    data : dict
-        Python dictionary populated with Pandas dataframes. Each GROUP in the AGS4 files is assigned to its a dataframe.
-    headings : dict
+    tables : dict of dataframes
+        Dictionary populated with Pandas dataframes. Each GROUP in the AGS4
+        files is assigned to its a dataframe.
+    headings : dict of lists
         Dictionary with the headings in the each GROUP (This will be needed to
-        recall the correct column order when writing pandas dataframes back to AGS4
-        files. i.e. input for 'dataframe_to_AGS4()' function)
-    line_numbers : dict (Only if get_line_numbers=True)
-        Dictionary with the starting line numbers of GROUP and HEADING rows. This is only
-        required for checking a .ags file with 'check_file() function.
+        recall the correct column order when writing Pandas dataframes back to
+        AGS4 files. i.e. input for 'dataframe_to_AGS4()' function)
+    line_numbers : dict of int, only if get_line_numbers=True
+        Dictionary with the starting line numbers of GROUP and HEADING rows.
+        This is only required for checking a .ags file with 'check_file()'
+        function.
+
     """
 
     from pandas import DataFrame
 
-    # Extract AGS4 file into a dictionary of dictionaries
-    # A dictionary with group line numbers is returned, in addition to data and headings, for checking purposes
+    # Extract AGS4 file into a dictionary of dictionaries. A dictionary with
+    # group line numbers is returned, in addition to data and headings, for
+    # checking purposes.
     if get_line_numbers is True:
         data, headings, line_numbers = AGS4_to_dict(filepath_or_buffer, encoding=encoding, get_line_numbers=get_line_numbers,
                                                     rename_duplicate_headers=rename_duplicate_headers)
@@ -220,7 +228,7 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=Fal
 
 
 def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_headers=True, sort_tables=False):
-    """Load all the tables in a AGS4 file to an Excel spreasheet.
+    """Load all the tables in an AGS4 file to an Excel spreasheet.
 
     Parameters
     ----------
@@ -228,18 +236,21 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
         Path to AGS4 file
     output_file : str
         Path to Excel file
-    rename_duplicate_headers: bool
+    encoding : str, default='utf-8'
+        Encoding of text file. This can be set to 'utf-8-sig' to read files that
+        begin with a byte-order-mark.
+    rename_duplicate_headers: bool, default=True
         Rename duplicate headers if found. Neither AGS4 tables nor Pandas
         dataframes allow duplicate headers, therefore a number will be appended
-        to duplicates to make them unique. (default False)
-    sort_tables : bool
-        Alphabetically sort worksheets in Excel file. (default False)
-        WARNING: The original order of groups will be lost and cannot be
-        restored when .xlsx file is converted back to .ags.
+        to duplicates to make them unique.
+    sort_tables : bool, default=False
+        Alphabetically sort worksheets in Excel file. WARNING: The original
+        order of groups will be lost and cannot be restored when .xlsx file is
+        converted back to .ags.
 
     Returns
     -------
-    Excel file populated with data from the input AGS4 file.
+    None
     """
 
     from pandas import ExcelWriter
@@ -288,29 +299,33 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
 # Write functions #
 
 def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding='utf-8', warnings=True):
-    """Write Pandas dataframes that have been extracted using
+    """Write a dictionary of Pandas dataframes that have been extracted using
     'AGS4_to_dataframe()' function back to an AGS4 file.
 
     Parameters
     ----------
-    data : dict
+    data : dict of dataframes
         Dictionary of Pandas dataframes (output from 'AGS4_to_dataframe()')
-    headings : dict
+    headings : dict of lists
         Dictionary of lists containing AGS4 headings in the correct order (e.g.
-        output from 'AGS4_to_dataframe()') Columns can be dropped as well from
-        the exported file using this option. An empty dictionary {} can be
-        passed to export data without explicitly ensuring column order.
+        output from 'AGS4_to_dataframe()'). Columns can be dropped and/or
+        reordered using this option. An empty dictionary {} should be passed to
+        export data without explicitly defining the column order.
     filepath : str
         Path to output file
-    mode : str, optional
-        Option to write ('w') or append ('a') data ('w' by default)
-    index : bool, optional
-        Include the index column when writing to file. (False by default)
-        WARNING: The output will not be a valid AGS4 file if set to True.
+    mode : {'w', 'a'}
+        Option to write ('w') or append ('a') data.
+    index : bool, default=False
+        Include the index column when writing to file. WARNING: The output will
+        not be a valid AGS4 file if set to True.
+    encoding : str, default='utf-8'
+        Encoding of output file
+    warnings : bool, default=False
+        Print warnings
 
     Returns
     -------
-    AGS4 file with data in the dictionary of dataframes that is input.
+    None
     """
 
     from rich import print as rprint
@@ -357,7 +372,7 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
 
 
 def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictionary=None):
-    """Export AGS4 data in Excel file to .ags file.
+    """Export AGS4 data in Excel file to an AGS4 file.
 
     Parameters
     ----------
@@ -366,21 +381,21 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
         e.g. output from AGS4.AGS4_to_excel)
     output_file : str
         Path to AGS4 file
-    format_numeric_columns : bool, optional
+    format_numeric_columns : bool, default=True
         Format numeric columns to match specified TYPE
-    dictionary : str
+    dictionary : str, optional
         Filepath to dictionary if the UNIT and TYPE data in tables need to be
         overridden.
 
     Returns
     -------
-    AGS4 file with data from the input Excel file.
+    None
     """
 
     from pandas import read_excel
     from rich import print as rprint
 
-    # Read data from Excel file in to DataFrames
+    # Read data from Excel file in to a dictionary of dataframes
     tables = read_excel(input_file, sheet_name=None, engine='openpyxl')
 
     # Not all worksheets in the spreadsheet may contain valid AGS4 tables, therefore
@@ -422,27 +437,21 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
 def convert_to_numeric(dataframe):
     """The AGS4_to_dataframe() function extracts the data from an AGS4 file and
     puts each table into a Pandas DataFrame as text. This function reads the
-    TYPE row and coverts the columns with data types 0DP, 1DP, 2DP, 3DP, 4DP,
-    5DP, and MC into numerical data. This allows the data to be plotted and
-    used in calculations/formulas.
+    TYPE row and coverts the columns with data types DP, SF, SCI, and MC into
+    numerical data. This allows the data to be plotted and used in
+    calculations/formulas.
 
     Parameters
     ----------
     dataframe : Pandas DataFrame
-        Pandas DataFrame outputted by AGS4.AGS4_to_dataframe() function
+        Pandas DataFrame from 'AGS4.AGS4_to_dataframe()' function
 
     Returns
     -------
-    A Pandas DataFrame with numerical columns to converted from
-    text to numeric datatypes, the TYPE and UNIT rows (i.e. rows 1 and 2)
-    removed, and the index reset.
-
-    e.g.
-    >>from python_ags4 import AGS4
-    >>
-    >>data, headings = AGS4.AGS4_to_dataframe(filepath)
-    >>
-    >>LNMC = AGS4.convert_to_numeric(data['LNMC'])
+    Pandas DataFrame
+        Dataframe with numerical columns converted from text to numeric
+        datatypes, the TYPE and UNIT rows (i.e. rows 1 and 2) removed, and the
+        index reset.
     """
 
     from pandas import to_numeric
@@ -451,7 +460,7 @@ def convert_to_numeric(dataframe):
     # original data
     df = dataframe.copy()
 
-    # Convert to appropriate columns to numeric
+    # Convert appropriate columns to numeric
     numeric_df = df.loc[:, df.iloc[1].str.contains('DP|MC|SF|SCI')].apply(to_numeric, errors='coerce')
 
     # Replace columns in input dataframe with numeric columns
@@ -464,14 +473,18 @@ def convert_to_numeric(dataframe):
 
 
 def convert_to_text(dataframe, dictionary=None):
-    """Convert AGS4 DataFrame with numeric columns back to formatted text ready for exporting
-    back to a csv file.
+    """Convert AGS4 DataFrame with numeric columns back to formatted text.
+
+    This is necessary when exporting a dataframe back to an AGS4 file since
+    columns of datatype 'float' may not get exported with the correct number of
+    decimal places. If UNIT and TYPE rows are missing from the input dataframe,
+    then they can be added by providing a AGS4 dictionary with that information.
 
     Parameters
     ----------
     dataframe : Pandas DataFrame
         Pandas DataFrame with numeric columns. e.g. output from
-        AGS4.convert_to_numeric()
+        'AGS4.convert_to_numeric()' function
     dictionary : str, optional
         Path to AGS4 dictionary file from which to get UNIT and TYPE rows and to
         convert to numeric fields to required precision. The values from the
@@ -482,14 +495,9 @@ def convert_to_text(dataframe, dictionary=None):
     Returns
     -------
     Pandas DataFrame
-
-    e.g.
-    >>from python_ags4 import AGS4
-    >>
-    >>tables, headings = AGS4.AGS4_to_dataframe('Data.ags')
-    >>LOCA_numeric = AGS4.convert_to_numeric(tables['LOCA])
-    >>
-    >>LOCA_text = convert_to_text(LOCA, 'DICT.ags')
+        A Pandas DataFrame with numeric columns converted to text and formatted
+        to the correct precision. UNIT and TYPE rows will be added if that
+        information is provided as an input.
     """
 
     from python_ags4 import check
@@ -586,7 +594,7 @@ def format_numeric_column(dataframe, column_name, TYPE):
     Returns
     -------
     Pandas DataFrame
-        Pandas DataFrame with formatted data.
+        Dataframe with formatted data.
     '''
 
     from rich import print as rprint
@@ -649,7 +657,7 @@ def _format_SF(value, TYPE):
 
 
 def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_headers=True):
-    """This function checks the input AGS4 file for errors.
+    """Validate AGS4 file against AGS4 rules.
 
     Parameters
     ----------
@@ -658,10 +666,10 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
     standard_AGS4_dict : str
         Path to .ags file with standard AGS4 dictionary or version number
         (should be one of '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0').
-    rename_duplicate_headers: bool
+    rename_duplicate_headers: bool, default=True
         Rename duplicate headers if found. Neither AGS4 tables nor Pandas
         dataframes allow duplicate headers, therefore a number will be appended
-        to duplicates to make them unique. (default True)
+        to duplicates to make them unique.
 
     Returns
     -------
@@ -727,7 +735,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
             ags_errors = check.rule_19a(line, i, group=group, ags_errors=ags_errors)
             ags_errors = check.rule_19b_1(line, i, group=group, ags_errors=ags_errors)
 
-    # Import file into Pandas DataFrame to run group checks
+    # Import data into Pandas dataframes to run group checks
     try:
         rprint('[green]  Loading tables...[/green]')
         tables, headings, line_numbers = AGS4_to_dataframe(input_file, get_line_numbers=True, rename_duplicate_headers=rename_duplicate_headers)
@@ -781,7 +789,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         # TRAN_AGS in the TRAN table.
         standard_AGS4_dictionary = check.pick_standard_dictionary(tables=tables, dict_version=standard_AGS4_dictionary)
 
-    # Import standard dictionary into Pandas DataFrames
+    # Import standard dictionary file into Pandas dataframes
     tables_std_dict, _ = AGS4_to_dataframe(standard_AGS4_dictionary)
 
     # Combine standard dictionary with DICT table in input file to create an extended dictionary
@@ -829,4 +837,6 @@ def _is_file_like(obj):
 
 
 class AGS4Error(Exception):
+    """Exception class for AGS4 parsing errors.
+    """
     pass
