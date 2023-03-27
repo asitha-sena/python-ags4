@@ -17,13 +17,13 @@ Welcome to python_ags4's documentation!
 
 **python-ags4** is a library of functions that:
 
-- imports/reads `AGS4<http://www.agsdataformat.com/datatransferv4/intro.php>`_ files to a collection of `Pandas DataFrames<https://pandas.pydata.org/>`_. 
+- imports/reads AGS4_ files to a collection of Pandas DataFrames_. 
 - data can be analyzed, manipulated, and updated using Pandas 
 - and then exported/written back to an AGS4 file
 
-Release available at `pypi.org/project/python-ags4/<https://pypi.org/project/python-ags4>`_
+Release available at https://pypi.org/project/python-ags4
 
-This project is maintained by the `AGS Data Format Working Group<https://gitlab.com/ags-data-format-wg>`_ 
+This project is maintained by the AGS Data Format Working Group_ 
 
 .. toctree::
    :maxdepth: 2
@@ -32,6 +32,10 @@ This project is maintained by the `AGS Data Format Working Group<https://gitlab.
    python_ags4
 
 * LICENSE: `GNU LGPLv3 <https://www.gnu.org/licenses/lgpl-3.0.html>`_
+
+.. _AGS4: http://www.agsdataformat.com/datatransferv4/intro.php
+.. _DataFrames: https://pandas.pydata.org/
+.. _Group: https://gitlab.com/ags-data-format-wg
 
 Indices and tables
 ==================
