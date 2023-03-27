@@ -208,23 +208,24 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=Fal
         data, headings, line_numbers = AGS4_to_dict(filepath_or_buffer, encoding=encoding, get_line_numbers=get_line_numbers,
                                                     rename_duplicate_headers=rename_duplicate_headers)
 
-        # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
-        df = {}
+        # Convert dictionary of dictionaries to a dictionary of Pandas
+        # dataframes
+        tables = {}
         for key in data:
-            df[key] = DataFrame(data[key])
+            tables[key] = DataFrame(data[key])
 
-        return df, headings, line_numbers
+        return tables, headings, line_numbers
 
     # Otherwise only the data and the headings are returned
     data, headings = AGS4_to_dict(filepath_or_buffer, encoding=encoding,
                                   rename_duplicate_headers=rename_duplicate_headers)
 
     # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
-    df = {}
+    tables = {}
     for key in data:
-        df[key] = DataFrame(data[key])
+        tables[key] = DataFrame(data[key])
 
-    return df, headings
+    return tables, headings
 
 
 def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_headers=True, sort_tables=False):
@@ -271,7 +272,7 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
 
     # Exit if there is no AGS4 tables in the input file
     if len(list_of_tables) == 0:
-        rprint(f'[red]  ERROR: No valid AGS4 data found in input file.[/red]')
+        rprint('[red]  ERROR: No valid AGS4 data found in input file.[/red]')
         raise AGS4Error('No valid AGS4 data found in input file.')
 
     # Write to Excel file
@@ -298,13 +299,13 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
 
 # Write functions #
 
-def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding='utf-8', warnings=True):
+def dataframe_to_AGS4(tables, headings, filepath, mode='w', index=False, encoding='utf-8', warnings=True):
     """Write a dictionary of Pandas dataframes that have been extracted using
     'AGS4_to_dataframe()' function back to an AGS4 file.
 
     Parameters
     ----------
-    data : dict of dataframes
+    tables : dict of dataframes
         Dictionary of Pandas dataframes (output from 'AGS4_to_dataframe()')
     headings : dict of lists
         Dictionary of lists containing AGS4 headings in the correct order (e.g.
@@ -332,9 +333,9 @@ def dataframe_to_AGS4(data, headings, filepath, mode='w', index=False, encoding=
 
     # Open file and write/append data
     with open(filepath, mode, newline='', encoding=encoding) as f:
-        for key in data:
+        for key in tables:
             # First make copy of table to avoid unexpected side-effects
-            df = data[key].copy()
+            df = tables[key].copy()
 
             # Take care of an edge case where quoted text is present in a field.
             # The to_csv function automatically adds an extra pair of quotes
@@ -427,7 +428,7 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
 
     # Export dictionary of DataFrames to AGS4 file
     if len(valid_tables) == 0:
-        rprint(f'[red]  ERROR: No valid AGS4 data found in input file. Please see warning messages above.[/red]')
+        rprint('[red]  ERROR: No valid AGS4 data found in input file. Please see warning messages above.[/red]')
     else:
         dataframe_to_AGS4({key: tables[key] for key in valid_tables}, {}, output_file, warnings=False)
 
@@ -755,7 +756,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
 
         # Add warning to error log
         msg = 'This file seems to be encoded with a byte-order-mark (BOM). It is highly recommended that the '\
-              'file be saved without BOM encoding to avoid issues with other sofware.'
+              'file be saved without BOM encoding to avoid issues with other software.'
         ags_errors = check.add_error_msg(ags_errors, 'General', '', '', msg)
 
     except Exception:
