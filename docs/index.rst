@@ -15,7 +15,7 @@ Welcome to python_ags4's documentation!
 .. image:: https://gitlab.com/ags-data-format-wg/ags-python-library/badges/main/pipeline.svg?ignore_skipped=true&key_text=Tests
    :target: https://gitlab.com/ags-data-format-wg/ags-python-library
 
-**python_ags4** is a library functions to read, write, and check AGS4 files using Pandas DataFrames.
+**python_ags4** is a library of functions to read, write, and check AGS4 files using Pandas DataFrames.
 
 .. toctree::
    :maxdepth: 2

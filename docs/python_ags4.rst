@@ -1,5 +1,5 @@
-python\_ags4 package
-====================
+python\_ags4 packages
+=====================
 
 python\_ags4.AGS4 module
 ------------------------
