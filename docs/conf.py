@@ -43,7 +43,7 @@ napoleon_type_aliases = None
 napoleon_attr_annotations = True
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'paper.md']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'joss_paper/paper.md']
 source_suffix = {'.rst': 'restructuredtext',
                  '.md': 'markdown'}
 
