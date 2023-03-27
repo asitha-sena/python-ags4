@@ -17,13 +17,13 @@ Welcome to python_ags4's documentation!
 
 **python-ags4** is a library of functions that:
 
-- imports/reads AGS4_ files to a collection of Pandas DataFrames_. 
+- imports/reads AGS4_ files to a collection of `Pandas DataFrames`_. 
 - data can be analyzed, manipulated, and updated using Pandas 
 - and then exported/written back to an AGS4 file
 
 Release available at https://pypi.org/project/python-ags4
 
-This project is maintained by the AGS Data Format Working Group_ 
+This project is maintained by the `AGS Data Format Working Group`_ 
 
 .. toctree::
    :maxdepth: 2
