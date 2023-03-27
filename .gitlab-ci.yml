@@ -7,7 +7,7 @@ stages:
   stage: test
   parallel:
     matrix:
-      - PYTHON_VERSION: ["3.7", "3.8", "3.9", "3.10"]
+      - PYTHON_VERSION: ["3.7", "3.8", "3.9", "3.10", "3.11"]
   script:
     - python -m pip install .
     - python -m pip install pytest nbval
@@ -15,7 +15,7 @@ stages:
     - python -m pytest -v --ignore=tests/test_batch.py
     - python -m doctest README.md
     - python -m pip install striplog
-    - python -m pytest -v --nbval examples/Plot_locations_and_create_strip_log.ipynb
+    - python -m pytest -v --nbval notebooks/Plot_locations_and_create_strip_log.ipynb
 
 build-linux:
   extends: .test
