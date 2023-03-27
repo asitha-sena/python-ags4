@@ -15,7 +15,15 @@ Welcome to python_ags4's documentation!
 .. image:: https://gitlab.com/ags-data-format-wg/ags-python-library/badges/main/pipeline.svg?ignore_skipped=true&key_text=Tests
    :target: https://gitlab.com/ags-data-format-wg/ags-python-library
 
-**python_ags4** is a library of functions to read, write, and check AGS4 files using Pandas DataFrames.
+**python-ags4** is a library of functions that:
+
+- imports/reads `AGS4<http://www.agsdataformat.com/datatransferv4/intro.php>`_ files to a collection of `Pandas DataFrames<https://pandas.pydata.org/>`_. 
+- data can be analyzed, manipulated, and updated using Pandas 
+- and then exported/written back to an AGS4 file
+
+Release available at `pypi.org/project/python-ags4/<https://pypi.org/project/python-ags4>`_
+
+This project is maintained by the `AGS Data Format Working Group<https://gitlab.com/ags-data-format-wg>`_ 
 
 .. toctree::
    :maxdepth: 2
