@@ -89,7 +89,7 @@ Tables converted to numeric using the ```AGS4.convert_to_numeric()``` function s
 
 We have created an example Juypter Notebook which imports an AGS file, plots boreholes on a map and creates a Striplog.  
 
-[See here](./examples/Plot_locations_and_create_strip_log.ipynb)
+[See here](./notebooks/Plot_locations_and_create_strip_log.ipynb)
 
 ### Command Line Interface 
 
