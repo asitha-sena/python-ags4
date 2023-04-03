@@ -1024,20 +1024,32 @@ def rule_15(tables, headings, line_numbers, ags_errors={}):
         UNIT = tables['UNIT'].copy()
 
         unit_list = []
+        unit_location = {}
 
         for group in tables:
             # First make copy of group to avoid potential changes and side-effects
             df = tables[group].copy().filter(regex=r'[^line_number]')
 
+            # Get units specifiend in UNIT row
             unit_list += df.loc[df['HEADING'] == 'UNIT', :].values.flatten().tolist()
+
+            for item in [x for x in df.loc[df['HEADING'] == 'UNIT', :].values.flatten().tolist() if x not in unit_location]:
+                unit_location[item] = f'UNIT row in {group} table'
+
+            # Get units specified in "PU" columns
+            for col in df:
+                if 'PU' in df.loc[df['HEADING'].eq('TYPE'), col].tolist():
+                    unit_list += df.loc[df['HEADING'].eq('DATA'), col].tolist()
+
+                    for item in [x for x in df.loc[df['HEADING'].eq('DATA'), col].tolist() if x not in unit_location]:
+                        unit_location[item] = f'{col} column in {group} table'
 
         try:
             # Check whether entries in the type_list are defined in the UNIT table
             for entry in set(unit_list):
                 if entry not in UNIT.loc[UNIT['HEADING'] == 'DATA', 'UNIT_UNIT'].to_list() and entry not in ['', 'UNIT']:
-                    # Returns the line number of the UNIT group, not the line number of the missing unit
-                    line_number = line_numbers['UNIT']['GROUP']
-                    add_error_msg(ags_errors, 'AGS Format Rule 15', line_number, 'UNIT', f'Unit "{entry}" not found in UNIT table.')
+                    msg = f'Unit "{entry}" not found in UNIT table. (This unit first appears in {unit_location[entry]})'
+                    add_error_msg(ags_errors, 'AGS Format Rule 15', '-', 'UNIT', msg)
 
         except KeyError:
             # TYPE_TYPE column missing. AGS Format Rule 10a and 10b should catch this error

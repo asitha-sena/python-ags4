@@ -390,9 +390,18 @@ def test_rule_15_2():
     error_list = AGS4.check_file('tests/test_files/4.1-rule15-2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
     assert 'AGS Format Rule 15' in error_list.keys()
-    assert error_list['AGS Format Rule 15'][0]['line'] == 47
+    assert error_list['AGS Format Rule 15'][0]['line'] == '-'
     assert error_list['AGS Format Rule 15'][0]['group'] == 'UNIT'
-    assert error_list['AGS Format Rule 15'][0]['desc'] == 'Unit "%" not found in UNIT table.'
+    assert error_list['AGS Format Rule 15'][0]['desc'] == 'Unit "%" not found in UNIT table. (This unit first appears in UNIT row in LLPL table)'
+
+
+def test_rule_15_3():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule15-3.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule 15' in error_list.keys()
+    assert error_list['AGS Format Rule 15'][0]['line'] == '-'
+    assert error_list['AGS Format Rule 15'][0]['group'] == 'UNIT'
+    assert error_list['AGS Format Rule 15'][0]['desc'] == 'Unit "mg/l" not found in UNIT table. (This unit first appears in ELRG_RUNI column in ELRG table)'
 
 
 def test_rule_16_1():
