@@ -19,6 +19,18 @@
 # https://gitlab.com/ags-data-format-wg/ags-python-library
 
 
+# Filenames corresponding to dictionary versions
+STANDARD_DICT_FILES = {'4.0':     'Standard_dictionary_v4_0_3.ags',
+                       '4.0.3':   'Standard_dictionary_v4_0_3.ags',
+                       '4.0.4':   'Standard_dictionary_v4_0_4.ags',
+                       '4.1':     'Standard_dictionary_v4_1.ags',
+                       '4.1.1':   'Standard_dictionary_v4_1_1.ags'
+                       }
+
+# Dictionary version to use if valid version not provided or found in TRAN table
+LATEST_DICT_VERSION = '4.1.1'
+
+
 # Helper functions
 
 def add_error_msg(ags_errors, rule, line, group, desc):
@@ -180,37 +192,32 @@ def pick_standard_dictionary(tables=None, dict_version=None):
 
     # Select standard dictionary based on TRAN_AGS
     try:
-        if dict_version not in ['4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
+        if dict_version is None:
             TRAN = tables['TRAN']
             dict_version = TRAN.loc[TRAN.HEADING.eq('DATA'), 'TRAN_AGS'].values[0]
 
-        if dict_version == '4.0.3':
-            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_0_3.ags')
-        elif dict_version.startswith('4.0'):
-            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_0_4.ags')
-        elif dict_version == '4.1':
-            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1.ags')
-        elif dict_version == '4.1.1':
-            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1_1.ags')
+        if dict_version in STANDARD_DICT_FILES.keys():
+            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[dict_version])
+
         else:
             rprint('[yellow]  WARNING: Standard dictionary for AGS4 version specified in TRAN_AGS not available.[/yellow]')
-            rprint('[yellow]           Defaulting to standard dictionary v4.1.1.[/yellow]')
-            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1_1.ags')
+            rprint(f'[yellow]           Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
+            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
 
     except KeyError:
         # TRAN table not in file
-        rprint('[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v4.1.1.[/yellow]')
-        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1_1.ags')
+        rprint(f'[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
+        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
 
     except IndexError:
         # No DATA rows in TRAN table
-        rprint('[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v4.1.1.[/yellow]')
-        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1_1.ags')
+        rprint(f'[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
+        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
 
     except TypeError:
         # TRAN table not found and dict_version not valid
-        rprint('[yellow]  WARNING: Neither TRAN_AGS nor dict_version is valid. Defaulting to standard dictionary v4.1.1.[/yellow]')
-        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', 'Standard_dictionary_v4_1_1.ags')
+        rprint(f'[yellow]  WARNING: Neither TRAN_AGS nor dict_version is valid. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
+        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
 
     return path_to_standard_dictionary
 
