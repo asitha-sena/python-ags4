@@ -808,6 +808,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
     ags_errors = check.rule_14(tables, headings, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_15(tables, headings, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_20(tables, headings, input_file, ags_errors=ags_errors)
+    ags_errors = check.is_TRAN_AGS_valid(tables, headings, line_numbers, ags_errors=ags_errors)
 
     # Dictionary Based Checks
 

@@ -1294,6 +1294,32 @@ def rule_20(tables, headings, filepath, ags_errors={}):
     return ags_errors
 
 
+# Other errors and warnings
+
+def is_TRAN_AGS_valid(tables, headings, line_numbers, ags_errors={}):
+    """Check whether TRAN_AGS is valid."""
+
+    try:
+        TRAN = tables['TRAN']
+        dict_version = TRAN.loc[TRAN.HEADING.eq('DATA'), 'TRAN_AGS'].values[0]
+
+        if dict_version not in STANDARD_DICT_FILES.keys():
+            line_number = TRAN.loc[TRAN.HEADING.eq('DATA'), 'line_number'].values[0]
+            msg = f"'{dict_version}' in TRAN_AGS is not a recognized AGS4 version. Therefore, v{LATEST_DICT_VERSION}"\
+                  f" of the standard dictionary will be used for validation if a different version is not explictly specified."
+            add_error_msg(ags_errors, 'Warnings', line_number, 'TRAN', msg)
+
+    except KeyError:
+        # TRAN table missing. AGS Format Rule 14 should catch this error.
+        pass
+
+    except IndexError:
+        # No DATA rows in TRAN table. AGS Format Rule 14 should catch this error.
+        pass
+
+    return ags_errors
+
+
 def is_ags3(tables, input_file, ags_errors={}):
     """Check if file is likely to be in AGS3 format and issue warning.
     """

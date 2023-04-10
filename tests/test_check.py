@@ -603,3 +603,9 @@ def test_file_with_BOM():
 
     assert msg1 in error_list['General'][0]['desc']
     assert msg2 in error_list['AGS Format Rule 1'][0]['desc']
+
+
+def test_file_with_invalid_TRAN_AGS():
+    error_list = AGS4.check_file('tests/test_files/Invalid_TRAN_AGS.ags')
+
+    assert 'TRAN_AGS is not a recognized AGS4 version' not in error_list['Warnings'][0]
