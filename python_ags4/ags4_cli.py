@@ -23,6 +23,9 @@
 
 import os
 import sys
+import logging
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 import click
 from rich.console import Console
@@ -51,7 +54,9 @@ def main():
               help="Rename duplicate headers when converting to Excel (default True)")
 @click.option('-s', '--sort_tables', type=click.BOOL, default=False,
               help="Alphabetically sort worksheets Excel file. (WARNING: Original table/group order will be lost) (default False)")
-def convert(input_file, output_file, format_columns, dictionary, rename_duplicate_headers, sort_tables):
+@click.option('-l', '--log_messages', is_flag=True,
+              help='Log all messages to python_ags4.log file (default False)')
+def convert(input_file, output_file, format_columns, dictionary, rename_duplicate_headers, sort_tables, log_messages):
     '''Convert .ags file to .xlsx file or vice versa.
 
     INPUT_FILE   Path to input file. The file should be either .ags or .xlsx
@@ -68,6 +73,13 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
         0 - Conversion succeeded
         1 - Conversion failed
     '''
+
+    # Log messages if specified
+    if log_messages is True:
+        logging.basicConfig(format='{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
+                            style='{', datefmt='%Y-%m-%dT%H:%M:%S%z',
+                            level=logging.DEBUG,
+                            handlers=[RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log', maxBytes=100e3, backupCount=1)])
 
     try:
         if input_file.endswith('.ags') & output_file.endswith('.xlsx'):
@@ -97,7 +109,8 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
 
         elif (input_file.endswith('.ags') & output_file.endswith('.ags')) | (input_file.endswith('.xlsx') & output_file.endswith('.xlsx')):
             file_type = input_file.split('.')[-1]
-            console.print(f'[yellow]Both input and output files are of the same type (i.e. [bold].{file_type}[/bold]). No conversion necessary.[/yellow]')
+            console.print(f'[yellow]Both input and output files are of the same type (i.e. [bold].{file_type}[/bold]). '
+                          'No conversion necessary.[/yellow]')
 
         elif input_file.endswith('.ags'):
             console.print('[red]Please provide an output file with a [bold].xlsx[/bold] extension.[/red]')
@@ -138,7 +151,9 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
               type=click.Choice(['4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']),
               help='Version of standard dictionary to use. (Warning: Overrides version specified in TRAN_AGS '
                    'and custom dictionary specifed by --dictionary_path)')
-def check(input_file, output_file, dictionary_path, dictionary_version):
+@click.option('-l', '--log_messages', is_flag=True,
+              help='Log all messages to python_ags4.log file (default False)')
+def check(input_file, output_file, dictionary_path, dictionary_version, log_messages):
     '''Check .ags file for errors according to AGS4 rules.
 
     INPUT_FILE   Path to .ags file to be checked
@@ -147,6 +162,13 @@ def check(input_file, output_file, dictionary_path, dictionary_version):
         0 - All checks passed
         1 - Errors found or file read error
     '''
+
+    # Log messages if specified
+    if log_messages is True:
+        logging.basicConfig(format='{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
+                            style='{', datefmt='%Y-%m-%dT%H:%M:%S%z',
+                            level=logging.DEBUG,
+                            handlers=[RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log', maxBytes=100e3, backupCount=1)])
 
     if input_file.lower().endswith('.ags'):
         console.print(f'[green]Running [bold]python_ags4 v{__version__}[/bold][/green]')
