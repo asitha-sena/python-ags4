@@ -36,7 +36,7 @@ pip install python-ags4
 
 >>>
 **Note**
-Installation requires Python 3.7 or later.
+Installation requires Python 3.8 or later.
 >>>
 
 ### Code Examples
