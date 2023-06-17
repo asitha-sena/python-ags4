@@ -631,3 +631,9 @@ def test_file_with_invalid_TRAN_AGS():
     error_list = AGS4.check_file('tests/test_files/Invalid_TRAN_AGS.ags')
 
     assert 'TRAN_AGS is not a recognized AGS4 version' not in error_list['Warnings'][0]
+
+
+def test_file_with_standalone_SAMP_IDs():
+    error_list = AGS4.check_file('tests/test_files/Standalone_SAMP_IDs.ags')
+
+    assert not bool([x for x in error_list if 'Rule' in x])
