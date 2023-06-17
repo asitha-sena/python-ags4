@@ -768,6 +768,8 @@ def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
     """AGS Format Rule 10b: REQUIRED fields in a GROUP must be present and cannot be empty.
     """
 
+    from pandas import DataFrame, concat
+
     for group in tables:
         # Extract REQUIRED fields from dictionary
         mask = (dictionary.DICT_GRP == group) & (dictionary.DICT_STAT.str.contains('required', case=False))
@@ -783,22 +785,27 @@ def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
         # First make copy of table so that it can be modified without unexpected side-effects
         df = tables[group].copy()
 
+        # Temporary dataframe to keep track of rows with missing required fields in group
+        df_missing_required_fields = DataFrame()
+
         for heading in set(required_fields).intersection(set(headings[group])):
 
             # Regex ^\s*$ should catch empty entries as well as entries that contain only whitespace
             mask = (df['HEADING'] == 'DATA') & df[heading].str.contains(r'^\s*$', regex=True)
 
-            # Replace missing/blank entries with '???' so that they can be clearly seen in the output
-            df[heading] = df[heading].str.replace(r'^\s*$', '???', regex=True)
-            missing_required_fields = df.loc[mask, :]
+            # Replace missing/blank entries with '??HEADING??' so that they can be clearly seen in the output
+            df[heading] = df[heading].str.replace(r'^\s*$', f'??{heading}??', regex=True)
 
-            # Add each row with missing entries to the error log
-            for row in missing_required_fields.to_dict('records'):
-                msg = '|'.join([row[x] for x in row if x not in ['line_number']])
-                line_number = int(row['line_number'])
-                # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
-                # that Pandas returns by default
-                add_error_msg(ags_errors, 'AGS Format Rule 10b', line_number, group, f'Empty REQUIRED fields: {msg}')
+            # Append row(s) to temporary dataframe (duplicate rows will be dropped later)
+            df_missing_required_fields = concat([df_missing_required_fields, df.loc[mask, :]])
+
+        # Add each row with missing entries to the error log
+        for row in df_missing_required_fields.drop_duplicates('line_number', keep='last').to_dict('records'):
+            msg = '|'.join([row[x] for x in row if x not in ['line_number']])
+            line_number = int(row['line_number'])
+            # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+            # that Pandas returns by default
+            add_error_msg(ags_errors, 'AGS Format Rule 10b', line_number, group, f'Empty REQUIRED fields: {msg}')
 
     return ags_errors
 

@@ -290,6 +290,19 @@ def test_rule_10_8():
     assert error_list['AGS Format Rule 10c'][1]['desc'] == 'TEST_A defined as key field(s) in the parent group (TEST) but not in the child group. Please check DICT group.'
 
 
+def test_rule_10_9():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule10-9.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule 10b' in error_list.keys()
+    assert error_list['AGS Format Rule 10b'][0]['line'] == 23
+    assert error_list['AGS Format Rule 10b'][0]['group'] == 'ABBR'
+    assert error_list['AGS Format Rule 10b'][0]['desc'] == 'Empty REQUIRED fields: DATA|SAMP_TYPE|??ABBR_CODE??|Small disturbed sample|||'
+
+    assert error_list['AGS Format Rule 10b'][2]['line'] == 40
+    assert error_list['AGS Format Rule 10b'][2]['group'] == 'TYPE'
+    assert error_list['AGS Format Rule 10b'][2]['desc'] == 'Empty REQUIRED fields: DATA|X|??TYPE_DESC??|'
+
+
 def test_rule_11_1():
     error_list = AGS4.check_file('tests/test_files/4.1-rule11-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
