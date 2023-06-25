@@ -358,30 +358,48 @@ def dataframe_to_AGS4(tables, headings, filepath, mode='w', index=False, encodin
                 mask = df[col].str.contains('""', na=False)
                 df.loc[mask, :] = df.loc[mask, :].apply(lambda x: x.str.replace('""', '"'))
 
-            try:
-                columns = headings[key]
+            # Write table to file
+            rprint(f'[green]Writing data from... [bold]{key}[/bold][green]')
+            logger.info(f'Writing data from... {key}')
+            f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
 
-                rprint(f'[green]Writing data from... [bold]{key}[/bold][green]')
-                logger.info(f'Writing data from... {key}')
-                f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
+            if key not in headings:
+                if warnings is True:
+                    rprint(f"[yellow]  WARNING: Input 'headings' dictionary does not have an entry named [bold]{key}[/bold].[/yellow]")
+                    rprint(f"[italic yellow]           All columns in the {key} table will be exported in the default order.[/italic yellow]")
+                    rprint("[italic yellow]           Please check column order and ensure AGS4 Rule 7 is still satisfied.[/italic yellow]")
+
+                logger.warning(f"Input 'headings' dictionary does not have an entry named {key}. "
+                               "All columns in the {key} table will be exported in the default order. "
+                               "Please check column order and ensure AGS4 Rule 7 is still satisfied.")
+
+                df.to_csv(f, index=index, quoting=1, line_terminator='\r\n', encoding=encoding)
+                f.write("\r\n")
+
+            elif set(headings[key]).difference(set(df.columns)):
+                # Take care of another edge case where all column names defined
+                # in the headings list may not be in the corresponding table due
+                # to modifications by the user. Therefore, use a modified
+                # headings list to export the remaining columns in the specified
+                # order.
+                # https://gitlab.com/ags-data-format-wg/ags-python-library/-/issues/69
+
+                missing_cols = set(headings[key]).difference(set(df.columns))
+                columns = [x for x in headings[key] if x not in missing_cols]
+
+                if warnings is True:
+                    rprint(f"[yellow]  WARNING: Columns {', '.join(missing_cols)} not found in the {key} table"
+                           " although they are in the headings dictionary..[/yellow]")
+
+                logger.warning(f"Columns {', '.join(missing_cols)} not found in the {key} table although they are in the headings dictionary.")
+
                 df.to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
                 f.write("\r\n")
 
-            except KeyError:
+            else:
+                columns = headings[key]
 
-                rprint(f'[green]Writing data from... [bold]{key}[/bold][green]')
-                logger.info(f'Writing data from... {key}')
-
-                if warnings is True:
-                    rprint(f"[yellow]  WARNING: Input 'headings' dictionary does not have a entry named [bold]{key}[/bold].[/yellow]")
-                    rprint(f"[italic yellow]           All columns in the {key} table will be exported in the default order.[/italic yellow]")
-                    rprint("[italic yellow]           Please check column order and ensure AGS4 Rule 7 is still satisfied.[/italic yellow]")
-                    logger.warning(f"Input 'headings' dictionary does not have a entry named {key}. "
-                                 "All columns in the {key} table will be exported in the default order. "
-                                 "Please check column order and ensure AGS4 Rule 7 is still satisfied.")
-
-                f.write('"GROUP"'+","+'"'+key+'"'+'\r\n')
-                df.to_csv(f, index=index, quoting=1, line_terminator='\r\n', encoding=encoding)
+                df.to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
                 f.write("\r\n")
 
 

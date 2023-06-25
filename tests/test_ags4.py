@@ -109,6 +109,21 @@ def test_dataframe_to_AGS4():
     assert tables['LOCA'].equals(new_tables['LOCA'])
 
 
+def test_dataframe_to_AGS4_with_modified_table():
+    tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
+
+    # Drop some columns from LOCA table
+    tables['LOCA'] = tables['LOCA'].drop(columns=["LOCA_TYPE", "LOCA_NATE", "LOCA_NATN", "LOCA_REM"])
+
+    # Export modified data
+    AGS4.dataframe_to_AGS4(tables, headings, 'tests/test.out')
+
+    # Reimport and verify that data was exported correctly
+    new_tables, new_headings = AGS4.AGS4_to_dataframe('tests/test.out')
+
+    assert tables['LOCA'].equals(new_tables['LOCA'])
+
+
 def test_convert_to_text(LOCA=LOCA, LLPL=LLPL):
     tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
     LOCA_num = AGS4.convert_to_numeric(tables['LOCA'])
