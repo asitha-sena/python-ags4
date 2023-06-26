@@ -20,7 +20,7 @@
 
 import logging
 
-_log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # Filenames corresponding to dictionary versions
@@ -107,13 +107,13 @@ def combine_DICT_tables(*ags_tables):
         except KeyError:
             # KeyError if there is no DICT table in an input file
             rprint('[yellow]  WARNING: DICT table not found in input file.[/yellow]')
-            _log.warning('DICT table not found in input file.')
+            logger.warning('DICT table not found in input file.')
 
     # Check whether master_DICT is empty
     if master_DICT.shape[0] == 0:
         rprint('[red]  ERROR: No DICT tables available to proceed with checking.[/red]')
         rprint('[red]         Please ensure the input file has a DICT table or provide file with standard AGS4 dictionary.[/red]')
-        _log.error('No DICT tables available to proceed with checking. '
+        logger.error('No DICT tables available to proceed with checking. '
                    'Please ensure the input file has a DICT table or provide file with standard AGS4 dictionary.')
         raise AGS4Error("No DICT tables available to proceed with checking. "
                         "Please ensure the input file has a DICT table or provide file with standard AGS4 dictionary.")
@@ -209,26 +209,26 @@ def pick_standard_dictionary(tables=None, dict_version=None):
         else:
             rprint('[yellow]  WARNING: Standard dictionary for AGS4 version specified in TRAN_AGS not available.[/yellow]')
             rprint(f'[yellow]           Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
-            _log.warning('Standard dictionary for AGS4 version specified in TRAN_AGS not available. '
+            logger.warning('Standard dictionary for AGS4 version specified in TRAN_AGS not available. '
                          f'Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
             path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
 
     except KeyError:
         # TRAN table not in file
         rprint(f'[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
-        _log.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
+        logger.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
         path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
 
     except IndexError:
         # No DATA rows in TRAN table
         rprint(f'[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
-        _log.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
+        logger.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
         path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
 
     except TypeError:
         # TRAN table not found and dict_version not valid
         rprint(f'[yellow]  WARNING: Neither TRAN_AGS nor dict_version is valid. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
-        _log.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
+        logger.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
         path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
 
     return path_to_standard_dictionary
@@ -768,6 +768,8 @@ def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
     """AGS Format Rule 10b: REQUIRED fields in a GROUP must be present and cannot be empty.
     """
 
+    from pandas import DataFrame, concat
+
     for group in tables:
         # Extract REQUIRED fields from dictionary
         mask = (dictionary.DICT_GRP == group) & (dictionary.DICT_STAT.str.contains('required', case=False))
@@ -783,22 +785,27 @@ def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
         # First make copy of table so that it can be modified without unexpected side-effects
         df = tables[group].copy()
 
+        # Temporary dataframe to keep track of rows with missing required fields in group
+        df_missing_required_fields = DataFrame()
+
         for heading in set(required_fields).intersection(set(headings[group])):
 
             # Regex ^\s*$ should catch empty entries as well as entries that contain only whitespace
             mask = (df['HEADING'] == 'DATA') & df[heading].str.contains(r'^\s*$', regex=True)
 
-            # Replace missing/blank entries with '???' so that they can be clearly seen in the output
-            df[heading] = df[heading].str.replace(r'^\s*$', '???', regex=True)
-            missing_required_fields = df.loc[mask, :]
+            # Replace missing/blank entries with '??HEADING??' so that they can be clearly seen in the output
+            df[heading] = df[heading].str.replace(r'^\s*$', f'??{heading}??', regex=True)
 
-            # Add each row with missing entries to the error log
-            for row in missing_required_fields.to_dict('records'):
-                msg = '|'.join([row[x] for x in row if x not in ['line_number']])
-                line_number = int(row['line_number'])
-                # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
-                # that Pandas returns by default
-                add_error_msg(ags_errors, 'AGS Format Rule 10b', line_number, group, f'Empty REQUIRED fields: {msg}')
+            # Append row(s) to temporary dataframe (duplicate rows will be dropped later)
+            df_missing_required_fields = concat([df_missing_required_fields, df.loc[mask, :]])
+
+        # Add each row with missing entries to the error log
+        for row in df_missing_required_fields.drop_duplicates('line_number', keep='last').to_dict('records'):
+            msg = '|'.join([row[x] for x in row if x not in ['line_number']])
+            line_number = int(row['line_number'])
+            # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+            # that Pandas returns by default
+            add_error_msg(ags_errors, 'AGS Format Rule 10b', line_number, group, f'Empty REQUIRED fields: {msg}')
 
     return ags_errors
 
@@ -1017,20 +1024,32 @@ def rule_15(tables, headings, line_numbers, ags_errors={}):
         UNIT = tables['UNIT'].copy()
 
         unit_list = []
+        unit_location = {}
 
         for group in tables:
             # First make copy of group to avoid potential changes and side-effects
             df = tables[group].copy().filter(regex=r'[^line_number]')
 
+            # Get units specifiend in UNIT row
             unit_list += df.loc[df['HEADING'] == 'UNIT', :].values.flatten().tolist()
+
+            for item in [x for x in df.loc[df['HEADING'] == 'UNIT', :].values.flatten().tolist() if x not in unit_location]:
+                unit_location[item] = f'UNIT row in {group} table'
+
+            # Get units specified in "PU" columns
+            for col in df:
+                if 'PU' in df.loc[df['HEADING'].eq('TYPE'), col].tolist():
+                    unit_list += df.loc[df['HEADING'].eq('DATA'), col].tolist()
+
+                    for item in [x for x in df.loc[df['HEADING'].eq('DATA'), col].tolist() if x not in unit_location]:
+                        unit_location[item] = f'{col} column in {group} table'
 
         try:
             # Check whether entries in the type_list are defined in the UNIT table
             for entry in set(unit_list):
                 if entry not in UNIT.loc[UNIT['HEADING'] == 'DATA', 'UNIT_UNIT'].to_list() and entry not in ['', 'UNIT']:
-                    # Returns the line number of the UNIT group, not the line number of the missing unit
-                    line_number = line_numbers['UNIT']['GROUP']
-                    add_error_msg(ags_errors, 'AGS Format Rule 15', line_number, 'UNIT', f'Unit "{entry}" not found in UNIT table.')
+                    msg = f'Unit "{entry}" not found in UNIT table. (This unit first appears in {unit_location[entry]})'
+                    add_error_msg(ags_errors, 'AGS Format Rule 15', '-', 'UNIT', msg)
 
         except KeyError:
             # TYPE_TYPE column missing. AGS Format Rule 10a and 10b should catch this error
@@ -1106,6 +1125,35 @@ def rule_16(tables, headings, dictionary, ags_errors={}):
                     # Break out of function as soon as first column of data type PA is found to
                     # avoid duplicate error entries
                     return ags_errors
+
+    return ags_errors
+
+
+def rule_16_1(tables, headings, standard_ABBR, ags_errors={}):
+    '''AGS Format Rule 16: Verify ABBR_DESC for entries already defined in the standard dictionaries are correct.
+    '''
+
+    if 'ABBR' in tables:
+        ABBR = tables['ABBR'].copy()
+
+        if 'ABBR_DESC' in ABBR.columns:
+            # Find ABBR entries that are already defined in the standard dictionary
+            df = ABBR.merge(standard_ABBR.loc[:, ['ABBR_HDNG', 'ABBR_CODE', 'ABBR_DESC']], on=['ABBR_HDNG', 'ABBR_CODE'], how='inner')
+
+            # Check for entries with ABBR_DESC enries that do not match (comparison is case insensitive)
+            df = df.loc[~df.ABBR_DESC_x.str.lower().eq(df.ABBR_DESC_y.str.lower()), :]
+
+            for row in df.to_dict('records'):
+                msg = f'{row["ABBR_HDNG"]}: Description of abbreviation "{row["ABBR_CODE"]}" is "{row["ABBR_DESC_x"]}" '\
+                    f'but it should be "{row["ABBR_DESC_y"]}" according to the standard abbreviations list.'
+                line_number = int(row['line_number'])
+
+                add_error_msg(ags_errors, 'AGS Format Rule 16', line_number, 'ABBR', msg)
+
+            else:
+                # ABBR_DESC field not available to continue with check
+                # rule_16() should catch and report this error
+                pass
 
     return ags_errors
 

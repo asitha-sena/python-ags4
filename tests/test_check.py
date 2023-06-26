@@ -290,6 +290,19 @@ def test_rule_10_8():
     assert error_list['AGS Format Rule 10c'][1]['desc'] == 'TEST_A defined as key field(s) in the parent group (TEST) but not in the child group. Please check DICT group.'
 
 
+def test_rule_10_9():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule10-9.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule 10b' in error_list.keys()
+    assert error_list['AGS Format Rule 10b'][0]['line'] == 23
+    assert error_list['AGS Format Rule 10b'][0]['group'] == 'ABBR'
+    assert error_list['AGS Format Rule 10b'][0]['desc'] == 'Empty REQUIRED fields: DATA|SAMP_TYPE|??ABBR_CODE??|Small disturbed sample|||'
+
+    assert error_list['AGS Format Rule 10b'][2]['line'] == 40
+    assert error_list['AGS Format Rule 10b'][2]['group'] == 'TYPE'
+    assert error_list['AGS Format Rule 10b'][2]['desc'] == 'Empty REQUIRED fields: DATA|X|??TYPE_DESC??|'
+
+
 def test_rule_11_1():
     error_list = AGS4.check_file('tests/test_files/4.1-rule11-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
@@ -377,9 +390,18 @@ def test_rule_15_2():
     error_list = AGS4.check_file('tests/test_files/4.1-rule15-2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
     assert 'AGS Format Rule 15' in error_list.keys()
-    assert error_list['AGS Format Rule 15'][0]['line'] == 47
+    assert error_list['AGS Format Rule 15'][0]['line'] == '-'
     assert error_list['AGS Format Rule 15'][0]['group'] == 'UNIT'
-    assert error_list['AGS Format Rule 15'][0]['desc'] == 'Unit "%" not found in UNIT table.'
+    assert error_list['AGS Format Rule 15'][0]['desc'] == 'Unit "%" not found in UNIT table. (This unit first appears in UNIT row in LLPL table)'
+
+
+def test_rule_15_3():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule15-3.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule 15' in error_list.keys()
+    assert error_list['AGS Format Rule 15'][0]['line'] == '-'
+    assert error_list['AGS Format Rule 15'][0]['group'] == 'UNIT'
+    assert error_list['AGS Format Rule 15'][0]['desc'] == 'Unit "mg/l" not found in UNIT table. (This unit first appears in ELRG_RUNI column in ELRG table)'
 
 
 def test_rule_16_1():
@@ -390,6 +412,18 @@ def test_rule_16_1():
     assert error_list['AGS Format Rule 16'][0]['desc'] == '"U" under SAMP_TYPE in SAMP not found in ABBR table.'
     assert error_list['AGS Format Rule 16'][1]['group'] == 'LLPL'
     assert error_list['AGS Format Rule 16'][1]['desc'] == '"U" under SAMP_TYPE in LLPL not found in ABBR table.'
+
+
+def test_rule_16_2():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule16-2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule 16' in error_list.keys()
+    assert error_list['AGS Format Rule 16'][0]['group'] == 'ABBR'
+    assert error_list['AGS Format Rule 16'][0]['desc'] == 'DICT_TYPE: Description of abbreviation "GROUP" is "Group" but it should be '\
+                                                          '"Flag to indicate definition is a GROUP" according to the standard abbreviations list.'
+    assert error_list['AGS Format Rule 16'][2]['group'] == 'ABBR'
+    assert error_list['AGS Format Rule 16'][2]['desc'] == 'SAMP_TYPE: Description of abbreviation "U" is "Different Description" but it should be '\
+                                                          '"Undisturbed sample - open drive" according to the standard abbreviations list.'
 
 
 def test_rule_16_3():
@@ -609,3 +643,9 @@ def test_file_with_invalid_TRAN_AGS():
     error_list = AGS4.check_file('tests/test_files/Invalid_TRAN_AGS.ags')
 
     assert 'TRAN_AGS is not a recognized AGS4 version' not in error_list['Warnings'][0]
+
+
+def test_file_with_standalone_SAMP_IDs():
+    error_list = AGS4.check_file('tests/test_files/Standalone_SAMP_IDs.ags')
+
+    assert not bool([x for x in error_list if 'Rule' in x])
