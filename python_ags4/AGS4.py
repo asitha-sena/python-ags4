@@ -373,7 +373,7 @@ def dataframe_to_AGS4(tables, headings, filepath, mode='w', index=False, encodin
                                "All columns in the {key} table will be exported in the default order. "
                                "Please check column order and ensure AGS4 Rule 7 is still satisfied.")
 
-                df.to_csv(f, index=index, quoting=1, line_terminator='\r\n', encoding=encoding)
+                df.to_csv(f, index=index, quoting=1, lineterminator='\r\n', encoding=encoding)
                 f.write("\r\n")
 
             elif set(headings[key]).difference(set(df.columns)):
@@ -393,13 +393,13 @@ def dataframe_to_AGS4(tables, headings, filepath, mode='w', index=False, encodin
 
                 logger.warning(f"Columns {', '.join(missing_cols)} not found in the {key} table although they are in the headings dictionary.")
 
-                df.to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
+                df.to_csv(f, index=index, quoting=1, columns=columns, lineterminator='\r\n', encoding=encoding)
                 f.write("\r\n")
 
             else:
                 columns = headings[key]
 
-                df.to_csv(f, index=index, quoting=1, columns=columns, line_terminator='\r\n', encoding=encoding)
+                df.to_csv(f, index=index, quoting=1, columns=columns, lineterminator='\r\n', encoding=encoding)
                 f.write("\r\n")
 
 

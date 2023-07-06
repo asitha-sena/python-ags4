@@ -642,7 +642,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
                 elif data_type == 'DT':
-                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & pd.to_datetime(df[col], errors='coerce', format='%Y-%m-%d').isna()
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & pd.to_datetime(df[col], errors='coerce', format='ISO8601').isna()
 
                     # TODO Does not identify date/time such as 'yyyy-mm-ddThh:mm:ssZ(+hh:mm)' as valid
                     for row in df.loc[mask, :].to_dict('records'):

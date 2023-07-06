@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.4.1.1 (2023-06-13)
+------------------
+
+- Remove support for Python version 3.7
+- Add support for Pandas version 2.0
+
 0.4.1 (2022-09-12)
 ------------------
 
