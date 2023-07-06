@@ -1,11 +1,20 @@
 Changelog
 =========
 
-0.4.1.1 (2023-06-13)
+0.5.0 (Under development)
 ------------------
 
 - Remove support for Python version 3.7
 - Add support for Pandas version 2.0
+- Add functionality to log internal messages
+- Add functionality for FYI and warning messages
+- Improve check for Rule 10b and avoid returning duplicate error messages
+- Improve check for Rule 15 to include units defined in PU columns
+- Improve check for Rule 16 to provide warning if a user-defined abbreviation
+  duplicates an existing standard abbreviation for the same field
+- TODO Update check for Rule 1 to allow extend ASCII characters
+- TODO Reinstate deprecated fields/groups that had been deleted from the v4.1.1
+  standard dictionary
 
 0.4.1 (2022-09-12)
 ------------------
