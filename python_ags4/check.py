@@ -194,7 +194,7 @@ def pick_standard_dictionary(tables=None, dict_version=None):
       File path to standard dictionary
     """
 
-    import pkg_resources
+    from pathlib import Path
     from rich import print as rprint
 
     # Select standard dictionary based on TRAN_AGS
@@ -204,32 +204,32 @@ def pick_standard_dictionary(tables=None, dict_version=None):
             dict_version = TRAN.loc[TRAN.HEADING.eq('DATA'), 'TRAN_AGS'].values[0]
 
         if dict_version in STANDARD_DICT_FILES.keys():
-            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[dict_version])
+            path_to_standard_dictionary = Path(__file__).parent / STANDARD_DICT_FILES[dict_version]
 
         else:
             rprint('[yellow]  WARNING: Standard dictionary for AGS4 version specified in TRAN_AGS not available.[/yellow]')
             rprint(f'[yellow]           Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
             logger.warning('Standard dictionary for AGS4 version specified in TRAN_AGS not available. '
                          f'Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
-            path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
+            path_to_standard_dictionary = Path(__file__).parent / STANDARD_DICT_FILES[LATEST_DICT_VERSION]
 
     except KeyError:
         # TRAN table not in file
         rprint(f'[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
         logger.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
-        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
+        path_to_standard_dictionary = Path(__file__).parent / STANDARD_DICT_FILES[LATEST_DICT_VERSION]
 
     except IndexError:
         # No DATA rows in TRAN table
         rprint(f'[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
         logger.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
-        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
+        path_to_standard_dictionary = Path(__file__).parent / STANDARD_DICT_FILES[LATEST_DICT_VERSION]
 
     except TypeError:
         # TRAN table not found and dict_version not valid
         rprint(f'[yellow]  WARNING: Neither TRAN_AGS nor dict_version is valid. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
         logger.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
-        path_to_standard_dictionary = pkg_resources.resource_filename('python_ags4', STANDARD_DICT_FILES[LATEST_DICT_VERSION])
+        path_to_standard_dictionary = Path(__file__).parent / STANDARD_DICT_FILES[LATEST_DICT_VERSION]
 
     return path_to_standard_dictionary
 
