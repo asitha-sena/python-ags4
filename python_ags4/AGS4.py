@@ -370,7 +370,7 @@ def dataframe_to_AGS4(tables, headings, filepath, mode='w', index=False, encodin
                     rprint("[italic yellow]           Please check column order and ensure AGS4 Rule 7 is still satisfied.[/italic yellow]")
 
                 logger.warning(f"Input 'headings' dictionary does not have an entry named {key}. "
-                               "All columns in the {key} table will be exported in the default order. "
+                               f"All columns in the {key} table will be exported in the default order. "
                                "Please check column order and ensure AGS4 Rule 7 is still satisfied.")
 
                 df.to_csv(f, index=index, quoting=1, lineterminator='\r\n', encoding=encoding)
