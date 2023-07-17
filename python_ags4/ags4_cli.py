@@ -223,7 +223,7 @@ def check(input_file, output_file, dictionary_path, dictionary_version, log_mess
             console.print('\n[yellow]Checking aborted as AGS3 files are not supported![/yellow]')
 
             if output_file is not None:
-                save_to_file(output_file, ags_errors, input_file, error_count)
+                save_to_file(output_file, ags_errors, input_file, error_count, warnings_count, fyi_count)
                 console.print(f'\n[yellow]Error report saved in {output_file}[/yellow]\n')
 
         # Print errors to screen if list is short enough
@@ -236,7 +236,7 @@ def check(input_file, output_file, dictionary_path, dictionary_version, log_mess
                 console.print(f'\n[yellow]{warnings_count} warning(s) and {fyi_count} FYI message(s) returned.[/yellow]')
 
             if output_file is not None:
-                save_to_file(output_file, ags_errors, input_file, error_count)
+                save_to_file(output_file, ags_errors, input_file, error_count, warnings_count, fyi_count)
                 console.print(f'\n[yellow]Error report saved in {output_file}[/yellow]\n')
 
         else:
@@ -251,7 +251,7 @@ def check(input_file, output_file, dictionary_path, dictionary_version, log_mess
                 output_dir = os.path.dirname(input_file)
                 output_file = os.path.join(output_dir, 'error_log.txt')
 
-            save_to_file(output_file, ags_errors, input_file, error_count)
+            save_to_file(output_file, ags_errors, input_file, error_count, warnings_count, fyi_count)
             console.print(f'\n[yellow]Error report saved in {output_file}[/yellow]\n')
 
     else:
