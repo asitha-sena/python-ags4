@@ -278,8 +278,8 @@ def test_checking_without_dictionary_raises_error():
         # Check file without a DICT table
         # The same file is passed as the standard dictionary to
         # force exception to be raised
-        _ = AGS4.check_file('tests/test_files/4.1-rule1.ags',
-                            standard_AGS4_dictionary='tests/test_files/4.1-rule1.ags')
+        _ = AGS4.check_file('tests/test_files/4.1-rule1-utf8.ags',
+                            standard_AGS4_dictionary='tests/test_files/4.1-rule1-utf8.ags')
 
 
 def test_converting_empty_ags_file_to_xlsx_raises_error():

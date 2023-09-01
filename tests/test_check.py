@@ -4,6 +4,44 @@ import os
 from python_ags4 import AGS4, __version__
 
 
+def test_rule_1_utf8():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule1-utf8.ags',
+                                 standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags',
+                                 encoding='utf-8')
+
+    # File only contains characters 160 to 255 so there shoudn't be any errors
+    # when opened with the correct encoding
+    assert 'AGS Format Rule 1' not in error_list.keys()
+
+
+def test_rule_1_latin1():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule1-latin1.ags',
+                                 standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags',
+                                 encoding='latin1')
+
+    # File only contains characters 160 to 255 so there shoudn't be any errors
+    # when opened with the correct encoding
+    assert 'AGS Format Rule 1' not in error_list.keys()
+
+
+def test_rule_1_cp1252():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule1-cp1252.ags',
+                                 standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags',
+                                 encoding='cp1252')
+
+    # File contains characters 128 to 159 which should cause errors even when
+    # opened with the correct encoding
+    assert 'AGS Format Rule 1' in error_list.keys()
+
+    assert error_list['AGS Format Rule 1'][0]['line'] == 154
+    assert error_list['AGS Format Rule 1'][0]['group'] == ''
+    assert error_list['AGS Format Rule 1'][0]['desc'] == "Has Non-ASCII character(s) (assuming that file encoding is 'cp1252')."
+
+    assert error_list['AGS Format Rule 1'][-1]['line'] == 185
+    assert error_list['AGS Format Rule 1'][-1]['group'] == ''
+    assert error_list['AGS Format Rule 1'][-1]['desc'] == "Has Non-ASCII character(s) (assuming that file encoding is 'cp1252')."
+
+
 def test_rule_2():
     error_list = AGS4.check_file('tests/test_files/4.1-rule2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
@@ -633,9 +671,9 @@ def test_file_with_BOM():
 
     msg1 = 'This file seems to be encoded with a byte-order-mark (BOM). It is highly recommended that the '\
            'file be saved without BOM encoding to avoid issues with other software.'
-    msg2 = 'Has Non-ASCII character(s) and/or a byte-order-mark (BOM).'
+    msg2 = f"Has Non-ASCII character(s) (assuming that file encoding is 'utf-8') and/or a byte-order-mark (BOM)."
 
-    assert msg1 in error_list['General'][0]['desc']
+    assert msg1 in error_list['General'][1]['desc']
     assert msg2 in error_list['AGS Format Rule 1'][0]['desc']
 
 
