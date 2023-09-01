@@ -272,19 +272,42 @@ def add_meta_data(input_file, standard_dictionary, ags_errors={}, encoding='utf-
     return ags_errors
 
 
+def is_ags_ascii(s):
+    '''Check if character is in the "extended" ASCII set.
+
+    The "extended" ASCII set is defined as characters with ordinals less than or
+    equal 255 (i.e. Unicode code points 0-255).
+
+    Parameters
+    ----------
+    s : str
+
+    Returns
+    -------
+    bool
+    '''
+
+    return all([ord(c) <= 255 for c in s])
+
+
 # Line Rules
 
-def rule_1(line, line_number=0, ags_errors={}):
+def rule_1(line, line_number=0, ags_errors={}, encoding='utf-8'):
     """AGS Format Rule 1: The file shall be entirely composed of ASCII characters.
     """
 
     if line.isascii() is False:
-        if line_number == 1:
-            msg = 'Has Non-ASCII character(s) and/or a byte-order-mark (BOM).'
-            add_error_msg(ags_errors, 'AGS Format Rule 1', line_number, '', msg)
+        if is_ags_ascii(line) is False:
+            if line_number == 1:
+                msg = f"Has Non-ASCII character(s) (assuming that file encoding is '{encoding}') and/or a byte-order-mark (BOM)."
+                add_error_msg(ags_errors, 'AGS Format Rule 1', line_number, '', msg)
 
+            else:
+                msg = f"Has Non-ASCII character(s) (assuming that file encoding is '{encoding}')."
+                add_error_msg(ags_errors, 'AGS Format Rule 1', line_number, '', msg)
         else:
-            add_error_msg(ags_errors, 'AGS Format Rule 1', line_number, '', 'Has Non-ASCII character(s).')
+            msg = "Has extended ASCII character(s)."
+            add_error_msg(ags_errors, 'FYI', line_number, '', msg)
 
     return ags_errors
 
