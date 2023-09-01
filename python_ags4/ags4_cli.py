@@ -26,6 +26,7 @@ import sys
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
+import textwrap
 
 import click
 from rich.console import Console
@@ -280,8 +281,9 @@ def print_to_screen(ags_errors, show_warnings=False, show_fyi=False):
         console.print('[underline]General[/underline]:')
 
         for entry in ags_errors['General']:
-            console.print(f'''  {entry['desc']}''')
-        console.print('')
+            msg = '\r\n  '.join(textwrap.wrap(entry['desc'], width=100))
+            console.print(f'''  {msg}''')
+            console.print('')
 
     # Print other error messages
     for key in [x for x in ags_errors if 'Rule' in x]:
@@ -340,9 +342,10 @@ def save_to_file(output_file, ags_errors, input_file, error_count, warnings_coun
 
             # Write 'General' error messages first if present
             if 'General' in ags_errors.keys():
-                f.write('General:\r\n')
+                f.write('General:')
                 for entry in ags_errors['General']:
-                    f.write(f'''  {entry['desc']}\r\n''')
+                    msg = '\r\n  '.join(textwrap.wrap(entry['desc'], width=100))
+                    f.write(f'''\r\n  {msg}\r\n''')
                 f.write('\r\n')
 
             # Write other error messages
