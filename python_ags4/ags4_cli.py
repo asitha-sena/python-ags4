@@ -151,13 +151,16 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
               type=click.Choice(['4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']),
               help='Version of standard dictionary to use. (Warning: Overrides version specified in TRAN_AGS '
                    'and custom dictionary specifed by --dictionary_path)')
+@click.option('-e', '--encoding',
+              type=click.Choice(['utf-8', 'windows-1252', 'cp1252', 'iso-8859-1', 'latin1']), default='utf-8',
+              help='File encoding (default utf-8)')
 @click.option('-l', '--log_messages', is_flag=True,
               help='Log all messages to python_ags4.log file (default False)')
 @click.option('-w', '--show_warnings', is_flag=True,
               help='Show warnings in addition to errors.')
 @click.option('-f', '--show_fyi', is_flag=True,
               help='Show FYI message in addition to errors.')
-def check(input_file, output_file, dictionary_path, dictionary_version, log_messages, show_warnings, show_fyi):
+def check(input_file, output_file, dictionary_path, dictionary_version, encoding, log_messages, show_warnings, show_fyi):
     '''Check .ags file for errors according to AGS4 rules.
 
     INPUT_FILE   Path to .ags file to be checked
@@ -182,11 +185,11 @@ def check(input_file, output_file, dictionary_path, dictionary_version, log_mess
         # Try to check file
         try:
             if dictionary_version:
-                ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_version)
+                ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_version, encoding=encoding)
             elif dictionary_path:
-                ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_path.name)
+                ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_path.name, encoding=encoding)
             else:
-                ags_errors = AGS4.check_file(input_file)
+                ags_errors = AGS4.check_file(input_file, encoding=encoding)
 
         # End here with unsuccessful exit code if an exception is raised
         except AGS4.AGS4Error:

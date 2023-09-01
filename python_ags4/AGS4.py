@@ -697,7 +697,7 @@ def _format_SF(value, TYPE):
         return f"{value:.{i}f}"
 
 
-def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_headers=True):
+def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_headers=True, encoding='utf-8'):
     """Validate AGS4 file against AGS4 rules.
 
     Parameters
@@ -711,6 +711,8 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         Rename duplicate headers if found. Neither AGS4 tables nor Pandas
         dataframes allow duplicate headers, therefore a number will be appended
         to duplicates to make them unique.
+    encoding : str, default='utf-8'
+        Encoding of text file.
 
     Returns
     -------
@@ -727,7 +729,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
     logger.info(f'Opening file... {input_file}')
 
     # Line checks
-    with open(input_file, 'r', newline='', encoding='utf-8', errors='replace') as f:
+    with open(input_file, 'r', newline='', encoding=encoding, errors='replace') as f:
 
         # Preflight check for AGS3 files
         for i, line in enumerate(f, start=1):
@@ -735,7 +737,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
 
             # Exit if ags3_like line is found
             if ('AGS Format Rule 3' in ags_errors) and ('AGS3' in ags_errors['AGS Format Rule 3'][0]['desc']):
-                ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors)
+                ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors, encoding=encoding)
                 return ags_errors
 
         # Reset file stream to the beginning to start AGS4 checks
@@ -767,7 +769,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
                 headings = [item.strip('"') for item in headings]
 
             # Call line Checks
-            ags_errors = check.rule_1(line, i, ags_errors=ags_errors)
+            ags_errors = check.rule_1(line, i, ags_errors=ags_errors, encoding=encoding)
             ags_errors = check.rule_2a(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_3(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_4_1(line, i, ags_errors=ags_errors)
@@ -811,7 +813,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         logger.exception('Could not continue with group checks on file. Please review error log and fix line errors first.')
 
         # Add metadata
-        ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors)
+        ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors, encoding=encoding)
 
         return ags_errors
 
@@ -862,7 +864,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
     ags_errors = check.rule_19b_3(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
 
     # Add metadata
-    ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors)
+    ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors, encoding=encoding)
 
     return ags_errors
 

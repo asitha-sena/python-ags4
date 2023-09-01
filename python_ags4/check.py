@@ -234,7 +234,7 @@ def pick_standard_dictionary(tables=None, dict_version=None):
     return path_to_standard_dictionary
 
 
-def add_meta_data(input_file, standard_dictionary, ags_errors={}):
+def add_meta_data(input_file, standard_dictionary, ags_errors={}, encoding='utf-8'):
     """Add meta data from input file to error list.
 
     Parameters
@@ -245,6 +245,8 @@ def add_meta_data(input_file, standard_dictionary, ags_errors={}):
         Path to standard dictionary file
     ags_errors : dict
         Python dictionary to store details of errors in the AGS4 file being checked.
+    encoding : str, default='utf-8'
+        Encoding of text file.
 
     Returns
     -------
@@ -264,6 +266,8 @@ def add_meta_data(input_file, standard_dictionary, ags_errors={}):
         add_error_msg(ags_errors, 'Metadata', 'Dictionary', '', f'{os.path.basename(standard_dictionary)}')
 
     add_error_msg(ags_errors, 'Metadata', 'Time (UTC)', '', f'{datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")}')
+
+    add_error_msg(ags_errors, 'Metadata', 'File encoding', '', encoding)
 
     return ags_errors
 
