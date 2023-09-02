@@ -789,7 +789,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
               "The validator defaults to 'utf-8' encoding as it is the most widely used encoding compatible with Unicode. "\
               "The user can override this default if the file encoding is different but, "\
               "it is highly recommended that the 'utf-8' encoding be used when creating AGS4 files. "\
-              "(Hint: If not 'utf-8', then the encoding is most likely to be either 'iso-8859-1' aka 'latin1' or 'cp1252' aka 'windows-1252')"
+              "(Hint: If not 'utf-8', then the encoding is most likely to be 'windows-1252' aka 'cp1252')"
         ags_errors = check.add_error_msg(ags_errors, 'General', '', '', msg)
 
     # Import data into Pandas dataframes to run group checks

@@ -153,7 +153,7 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
               help='Version of standard dictionary to use. (Warning: Overrides version specified in TRAN_AGS '
                    'and custom dictionary specifed by --dictionary_path)')
 @click.option('-e', '--encoding',
-              type=click.Choice(['utf-8', 'windows-1252', 'cp1252', 'iso-8859-1', 'latin1']), default='utf-8',
+              type=click.Choice(['utf-8', 'windows-1252', 'cp1252']), default='utf-8',
               help='File encoding (default utf-8)')
 @click.option('-l', '--log_messages', is_flag=True,
               help='Log all messages to python_ags4.log file (default False)')

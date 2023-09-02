@@ -17,7 +17,8 @@ def test_rule_1_utf8():
 def test_rule_1_latin1():
     error_list = AGS4.check_file('tests/test_files/4.1-rule1-latin1.ags',
                                  standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags',
-                                 encoding='latin1')
+                                 encoding='cp1252')
+    # 'cp1252' is a superset of 'latin1' so it can be used to decode this file
 
     # File only contains characters 160 to 255 so there shoudn't be any errors
     # when opened with the correct encoding
