@@ -88,7 +88,7 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
 
         for i, line in enumerate(f, start=1):
             if _is_bytebuffer(line):
-                line = line.decode('utf-8')
+                line = line.decode(encoding)
 
             temp = line.rstrip().split('","')
             temp = [item.strip('"') for item in temp]

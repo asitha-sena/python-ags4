@@ -59,6 +59,14 @@ def test_AGS4_stream_to_dict(LOCA=LOCA):
     assert tables['LOCA'] == LOCA
 
 
+def test_AGS4_bytestream_to_dict(LOCA=LOCA):
+
+    with open(TEST_DATA, 'rb') as file:
+        tables, headings = AGS4.AGS4_to_dict(file)
+
+    assert tables['LOCA'] == LOCA
+
+
 def test_AGS4_file_to_dataframe(LOCA=LOCA):
     tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
 
@@ -68,6 +76,14 @@ def test_AGS4_file_to_dataframe(LOCA=LOCA):
 
 def test_AGS4_stream_to_dataframe(LOCA=LOCA):
     with open(TEST_DATA, 'r') as file:
+        tables, headings = AGS4.AGS4_to_dataframe(file)
+
+    assert tables['LOCA'].loc[2, 'LOCA_ID'] == 'Location_1'
+    assert tables['LOCA'].equals(pd.DataFrame(LOCA))
+
+
+def test_AGS4_bytestream_to_dataframe(LOCA=LOCA):
+    with open(TEST_DATA, 'rb') as file:
         tables, headings = AGS4.AGS4_to_dataframe(file)
 
     assert tables['LOCA'].loc[2, 'LOCA_ID'] == 'Location_1'
