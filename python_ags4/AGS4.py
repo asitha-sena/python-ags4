@@ -87,6 +87,9 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
         # columns in certain groups have a preferred order as well)
 
         for i, line in enumerate(f, start=1):
+            if _is_bytebuffer(line):
+                line = line.decode('utf-8')
+
             temp = line.rstrip().split('","')
             temp = [item.strip('"') for item in temp]
 
@@ -899,7 +902,19 @@ def _is_file_like(obj):
 
     return True
 
+def _is_bytebuffer(obj):
+    """Check if object is buffer like
 
+    Returns
+    -------
+    bool
+        Return True if obj is buffer like, otherwise return False
+    """
+
+    if hasattr(obj, 'decode'):
+        return True
+
+    return False
 class AGS4Error(Exception):
     """Exception class for AGS4 parsing errors.
     """
