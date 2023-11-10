@@ -82,6 +82,9 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
                             level=logging.DEBUG,
                             handlers=[RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log', maxBytes=100e3, backupCount=1)])
 
+    else:
+        logging.basicConfig(level=logging.CRITICAL)
+
     try:
         if input_file.endswith('.ags') & output_file.endswith('.xlsx'):
             console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
@@ -177,6 +180,9 @@ def check(input_file, output_file, dictionary_path, dictionary_version, encoding
                             style='{', datefmt='%Y-%m-%dT%H:%M:%S%z',
                             level=logging.DEBUG,
                             handlers=[RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log', maxBytes=100e3, backupCount=1)])
+
+    else:
+        logging.basicConfig(level=logging.CRITICAL)
 
     if input_file.lower().endswith('.ags'):
         console.print(f'[green]Running [bold]python_ags4 v{__version__}[/bold][/green]')
