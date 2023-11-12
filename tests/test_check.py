@@ -242,7 +242,10 @@ def test_rule_8_8():
 def test_rule_8_9():
     error_list = AGS4.check_file('tests/test_files/4.1-rule8-7.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
-    assert 'AGS Format Rule 8' not in error_list.keys()
+    assert 'AGS Format Rule 8' in error_list.keys()
+    assert error_list['AGS Format Rule 8'][0]['line'] == 73
+    assert error_list['AGS Format Rule 8'][0]['group'] == 'LOCA'
+    assert error_list['AGS Format Rule 8'][0]['desc'] == 'Value 45:45:45,454 in LOCA_LON not of data type DMS or is an invalid value.'
 
 
 # def test_rule_9():
