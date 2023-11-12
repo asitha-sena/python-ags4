@@ -239,6 +239,12 @@ def test_rule_8_8():
     assert error_list['AGS Format Rule 8'][0]['desc'] == 'Value ABC121415010 in SAMP_ID is not unique.'
 
 
+def test_rule_8_9():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule8-7.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule 8' not in error_list.keys()
+
+
 # def test_rule_9():
 #    error_list = AGS4.check_file('tests/test_files/4.1-rule9.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 #

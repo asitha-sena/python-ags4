@@ -702,7 +702,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
                 elif data_type == 'DMS':
-                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(r'^\d+:[0-5]\d:[0-5]\d.?\d*$')
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(r'^-?\d+:[0-5]\d:[0-5]\d.?\d*$')
 
                     for row in df.loc[mask, :].to_dict('records'):
                         line_number = int(row['line_number'])
