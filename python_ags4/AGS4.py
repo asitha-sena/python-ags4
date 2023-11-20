@@ -870,12 +870,14 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
     ags_errors = check.rule_10c(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_11(tables, headings, dictionary, ags_errors=ags_errors)
     ags_errors = check.rule_16(tables, headings, dictionary, ags_errors=ags_errors)
-    ags_errors = check.rule_16_1(tables, headings, tables_std_dict['ABBR'], ags_errors=ags_errors)
     ags_errors = check.rule_17(tables, headings, dictionary, ags_errors=ags_errors)
     # Note: rule_18() has to be called after rule_9() as it relies on rule_9() to flag non-standard headings.
     ags_errors = check.rule_18(tables, headings, ags_errors=ags_errors)
     ags_errors = check.rule_19b_2(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
     ags_errors = check.rule_19b_3(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
+
+    # Warnings
+    ags_errors = check.warning_16_1(tables, headings, tables_std_dict['ABBR'], ags_errors=ags_errors)
 
     # Add metadata
     ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors, encoding=encoding)
