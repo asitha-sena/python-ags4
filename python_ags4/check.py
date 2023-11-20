@@ -671,36 +671,37 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
                 elif data_type == 'DT':
-                    data_unit = data_units[col] # Need to consider the unit to complete this check
+                    data_unit = data_units[col]  # Need to consider the unit to complete this check
                     # Prep1: The format to be used in the mask1 check (in pd.to_datatime) as 'ISO8601' does not work for time only formats
                     if data_unit == 'hh:mm':
                         dtformat = '%H:%M'
                     elif data_unit == 'hh:mm:ss':
                         dtformat = '%H:%M:%S'
                     else:
-                        dtformat = 'ISO8601' # ok if date (with year) is included
+                        dtformat = 'ISO8601'  # ok if date (with year) is included
+
                     # Prep2: The Regex match pattern corresponding to the UNIT to be used in the mask2 check
-                    pattern = '' 
+                    pattern = ''
                     for x in data_unit:
-                        if x in ['y','m','d','h','s']: # If one of these, assume it is for one of the 'values' in the date or time or time offset
-                            pattern = pattern + '\d'
+                        if x in ['y', 'm', 'd', 'h', 's']:  # If one of these, assume it is for one of the 'values' in the date or time or time offset
+                            pattern = pattern + r'\d'
                         elif x == '+':  # + should only appear in timezone offset. If it does, then both + or - are valid
                             pattern = pattern + '[+-]'
-                        else: # Anything else, only permit that character, literally.
-                            pattern = pattern + '[' + x + ']' 
+                        else:  # Anything else, only permit that character, literally.
+                            pattern = pattern + '[' + x + ']'
                     # Prep3: for the mask1 check we need to strip out the timezone offset, in the unlikely event that there is one
-                    # This method assumes that timezone offset comes after 'Z', as per format required in docs (if no Z, then this will fail) 
+                    # This method assumes that timezone offset comes after 'Z', as per format required in docs (if no Z, then this will fail)
                     # TODO: At present, there is no check on whether the timezone offset itself is valid or sensible! Add later?
-                    dftemp = df[col].str.split('Z', expand=True) 
-                    df['temp'] = dftemp[0] # Append temp column to df with datetime/time only for mask1 check
+                    dftemp = df[col].str.split('Z', expand=True)
+                    df['temp'] = dftemp[0]  # Append temp column to df with datetime/time only for mask1 check
                     # We now run two independent checks
                     # mask1: check if string is recognised as a valid datetime (or just time if applciable) using pandas to_datetime
                     mask1 = df.HEADING.eq('DATA') & ~df[col].eq('') & pd.to_datetime(df['temp'], errors='coerce', format=dtformat).isna()
                     # mask2: check if string complies with UNIT format using Regex. Timezone offsets should work ok in this.
                     mask2 = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.fullmatch(pattern)
                     # Both checks above must be passed:
-                    mask = pd.DataFrame([mask1,mask2]).any()
-                   
+                    mask = pd.DataFrame([mask1, mask2]).any()
+
                     for row in df.loc[mask, :].to_dict('records'):
                         line_number = int(row['line_number'])
                         # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
@@ -708,17 +709,17 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         msg = f'Value {row[col]} in {col} not in the ISO date/time format or is an invalid date/time.'
                         add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
-                elif data_type == 'T':    
-                    data_unit = data_units[col] # Need to consider the unit to complete this check
+                elif data_type == 'T':
+                    data_unit = data_units[col]  # Need to consider the unit to complete this check
                     # Prep: The Regex match pattern corresponding to the UNIT to be used in the mask check
                     if data_unit == 'hh:mm':
-                        pattern = '\d*\d\d:[0-5]\d'
+                        pattern = r'\d*\d\d:[0-5]\d'
                     elif data_unit == 'hh:mm:ss':
-                        pattern = '\d*\d:[0-5]\d:[0-5]\d'
+                        pattern = r'\d*\d:[0-5]\d:[0-5]\d'
                     elif data_unit == 'mm:ss':
-                        pattern = '[0-5]\d:[0-5]\d'
-                    else: # Assumes hh:mm:ss if nothing provided
-                        pattern = '\d*\d:[0-5]\d:[0-5]\d'
+                        pattern = r'[0-5]\d:[0-5]\d'
+                    else:  # Assumes hh:mm:ss if nothing provided
+                        pattern = r'\d*\d:[0-5]\d:[0-5]\d'
                     mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.fullmatch(pattern)
 
                     for row in df.loc[mask, :].to_dict('records'):
@@ -726,7 +727,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                         # that Pandas returns by default
                         msg = f'Value {row[col]} in {col} not in the correct elapsed time format or is an invalid elapsed time.'
-                        add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)         
+                        add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
                 elif data_type == 'U':
                     # Column can contain any numeric value
