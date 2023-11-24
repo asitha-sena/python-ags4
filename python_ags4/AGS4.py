@@ -899,6 +899,130 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
 
 # Helper functions/classes #
 
+def write_error_report(ags_errors, output_file, show_warnings=False, show_fyi=False):
+    '''Save error report to file.
+
+    Parameters
+    ----------
+    ags_errors : dict
+        Python dictionary with AGS4 errors. Output from AGS4.check_file().
+    output_file : str
+        Path to output file
+    show_warnings : bool, default=False
+        Include warning messages in error report
+    show_fyi : bool, default=False
+        Include FYI messages in error report
+
+    Returns
+    -------
+    None
+    '''
+
+    from rich import print as rprint
+    import textwrap
+
+    error_count, warnings_count, fyi_count = count_errors(ags_errors)
+
+    try:
+        with open(output_file, 'w', newline='', encoding='utf-8') as f:
+            # Write metadata
+            if 'Metadata' in ags_errors.keys():
+                for entry in ags_errors['Metadata']:
+                    f.write(f'''{entry['line']+':':<12} {entry['desc']}\r\n''')
+                f.write('\r\n')
+
+            # Summary of errors log
+            if error_count == 0:
+                f.write('All checks passed!\r\n')
+
+                if warnings_count + fyi_count > 0:
+                    f.write(f'{warnings_count} warning(s) and {fyi_count} FYI message(s) returned.\r\n')
+                    f.write('\r\n')
+
+            elif ('AGS Format Rule 3' in ags_errors) and ('AGS3' in ags_errors['AGS Format Rule 3'][0]['desc']):
+                f.write('Checking aborted as AGS3 files are not supported!\r\n')
+                f.write('\r\n')
+
+            else:
+                f.write(f'{error_count} error(s) found in file!\r\n')
+
+                if warnings_count + fyi_count > 0:
+                    f.write(f'{warnings_count} warning(s) and {fyi_count} FYI message(s) returned.\r\n')
+
+                f.write('\r\n')
+
+            # Write 'General' error messages first if present
+            if 'General' in ags_errors.keys():
+                f.write('General:')
+                for entry in ags_errors['General']:
+                    msg = '\r\n  '.join(textwrap.wrap(entry['desc'], width=100))
+                    f.write(f'''\r\n  {msg}\r\n''')
+                f.write('\r\n')
+
+            # Write other AGS Format error messages
+            for key in [x for x in ags_errors if 'AGS Format Rule' in x]:
+                f.write(f'{key}:\r\n')
+                for entry in ags_errors[key]:
+                    f.write(f'''  Line {entry['line']:<8} {entry['group'].strip('"'):<7} {entry['desc']}\r\n''')
+                f.write('\r\n')
+
+            # Write warning messages
+            if show_warnings is True:
+                for key in [x for x in ags_errors if 'Warning' in x]:
+                    f.write(f'{key}:\r\n')
+                    for entry in ags_errors[key]:
+                        f.write(f'''  Line {entry['line']:<8} {entry['group'].strip('"'):<7} {entry['desc']}\r\n''')
+                    f.write('\r\n')
+
+            # Write FYI messages
+            if show_fyi is True:
+                for key in [x for x in ags_errors if 'FYI' in x]:
+                    f.write(f'{key}:\r\n')
+                    for entry in ags_errors[key]:
+                        f.write(f'''  Line {entry['line']:<8} {entry['group'].strip('"'):<7} {entry['desc']}\r\n''')
+                    f.write('\r\n')
+
+        rprint(f'\n[yellow]Error report saved in {output_file}[/yellow]\n')
+
+    except FileNotFoundError:
+        rprint('[red]\nERROR: Invalid output file path. Error report could not be saved.[/red]')
+        rprint('[red]       Please ensure that the specified directory exists.[/red]')
+
+    except TypeError:
+        # Nothing to do if output_file is None
+        pass
+
+
+def count_errors(ags_errors):
+    '''Count number of errors, warnings, and FYI messages in error log.
+
+    Parameters
+    ----------
+    ags_errors : dict
+        Python dictionary with AGS4 errors. Output from AGS4.check_file().
+
+    Returns
+    -------
+    error_count : int
+        Number of error messages
+    warnings_count : int
+        Number of warning messages
+    fyi_count : int
+        Number of FYI messages
+    '''
+
+    # Count number of entries in error log
+    error_count = 0
+    warnings_count = 0
+    fyi_count = 0
+    for key, val in ags_errors.items():
+        error_count += len(val) if 'AGS Format Rule' in key else 0
+        warnings_count += len(val) if 'Warning' in key else 0
+        fyi_count += len(val) if 'FYI' in key else 0
+
+    return error_count, warnings_count, fyi_count
+
+
 def _is_file_like(obj):
     """Check if object is file like
 

@@ -21,7 +21,6 @@
 # https://gitlab.com/ags-data-format-wg/ags-python-library
 
 
-import os
 import sys
 import logging
 from logging.handlers import RotatingFileHandler
@@ -189,85 +188,45 @@ def check(input_file, output_file, dictionary_path, dictionary_version, encoding
     else:
         logging.basicConfig(level=logging.CRITICAL)
 
+    # Run validation
     if input_file.lower().endswith('.ags'):
         console.print(f'[green]Running [bold]python_ags4 v{__version__}[/bold][/green]')
         console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
         console.print('')
 
+        # Get input info from arguments and options
+        if dictionary_version:
+            standard_AGS4_dictionary = dictionary_version
+
+        elif dictionary_path:
+            standard_AGS4_dictionary = dictionary_path.name
+
+        else:
+            standard_AGS4_dictionary = None
+
         # Try to check file
         try:
-            if dictionary_version:
-                ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_version, encoding=encoding)
-            elif dictionary_path:
-                ags_errors = AGS4.check_file(input_file, standard_AGS4_dictionary=dictionary_path.name, encoding=encoding)
-            else:
-                ags_errors = AGS4.check_file(input_file, encoding=encoding)
+            ags_errors = AGS4.check_file(input_file,
+                                         standard_AGS4_dictionary=standard_AGS4_dictionary,
+                                         encoding=encoding)
 
         # End here with unsuccessful exit code if an exception is raised
         except AGS4.AGS4Error:
             sys.exit(1)
 
         # Count number of entries in error log
-        error_count = 0
-        warnings_count = 0
-        fyi_count = 0
-        for key, val in ags_errors.items():
-            error_count += len(val) if 'Rule' in key else 0
-            warnings_count += len(val) if 'Warnings' in key else 0
-            fyi_count += len(val) if 'FYI' in key else 0
+        error_count, warnings_count, fyi_count = AGS4.count_errors(ags_errors)
+        total_msg_count = error_count + warnings_count*show_warnings + fyi_count*show_fyi
 
-        # Print "All checks passed!" to screen if no errors are found
+        if (total_msg_count > 100) and output_file is None:
+            output_file = Path(input_file).parent / 'error_log.txt'
+
+        # Print/save error report
+        print_to_screen(ags_errors, show_warnings, show_fyi)
+        AGS4.write_error_report(ags_errors, output_file, show_warnings, show_fyi)
+
         if error_count == 0:
-            print_to_screen(ags_errors, show_warnings, show_fyi)
-            console.print('\n[green]File check complete! All checks passed![/green]')
-
-            if warnings_count + fyi_count > 0:
-                console.print(f'\n[yellow]{warnings_count} warning(s) and {fyi_count} FYI message(s) returned.[/yellow]')
-
-            if output_file is not None:
-                save_to_file(output_file, ags_errors, input_file, error_count, warnings_count, fyi_count)
-                console.print(f'\n[green]Report saved in {output_file}[/green]\n')
-
-            # End here with successful exit code if no errors found
             sys.exit(0)
-
-        # Print that checking was aborted if AGS3 file was detected
-        elif ('AGS Format Rule 3' in ags_errors) and ('AGS3' in ags_errors['AGS Format Rule 3'][0]['desc']):
-            print_to_screen(ags_errors, show_warnings, show_fyi)
-
-            console.print('\n[yellow]Checking aborted as AGS3 files are not supported![/yellow]')
-
-            if output_file is not None:
-                save_to_file(output_file, ags_errors, input_file, error_count, warnings_count, fyi_count)
-                console.print(f'\n[yellow]Error report saved in {output_file}[/yellow]\n')
-
-        # Print errors to screen if list is short enough
-        elif error_count < 100:
-            print_to_screen(ags_errors, show_warnings, show_fyi)
-
-            console.print(f'\n[yellow]File check complete! {error_count} errors found![/yellow]')
-
-            if warnings_count + fyi_count > 0:
-                console.print(f'\n[yellow]{warnings_count} warning(s) and {fyi_count} FYI message(s) returned.[/yellow]')
-
-            if output_file is not None:
-                save_to_file(output_file, ags_errors, input_file, error_count, warnings_count, fyi_count)
-                console.print(f'\n[yellow]Error report saved in {output_file}[/yellow]\n')
-
-        else:
-            # Print only metadata to screen
-            print_to_screen({'Metadata': ags_errors['Metadata']})
-
-            console.print(f'\n[yellow]File check complete! {error_count} errors found![/yellow]')
-            console.print('\n[yellow]Error report too long to print to screen.[/yellow]')
-
-            # Assign default path if output_file is not provided
-            if output_file is None:
-                output_dir = os.path.dirname(input_file)
-                output_file = os.path.join(output_dir, 'error_log.txt')
-
-            save_to_file(output_file, ags_errors, input_file, error_count, warnings_count, fyi_count)
-            console.print(f'\n[yellow]Error report saved in {output_file}[/yellow]\n')
 
     else:
         console.print('[red]ERROR: Only .ags files are accepted as input.[/red]')
@@ -281,110 +240,69 @@ def print_to_screen(ags_errors, show_warnings=False, show_fyi=False):
 
     console.print('')
 
+    error_count, warnings_count, fyi_count = AGS4.count_errors(ags_errors)
+    total_msg_count = error_count + warnings_count*show_warnings + fyi_count*show_fyi
+
     # Print  metadata
     if 'Metadata' in ags_errors.keys():
         for entry in ags_errors['Metadata']:
             click.echo(f'''{entry['line']}: \t {entry['desc']}''')
         console.print('')
 
-    # Print 'General' error messages first if present
-    if 'General' in ags_errors.keys():
-        console.print('[underline]General[/underline]:')
+    # Print full report only if total message count is less than or equal to 100
+    if total_msg_count <= 100:
+        # Print 'General' error messages first if present
+        if 'General' in ags_errors.keys():
+            console.print('[underline]General[/underline]:')
 
-        for entry in ags_errors['General']:
-            msg = '\r\n  '.join(textwrap.wrap(entry['desc'], width=100))
-            console.print(f'''  {msg}''')
+            for entry in ags_errors['General']:
+                msg = '\r\n  '.join(textwrap.wrap(entry['desc'], width=100))
+                console.print(f'''  {msg}''')
+                console.print('')
+
+        # Write other AGS Format error messages
+        for key in [x for x in ags_errors if 'AGS Format Rule' in x]:
+            console.print(f'''[white underline]{key}[/white underline]:''')
+            for entry in ags_errors[key]:
+                console.print(f'''  Line {entry['line']}\t [bold]{entry['group'].strip('"')}[/bold]\t {entry['desc']}''')
             console.print('')
 
-    # Print other error messages
-    for key in [x for x in ags_errors if 'Rule' in x]:
-        console.print(f'''[white underline]{key.split('Standard')[-1].strip()}[/white underline]:''')
-        for entry in ags_errors[key]:
-            console.print(f'''  Line {entry['line']}\t [bold]{entry['group'].strip('"')}[/bold]\t {entry['desc']}''')
-        console.print('')
-
-    # Print warnings
-    if ('Warnings' in ags_errors.keys()) and (show_warnings is True):
-        console.print('[underline]Warnings[/underline]:')
-
-        for entry in ags_errors['Warnings']:
-            console.print(f'''  Line {entry['line']}\t [bold]{entry['group'].strip('"')}[/bold]\t {entry['desc']}''')
-        console.print('')
-
-    # Print FYI messages
-    if ('FYI' in ags_errors.keys()) and (show_fyi is True):
-        console.print('[underline]FYI[/underline]:')
-
-        for entry in ags_errors['FYI']:
-            console.print(f'''  Line {entry['line']}\t [bold]{entry['group'].strip('"')}[/bold]\t {entry['desc']}''')
-        console.print('')
-
-
-def save_to_file(output_file, ags_errors, input_file, error_count, warnings_count, fyi_count):
-    '''Save error report to file.'''
-
-    try:
-        with open(output_file, 'w', newline='', encoding='utf-8') as f:
-            # Write metadata
-            if 'Metadata' in ags_errors.keys():
-                for entry in ags_errors['Metadata']:
-                    f.write(f'''{entry['line']+':':<12} {entry['desc']}\r\n''')
-                f.write('\r\n')
-
-            # Summary of errors log
-            if error_count == 0:
-                f.write('All checks passed!\r\n')
-
-                if warnings_count + fyi_count > 0:
-                    f.write(f'{warnings_count} warning(s) and {fyi_count} FYI message(s) returned.\r\n')
-                    f.write('\r\n')
-
-            elif ('AGS Format Rule 3' in ags_errors) and ('AGS3' in ags_errors['AGS Format Rule 3'][0]['desc']):
-                f.write('Checking aborted as AGS3 files are not supported!\r\n')
-                f.write('\r\n')
-
-            else:
-                f.write(f'{error_count} error(s) found in file!\r\n')
-
-                if warnings_count + fyi_count > 0:
-                    f.write(f'{warnings_count} warning(s) and {fyi_count} FYI message(s) returned.\r\n')
-
-                f.write('\r\n')
-
-            # Write 'General' error messages first if present
-            if 'General' in ags_errors.keys():
-                f.write('General:')
-                for entry in ags_errors['General']:
-                    msg = '\r\n  '.join(textwrap.wrap(entry['desc'], width=100))
-                    f.write(f'''\r\n  {msg}\r\n''')
-                f.write('\r\n')
-
-            # Write other error messages
-            for key in [x for x in ags_errors if 'Rule' in x]:
-                f.write(f'{key}:\r\n')
+        # Print warnings
+        if show_warnings is True:
+            for key in [x for x in ags_errors if 'Warning' in x]:
+                console.print(f'''[white underline]{key}[/white underline]:''')
                 for entry in ags_errors[key]:
-                    f.write(f'''  Line {entry['line']:<8} {entry['group'].strip('"'):<7} {entry['desc']}\r\n''')
-                f.write('\r\n')
+                    console.print(f'''  Line {entry['line']}\t [bold]{entry['group'].strip('"')}[/bold]\t {entry['desc']}''')
+                console.print('')
 
-            # Write warnings
-            if 'Warnings' in ags_errors.keys():
-                f.write('Warnings:\r\n')
+        # Print FYI messages
+        if show_fyi is True:
+            for key in [x for x in ags_errors if 'FYI' in x]:
+                console.print(f'''[white underline]{key}[/white underline]:''')
+                for entry in ags_errors[key]:
+                    console.print(f'''  Line {entry['line']}\t [bold]{entry['group'].strip('"')}[/bold]\t {entry['desc']}''')
+                console.print('')
 
-                for entry in ags_errors['Warnings']:
-                    f.write(f'''  Line {entry['line']:<8} {entry['group'].strip('"'):<7} {entry['desc']}\r\n''')
-                f.write('\r\n')
+    # Print summary
+    if error_count == 0:
+        console.print('[green]File check complete![/green]')
+        console.print(f'[green]  {error_count} Errors[/green]')
 
-            # Write FYI messages
-            if 'FYI' in ags_errors.keys():
-                f.write('FYI:\r\n')
+    else:
+        console.print('[yellow]File check complete![/yellow]')
+        console.print(f'[yellow]  {error_count} Errors[/yellow]')
 
-                for entry in ags_errors['FYI']:
-                    f.write(f'''  Line {entry['line']:<8} {entry['group'].strip('"'):<7} {entry['desc']}\r\n''')
-                f.write('\r\n')
+    if warnings_count == 0 and show_warnings:
+        console.print(f'[green]  {warnings_count} Warnings[/green]')
 
-    except FileNotFoundError:
-        console.print('[red]\nERROR: Invalid output file path. Error report could not be saved.[/red]')
-        console.print('[red]       Please ensure that the specified directory exists.[/red]')
+    elif show_warnings:
+        console.print(f'[yellow]  {warnings_count} Warnings[/yellow]')
+
+    if fyi_count == 0 and show_fyi:
+        console.print(f'[green]  {fyi_count} FYI messages[/green]')
+
+    elif show_fyi:
+        console.print(f'[yellow]  {fyi_count} FYI messages[/yellow]')
 
 
 if __name__ == '__main__':
