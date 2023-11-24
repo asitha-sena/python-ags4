@@ -512,7 +512,7 @@ def convert_to_numeric(dataframe):
     df = dataframe.copy()
 
     # Convert appropriate columns to numeric
-    numeric_df = df.loc[:, df.iloc[1].str.contains('DP|MC|SF|SCI')].apply(to_numeric, errors='coerce')
+    numeric_df = df.loc[:, df.iloc[1].str.contains('DP|MC|SF|SCI', na=False)].apply(to_numeric, errors='coerce')
 
     # Replace columns in input dataframe with numeric columns
     df[numeric_df.columns] = numeric_df
