@@ -706,7 +706,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         line_number = int(row['line_number'])
                         # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                         # that Pandas returns by default
-                        msg = f'Value {row[col]} in {col} not in the ISO date/time format or is an invalid date/time.'
+                        msg = f'Value {row[col]} in {col} does not match the specified format ({data_unit}) or is an invalid date/time.'
                         add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
                 elif data_type == 'T':
@@ -726,7 +726,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         line_number = int(row['line_number'])
                         # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
                         # that Pandas returns by default
-                        msg = f'Value {row[col]} in {col} not in the correct elapsed time format or is an invalid elapsed time.'
+                        msg = f'Value {row[col]} in {col} not in the specified elapsed time format ({data_unit}) or is an invalid elapsed time.'
                         add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
                 elif data_type == 'U':
