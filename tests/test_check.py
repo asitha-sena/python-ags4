@@ -182,13 +182,33 @@ def test_rule_8_4():
     error_list = AGS4.check_file('tests/test_files/4.1-rule8-4.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
     assert 'AGS Format Rule 8' in error_list.keys()
-    assert error_list['AGS Format Rule 8'][1]['line'] == 79
-    assert error_list['AGS Format Rule 8'][1]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 8'][1]['desc'] == 'Value 01-12-2020 in LOCA_START not in the ISO date/time format or is an invalid date/time.'
 
-    assert error_list['AGS Format Rule 8'][2]['line'] == 80
-    assert error_list['AGS Format Rule 8'][2]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 8'][2]['desc'] == 'Value 2021-02-29 in LOCA_START not in the ISO date/time format or is an invalid date/time.'
+    for i, (line, group, desc) in enumerate([
+            (18, 'LOCA', 'Value 2023-11-16T12:00 in LOCA_STAR does not match the specified format (yyyy-mm-dd) or is an invalid date/time.'),
+            (19, 'LOCA', 'Value 01-12-2020 in LOCA_STAR does not match the specified format (yyyy-mm-dd) or is an invalid date/time.'),
+            (20, 'LOCA', 'Value 2021-02-29 in LOCA_STAR does not match the specified format (yyyy-mm-dd) or is an invalid date/time.'),
+            (18, 'LOCA', 'Value 2023-13 in LOCA_ENDD does not match the specified format (yyyy-mm) or is an invalid date/time.'),
+            (27, 'SAMP', 'Value 2023-09-21 in SAMP_DTIM does not match the specified format (yyyy-mm-ddThh:mm) or is an invalid date/time.'),
+            (28, 'SAMP', 'Value 2023-09-21T10:01Z(+03:00) in SAMP_DTIM does not match the specified format (yyyy-mm-ddThh:mm) or is an invalid date/time.'),
+            (34, 'HDPH', 'Value 2023-11-17 in HDPH_STAR does not match the specified format (yyyy-mm-ddThh:mm) or is an invalid date/time.'),
+            (35, 'HDPH', 'Value 2023-11-17T9:00 in HDPH_STAR does not match the specified format (yyyy-mm-ddThh:mm) or is an invalid date/time.'),
+            (34, 'HDPH', 'Value 2023-11-17 in HDPH_ENDD does not match the specified format (yyyy-mm-ddThh:mm) or is an invalid date/time.'),
+            (43, 'CHIS', 'Value 1:00 in CHIS_TIME not in the specified elapsed time format (hh:mm) or is an invalid elapsed time.'),
+            (44, 'CHIS', 'Value 01:00:00 in CHIS_TIME not in the specified elapsed time format (hh:mm) or is an invalid elapsed time.'),
+            (46, 'CHIS', 'Value 23:77 in CHIS_TIME not in the specified elapsed time format (hh:mm) or is an invalid elapsed time.'),
+            (47, 'CHIS', 'Value 23:34:56 in CHIS_TIME not in the specified elapsed time format (hh:mm) or is an invalid elapsed time.'),
+            (48, 'CHIS', 'Value 23:34:77 in CHIS_TIME not in the specified elapsed time format (hh:mm) or is an invalid elapsed time.'),
+            (43, 'CHIS', 'Value 2023-13-16T11:34 in CHIS_STAR does not match the specified format (yyyy-mm-ddThh:mmZ(+hh:mm)) or is an invalid date/time.'),
+            (44, 'CHIS', 'Value 2023-11-16T11:34 in CHIS_STAR does not match the specified format (yyyy-mm-ddThh:mmZ(+hh:mm)) or is an invalid date/time.'),
+            (45, 'CHIS', 'Value 2023-11-16 in CHIS_STAR does not match the specified format (yyyy-mm-ddThh:mmZ(+hh:mm)) or is an invalid date/time.'),
+            (47, 'CHIS', 'Value 11:34 in CHIS_STAR does not match the specified format (yyyy-mm-ddThh:mmZ(+hh:mm)) or is an invalid date/time.'),
+            (48, 'CHIS', 'Value 2023 in CHIS_STAR does not match the specified format (yyyy-mm-ddThh:mmZ(+hh:mm)) or is an invalid date/time.'),
+            (49, 'CHIS', 'Value 23:34:00 in CHIS_STAR does not match the specified format (yyyy-mm-ddThh:mmZ(+hh:mm)) or is an invalid date/time.'),
+            (50, 'CHIS', 'Value 25:34:00 in CHIS_STAR does not match the specified format (yyyy-mm-ddThh:mmZ(+hh:mm)) or is an invalid date/time.')
+    ]):
+        assert error_list['AGS Format Rule 8'][i]['line'] == line
+        assert error_list['AGS Format Rule 8'][i]['group'] == group
+        assert error_list['AGS Format Rule 8'][i]['desc'] == desc
 
 
 def test_rule_8_5():
