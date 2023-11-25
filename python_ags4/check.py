@@ -692,7 +692,7 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
                         add_error_msg(ags_errors, 'AGS Format Rule 8', line_number, group, msg)
 
                 elif data_type == 'YN':
-                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.lower().str.match(r'^(yes|no|y|n)$')
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].str.match(r'^(Y|N|y|n)$')
 
                     for row in df.loc[mask, :].to_dict('records'):
                         line_number = int(row['line_number'])

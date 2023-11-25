@@ -221,13 +221,17 @@ def test_rule_8_7():
     error_list = AGS4.check_file('tests/test_files/4.1-rule8-5.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
     assert 'AGS Format Rule 8' in error_list.keys()
-    assert error_list['AGS Format Rule 8'][4]['line'] == 88
-    assert error_list['AGS Format Rule 8'][4]['group'] == 'SAMP'
-    assert error_list['AGS Format Rule 8'][4]['desc'] == 'Value xyz in SAMP_XXXX not of data type YN.'
 
-    assert error_list['AGS Format Rule 8'][5]['line'] == 89
-    assert error_list['AGS Format Rule 8'][5]['group'] == 'SAMP'
-    assert error_list['AGS Format Rule 8'][5]['desc'] == 'Value 10 in SAMP_XXXX not of data type YN.'
+    for i, (line, desc) in enumerate([(95, 'Value yes in ISPT_ROCK not of data type YN.'),
+                                      (96, 'Value no in ISPT_ROCK not of data type YN.'),
+                                      (97, 'Value YES in ISPT_ROCK not of data type YN.'),
+                                      (98, 'Value NO in ISPT_ROCK not of data type YN.'),
+                                      (99, 'Value xyz in ISPT_ROCK not of data type YN.'),
+                                      (100, 'Value 10 in ISPT_ROCK not of data type YN.')],
+                                     start=4):
+        assert error_list['AGS Format Rule 8'][i]['line'] == line
+        assert error_list['AGS Format Rule 8'][i]['group'] == 'ISPT'
+        assert error_list['AGS Format Rule 8'][i]['desc'] == desc
 
 
 def test_rule_8_8():
