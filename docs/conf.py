@@ -20,7 +20,7 @@ release = python_ags4.__version__
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'sphinx.ext.viewcode','sphinxcontrib.jquery']
 
 # Autodoc settings
 autodoc_member_order = 'alphabetical'
