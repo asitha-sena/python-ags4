@@ -95,7 +95,19 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
 
             if temp[0] == 'GROUP':
                 group = temp[1]
-                data[group] = {}
+
+                # Raise exception if duplicate group is found as previous copy
+                # of that group will be overwritten
+                if group in data.keys():
+                    msg = f"{group} group duplicated in Line {i}. Cannot parse file without overwriting data, "\
+                           "therefore please combine all duplicate groups first."
+
+                    rprint(f"[red]  ERROR: {msg}[/red]")
+                    logger.error(msg)
+                    raise AGS4Error(msg)
+
+                else:
+                    data[group] = {}
 
                 # Store GROUP line number (A default 'HEADING' entry is added to
                 # avoid KeyErrors in case of missing HEADING rows)
