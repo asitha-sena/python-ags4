@@ -591,7 +591,7 @@ def rule_7_2(headings, dictionary, line_numbers, ags_errors={}):
                     msg = f'Headings not in order starting from {item}. Expected order: ...{"|".join(temp[i:])}'
                     add_error_msg(ags_errors, 'AGS Format Rule 7', line_number, key, msg)
 
-                    return ags_errors
+                    break
 
         else:
             line_number = line_numbers[key]['HEADING']
