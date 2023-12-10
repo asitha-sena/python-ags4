@@ -801,9 +801,60 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         logger.info('Loading tables...')
         tables, headings, line_numbers = AGS4_to_dataframe(input_file, get_line_numbers=True, rename_duplicate_headers=rename_duplicate_headers)
 
+        # Group Checks
+        rprint('[green]  Checking headings and groups...[/green]')
+        logger.info('Checking headings and groups...')
+        ags_errors = check.rule_2(tables, headings, line_numbers, ags_errors=ags_errors)
+        ags_errors = check.rule_2b(tables, headings, line_numbers, ags_errors=ags_errors)
+        ags_errors = check.rule_8(tables, headings, line_numbers, ags_errors=ags_errors)
+        ags_errors = check.rule_12(tables, headings, ags_errors=ags_errors)
+        ags_errors = check.rule_13(tables, headings, line_numbers, ags_errors=ags_errors)
+        ags_errors = check.rule_14(tables, headings, line_numbers, ags_errors=ags_errors)
+        ags_errors = check.rule_15(tables, headings, line_numbers, ags_errors=ags_errors)
+        ags_errors = check.rule_20(tables, headings, input_file, ags_errors=ags_errors)
+        ags_errors = check.is_TRAN_AGS_valid(tables, headings, line_numbers, ags_errors=ags_errors)
+
+        # Dictionary Based Checks
+
+        # Pick path to standard dictionary
+        if standard_AGS4_dictionary in [None, '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
+            # Filepath to the standard dictionary will be picked based on version
+            # number if a valid version number is provided. If it is not specified
+            # at all, then the filepath will be selected based on the value of
+            # TRAN_AGS in the TRAN table.
+            standard_AGS4_dictionary = check.pick_standard_dictionary(tables=tables, dict_version=standard_AGS4_dictionary)
+
+        # Import standard dictionary file into Pandas dataframes
+        tables_std_dict, _ = AGS4_to_dataframe(standard_AGS4_dictionary)
+
+        # Combine standard dictionary with DICT table in input file to create an extended dictionary
+        # This extended dictionary is used to check the file schema
+        dictionary = check.combine_DICT_tables(tables_std_dict, tables)
+
+        rprint('[green]  Checking file schema...[/green]')
+        logger.info('Checking file schema...')
+        ags_errors = check.rule_7_2(headings, dictionary, line_numbers, ags_errors=ags_errors)
+        ags_errors = check.rule_9(headings, dictionary, line_numbers, ags_errors=ags_errors)
+        ags_errors = check.rule_10a(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
+        ags_errors = check.rule_10b(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
+        ags_errors = check.rule_10c(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
+        ags_errors = check.rule_11(tables, headings, dictionary, ags_errors=ags_errors)
+        ags_errors = check.rule_16(tables, headings, dictionary, ags_errors=ags_errors)
+        ags_errors = check.rule_17(tables, headings, dictionary, ags_errors=ags_errors)
+        # Note: rule_18() has to be called after rule_9() as it relies on rule_9() to flag non-standard headings.
+        ags_errors = check.rule_18(tables, headings, ags_errors=ags_errors)
+        ags_errors = check.rule_19b_2(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
+        ags_errors = check.rule_19b_3(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
+
+        # Warnings
+        ags_errors = check.warning_16_1(tables, headings, tables_std_dict['ABBR'], ags_errors=ags_errors)
+
     except AGS4Error as err:
-        rprint('[red] ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
-        logger.exception('Could not continue with group checks on file. Please review error log and fix line errors first.')
+        msg = 'Could not continue with group checks on file. Please review error log and fix line errors first.'
+
+        rprint(f'[red]  ERROR: {msg}[/red]')
+        logger.exception(msg)
+
         raise err
 
     except UnboundLocalError:
@@ -829,60 +880,11 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         # Add metadata
         ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors, encoding=encoding)
 
+    finally:
+        # Add metadata
+        ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors, encoding=encoding)
+
         return ags_errors
-
-    # Group Checks
-    rprint('[green]  Checking headings and groups...[/green]')
-    logger.info('Checking headings and groups...')
-    ags_errors = check.rule_2(tables, headings, line_numbers, ags_errors=ags_errors)
-    ags_errors = check.rule_2b(tables, headings, line_numbers, ags_errors=ags_errors)
-    ags_errors = check.rule_8(tables, headings, line_numbers, ags_errors=ags_errors)
-    ags_errors = check.rule_12(tables, headings, ags_errors=ags_errors)
-    ags_errors = check.rule_13(tables, headings, line_numbers, ags_errors=ags_errors)
-    ags_errors = check.rule_14(tables, headings, line_numbers, ags_errors=ags_errors)
-    ags_errors = check.rule_15(tables, headings, line_numbers, ags_errors=ags_errors)
-    ags_errors = check.rule_20(tables, headings, input_file, ags_errors=ags_errors)
-    ags_errors = check.is_TRAN_AGS_valid(tables, headings, line_numbers, ags_errors=ags_errors)
-
-    # Dictionary Based Checks
-
-    # Pick path to standard dictionary
-    if standard_AGS4_dictionary in [None, '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
-        # Filepath to the standard dictionary will be picked based on version
-        # number if a valid version number is provided. If it is not specified
-        # at all, then the filepath will be selected based on the value of
-        # TRAN_AGS in the TRAN table.
-        standard_AGS4_dictionary = check.pick_standard_dictionary(tables=tables, dict_version=standard_AGS4_dictionary)
-
-    # Import standard dictionary file into Pandas dataframes
-    tables_std_dict, _ = AGS4_to_dataframe(standard_AGS4_dictionary)
-
-    # Combine standard dictionary with DICT table in input file to create an extended dictionary
-    # This extended dictionary is used to check the file schema
-    dictionary = check.combine_DICT_tables(tables_std_dict, tables)
-
-    rprint('[green]  Checking file schema...[/green]')
-    logger.info('Checking file schema...')
-    ags_errors = check.rule_7_2(headings, dictionary, line_numbers, ags_errors=ags_errors)
-    ags_errors = check.rule_9(headings, dictionary, line_numbers, ags_errors=ags_errors)
-    ags_errors = check.rule_10a(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
-    ags_errors = check.rule_10b(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
-    ags_errors = check.rule_10c(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
-    ags_errors = check.rule_11(tables, headings, dictionary, ags_errors=ags_errors)
-    ags_errors = check.rule_16(tables, headings, dictionary, ags_errors=ags_errors)
-    ags_errors = check.rule_17(tables, headings, dictionary, ags_errors=ags_errors)
-    # Note: rule_18() has to be called after rule_9() as it relies on rule_9() to flag non-standard headings.
-    ags_errors = check.rule_18(tables, headings, ags_errors=ags_errors)
-    ags_errors = check.rule_19b_2(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
-    ags_errors = check.rule_19b_3(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
-
-    # Warnings
-    ags_errors = check.warning_16_1(tables, headings, tables_std_dict['ABBR'], ags_errors=ags_errors)
-
-    # Add metadata
-    ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors, encoding=encoding)
-
-    return ags_errors
 
 
 # Helper functions/classes #
