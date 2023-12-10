@@ -286,7 +286,7 @@ def test_rule_9_2():
     assert 'AGS Format Rule 9' in error_list.keys()
     assert error_list['AGS Format Rule 9'][0]['line'] == 78
     assert error_list['AGS Format Rule 9'][0]['group'] == 'SAMP'
-    assert error_list['AGS Format Rule 9'][0]['desc'] == 'SAMP_XXXX not found in DICT table or the standard AGS4 dictionary.'
+    assert error_list['AGS Format Rule 9'][0]['desc'] == 'SAMP_XXXX not found in DICT group or the standard AGS4 dictionary.'
 
 
 def test_rule_10_1():
@@ -414,7 +414,7 @@ def test_rule_13_1():
     assert 'AGS Format Rule 13' in error_list.keys()
     assert error_list['AGS Format Rule 13'][0]['line'] == 6
     assert error_list['AGS Format Rule 13'][0]['group'] == 'PROJ'
-    assert error_list['AGS Format Rule 13'][0]['desc'] == 'There should not be more than one DATA row in the PROJ table.'
+    assert error_list['AGS Format Rule 13'][0]['desc'] == 'There should not be more than one DATA row in the PROJ group.'
 
 
 def test_rule_13_2():
@@ -422,7 +422,7 @@ def test_rule_13_2():
 
     assert 'AGS Format Rule 13' in error_list.keys()
     assert error_list['AGS Format Rule 13'][0]['group'] == 'PROJ'
-    assert error_list['AGS Format Rule 13'][0]['desc'] == 'PROJ table not found.'
+    assert error_list['AGS Format Rule 13'][0]['desc'] == 'PROJ group not found.'
 
 
 def test_rule_14_1():
@@ -431,7 +431,7 @@ def test_rule_14_1():
     assert 'AGS Format Rule 14' in error_list.keys()
     assert error_list['AGS Format Rule 14'][0]['line'] == 25
     assert error_list['AGS Format Rule 14'][0]['group'] == 'TRAN'
-    assert error_list['AGS Format Rule 14'][0]['desc'] == 'There should not be more than one DATA row in the TRAN table.'
+    assert error_list['AGS Format Rule 14'][0]['desc'] == 'There should not be more than one DATA row in the TRAN group.'
 
 
 def test_rule_14_2():
@@ -439,7 +439,7 @@ def test_rule_14_2():
 
     assert 'AGS Format Rule 14' in error_list.keys()
     assert error_list['AGS Format Rule 14'][0]['group'] == 'TRAN'
-    assert error_list['AGS Format Rule 14'][0]['desc'] == 'TRAN table not found.'
+    assert error_list['AGS Format Rule 14'][0]['desc'] == 'TRAN group not found.'
 
 
 def test_rule_14_3():
@@ -447,7 +447,7 @@ def test_rule_14_3():
 
     assert 'AGS Format Rule 17' in error_list.keys()
     assert error_list['AGS Format Rule 17'][0]['group'] == 'TYPE'
-    assert error_list['AGS Format Rule 17'][0]['desc'] == 'Data type "YN" not found in TYPE table.'
+    assert error_list['AGS Format Rule 17'][0]['desc'] == 'Data type "YN" not found in TYPE group.'
 
 
 def test_rule_15_1():
@@ -455,7 +455,7 @@ def test_rule_15_1():
 
     assert 'AGS Format Rule 15' in error_list.keys()
     assert error_list['AGS Format Rule 15'][0]['group'] == 'UNIT'
-    assert error_list['AGS Format Rule 15'][0]['desc'] == 'UNIT table not found.'
+    assert error_list['AGS Format Rule 15'][0]['desc'] == 'UNIT group not found.'
 
 
 def test_rule_15_2():
@@ -464,7 +464,7 @@ def test_rule_15_2():
     assert 'AGS Format Rule 15' in error_list.keys()
     assert error_list['AGS Format Rule 15'][0]['line'] == '-'
     assert error_list['AGS Format Rule 15'][0]['group'] == 'UNIT'
-    assert error_list['AGS Format Rule 15'][0]['desc'] == 'Unit "%" not found in UNIT table. (This unit first appears in UNIT row in LLPL table)'
+    assert error_list['AGS Format Rule 15'][0]['desc'] == 'Unit "%" not found in UNIT group. (This unit first appears in UNIT row in LLPL group)'
 
 
 def test_rule_15_3():
@@ -473,7 +473,7 @@ def test_rule_15_3():
     assert 'AGS Format Rule 15' in error_list.keys()
     assert error_list['AGS Format Rule 15'][0]['line'] == '-'
     assert error_list['AGS Format Rule 15'][0]['group'] == 'UNIT'
-    assert error_list['AGS Format Rule 15'][0]['desc'] == 'Unit "mg/l" not found in UNIT table. (This unit first appears in ELRG_RUNI column in ELRG table)'
+    assert error_list['AGS Format Rule 15'][0]['desc'] == 'Unit "mg/l" not found in UNIT group. (This unit first appears in ELRG_RUNI column in ELRG group)'
 
 
 def test_rule_16_1():
@@ -481,9 +481,9 @@ def test_rule_16_1():
 
     assert 'AGS Format Rule 16' in error_list.keys()
     assert error_list['AGS Format Rule 16'][0]['group'] == 'SAMP'
-    assert error_list['AGS Format Rule 16'][0]['desc'] == '"U" under SAMP_TYPE in SAMP not found in ABBR table.'
+    assert error_list['AGS Format Rule 16'][0]['desc'] == '"U" under SAMP_TYPE in SAMP not found in ABBR group.'
     assert error_list['AGS Format Rule 16'][1]['group'] == 'LLPL'
-    assert error_list['AGS Format Rule 16'][1]['desc'] == '"U" under SAMP_TYPE in LLPL not found in ABBR table.'
+    assert error_list['AGS Format Rule 16'][1]['desc'] == '"U" under SAMP_TYPE in LLPL not found in ABBR group.'
 
 
 def test_warning_16_1():
@@ -503,7 +503,7 @@ def test_rule_16_3():
 
     assert 'AGS Format Rule 16' in error_list.keys()
     assert error_list['AGS Format Rule 16'][0]['group'] == 'ABBR'
-    assert error_list['AGS Format Rule 16'][0]['desc'] == 'ABBR table not found.'
+    assert error_list['AGS Format Rule 16'][0]['desc'] == 'ABBR group not found.'
 
 
 def test_rule_16b_2():
@@ -511,9 +511,9 @@ def test_rule_16b_2():
 
     assert 'AGS Format Rule 16' in error_list.keys()
     assert error_list['AGS Format Rule 16'][0]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 16'][0]['desc'] == '"CP" under LOCA_TYPE in LOCA not found in ABBR table.'
+    assert error_list['AGS Format Rule 16'][0]['desc'] == '"CP" under LOCA_TYPE in LOCA not found in ABBR group.'
     assert error_list['AGS Format Rule 16'][1]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 16'][1]['desc'] == '"RC" under LOCA_TYPE in LOCA not found in ABBR table.'
+    assert error_list['AGS Format Rule 16'][1]['desc'] == '"RC" under LOCA_TYPE in LOCA not found in ABBR group.'
 
 
 def test_rule_16b_3():
@@ -521,9 +521,9 @@ def test_rule_16b_3():
 
     assert 'AGS Format Rule 16' in error_list.keys()
     assert error_list['AGS Format Rule 16'][0]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 16'][0]['desc'] == '"CP " under LOCA_TYPE in LOCA not found in ABBR table.'
+    assert error_list['AGS Format Rule 16'][0]['desc'] == '"CP " under LOCA_TYPE in LOCA not found in ABBR group.'
     assert error_list['AGS Format Rule 16'][1]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 16'][1]['desc'] == '" RC" under LOCA_TYPE in LOCA not found in ABBR table.'
+    assert error_list['AGS Format Rule 16'][1]['desc'] == '" RC" under LOCA_TYPE in LOCA not found in ABBR group.'
 
 
 def test_rule_16b_4():
@@ -547,7 +547,7 @@ def test_rule_17_1():
 
     assert 'AGS Format Rule 17' in error_list.keys()
     assert error_list['AGS Format Rule 17'][0]['group'] == 'TYPE'
-    assert error_list['AGS Format Rule 17'][0]['desc'] == 'Data type "ID" not found in TYPE table.'
+    assert error_list['AGS Format Rule 17'][0]['desc'] == 'Data type "ID" not found in TYPE group.'
 
 
 def test_rule_17_2():
@@ -555,7 +555,7 @@ def test_rule_17_2():
 
     assert 'AGS Format Rule 17' in error_list.keys()
     assert error_list['AGS Format Rule 17'][0]['group'] == 'TYPE'
-    assert error_list['AGS Format Rule 17'][0]['desc'] == 'TYPE table not found.'
+    assert error_list['AGS Format Rule 17'][0]['desc'] == 'TYPE group not found.'
 
 
 def test_rule_18_1():
@@ -563,7 +563,7 @@ def test_rule_18_1():
 
     assert 'AGS Format Rule 9' in error_list.keys()
     assert error_list['AGS Format Rule 9'][0]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 9'][0]['desc'] == 'LOCA_APPG not found in DICT table or the standard AGS4 dictionary.'
+    assert error_list['AGS Format Rule 9'][0]['desc'] == 'LOCA_APPG not found in DICT group or the standard AGS4 dictionary.'
 
 
 def test_rule_18_2():
@@ -644,9 +644,9 @@ def test_rule_20_1():
 
     assert 'AGS Format Rule 20' in error_list.keys()
     assert error_list['AGS Format Rule 20'][0]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 20'][0]['desc'] == 'FILE_FSET entry "327-16A" not found in FILE table.'
+    assert error_list['AGS Format Rule 20'][0]['desc'] == 'FILE_FSET entry "327-16A" not found in FILE group.'
     assert error_list['AGS Format Rule 20'][1]['group'] == 'FILE'
-    assert error_list['AGS Format Rule 20'][1]['desc'] == f'Sub-folder named "{os.path.join("FILE", "327")}" not found even though it is defined in the FILE table.'
+    assert error_list['AGS Format Rule 20'][1]['desc'] == f'Sub-folder named "{os.path.join("FILE", "327")}" not found even though it is defined in the FILE group.'
 
 
 def test_rule_20_2():
@@ -654,7 +654,7 @@ def test_rule_20_2():
 
     assert 'AGS Format Rule 20' in error_list.keys()
     assert error_list['AGS Format Rule 20'][0]['group'] == 'FILE'
-    assert error_list['AGS Format Rule 20'][0]['desc'] == f'Sub-folder named "{os.path.join("FILE", "327")}" not found even though it is defined in the FILE table.'
+    assert error_list['AGS Format Rule 20'][0]['desc'] == f'Sub-folder named "{os.path.join("FILE", "327")}" not found even though it is defined in the FILE group.'
 
 
 def test_rule_20_3():
@@ -662,7 +662,7 @@ def test_rule_20_3():
 
     assert 'AGS Format Rule 20' in error_list.keys()
     assert error_list['AGS Format Rule 20'][0]['group'] == 'FILE'
-    assert error_list['AGS Format Rule 20'][0]['desc'] == f'File named "{os.path.join("FILE", "327-16A", "wrong Report.pdf")}" not found even though it is defined in the FILE table.'
+    assert error_list['AGS Format Rule 20'][0]['desc'] == f'File named "{os.path.join("FILE", "327-16A", "wrong Report.pdf")}" not found even though it is defined in the FILE group.'
 
 
 def test_rule_20_OK():
