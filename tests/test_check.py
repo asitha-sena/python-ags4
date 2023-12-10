@@ -725,3 +725,15 @@ def test_file_with_standalone_SAMP_IDs():
     error_list = AGS4.check_file('tests/test_files/Standalone_SAMP_IDs.ags')
 
     assert not bool([x for x in error_list if 'Rule' in x])
+
+
+def test_checking_without_dictionary_raises_error():
+    # Check file without a DICT table
+    # The same file is passed as the standard dictionary to
+    # force exception to be raised
+    error_list = AGS4.check_file('tests/test_files/4.1-rule1-utf8.ags', standard_AGS4_dictionary='tests/test_files/4.1-rule1-utf8.ags')
+
+    assert 'AGS Format Rule ?' in error_list.keys()
+    assert error_list['AGS Format Rule ?'][0]['group'] == ''
+    assert error_list['AGS Format Rule ?'][0]['desc'] == 'No DICT groups available to proceed with checking. Please ensure '\
+                                                         'the input file has a DICT group or provide file with standard AGS4 dictionary.'

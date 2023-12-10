@@ -270,7 +270,7 @@ def test_duplicate_headers_with_rename_renames(function):
     assert "SAMP_BASE_1" in headers['SAMP']
 
 
-@pytest.mark.parametrize("function", [AGS4.AGS4_to_dict, AGS4.AGS4_to_dataframe, AGS4.check_file])
+@pytest.mark.parametrize("function", [AGS4.AGS4_to_dict, AGS4.AGS4_to_dataframe])
 def test_duplicate_headers_without_rename_raises_error(function):
     with pytest.raises(AGS4.AGS4Error, match=r'HEADER row.*has duplicate entries'):
         function('tests/test_files/DuplicateHeaders.ags', rename_duplicate_headers=False)
@@ -287,15 +287,6 @@ def test_converting_dataframe_without_UNIT_TYPE_to_text_raises_error():
 
     with pytest.raises(AGS4.AGS4Error, match=r'Cannot convert to text.*'):
         _ = AGS4.convert_to_text(LOCA)
-
-
-def test_checking_without_dictionary_raises_error():
-    with pytest.raises(AGS4.AGS4Error, match=r'No DICT groups available to proceed with checking.*'):
-        # Check file without a DICT table
-        # The same file is passed as the standard dictionary to
-        # force exception to be raised
-        _ = AGS4.check_file('tests/test_files/4.1-rule1-utf8.ags',
-                            standard_AGS4_dictionary='tests/test_files/4.1-rule1-utf8.ags')
 
 
 def test_converting_empty_ags_file_to_xlsx_raises_error():

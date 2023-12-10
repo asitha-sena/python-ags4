@@ -829,7 +829,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
 
         # Combine standard dictionary with DICT table in input file to create an extended dictionary
         # This extended dictionary is used to check the file schema
-        dictionary = check.combine_DICT_tables(tables_std_dict, tables)
+        dictionary, ags_errors = check.combine_DICT_tables(tables_std_dict, tables, ags_errors=ags_errors)
 
         rprint('[green]  Checking file schema...[/green]')
         logger.info('Checking file schema...')
