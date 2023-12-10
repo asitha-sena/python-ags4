@@ -849,13 +849,11 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         # Warnings
         ags_errors = check.warning_16_1(tables, headings, tables_std_dict['ABBR'], ags_errors=ags_errors)
 
-    except AGS4Error as err:
+    except AGS4Error:
         msg = 'Could not continue with group checks on file. Please review error log and fix line errors first.'
-
-        rprint(f'[red]  ERROR: {msg}[/red]')
         logger.exception(msg)
 
-        raise err
+        ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', msg)
 
     except UnboundLocalError:
         # The presence of a byte-order-mark (BOM) in the same row as first
@@ -876,9 +874,6 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         rprint('[red] ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
         rprint(f'[red]\n{err}[/red]')
         logger.exception('Could not continue with group checks on file. Please review error log and fix line errors first.')
-
-        # Add metadata
-        ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors, encoding=encoding)
 
     finally:
         # Add metadata
