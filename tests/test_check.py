@@ -114,6 +114,29 @@ def test_rule_3():
     assert error_list['AGS Format Rule 3'][0]['desc'] == 'Does not start with a valid data descriptor.'
 
 
+def test_rule_6_1():
+    # Check file that is not in CSV format
+    error_list = AGS4.check_file('tests/test_files/4.1-rule6_1.ags')
+
+    assert 'AGS Format Rule 3' in error_list.keys()
+    assert 'AGS Format Rule 5' in error_list.keys()
+    assert 'AGS Format Rule 19a' in error_list.keys()
+
+
+def test_rule_6_2():
+    # Check file that contains field with line break
+    error_list = AGS4.check_file('tests/test_files/4.1-rule6_2.ags')
+
+    assert 'AGS Format Rule 4' in error_list.keys()
+    assert error_list['AGS Format Rule 4'][0]['line'] == 26
+    assert error_list['AGS Format Rule 4'][0]['group'] == 'ABBR'
+    assert error_list['AGS Format Rule 4'][0]['desc'] == 'Number of fields does not match the HEADING row.'
+
+    assert 'AGS Format Rule 5' in error_list.keys()
+    assert error_list['AGS Format Rule 5'][0]['line'] == 26
+    assert error_list['AGS Format Rule 5'][0]['desc'] == 'Contains fields that are not enclosed in double quotes.'
+
+
 def test_rule_7_1():
     error_list = AGS4.check_file('tests/test_files/DuplicateHeaders.ags')
 
