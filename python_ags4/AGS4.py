@@ -829,7 +829,7 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
 
         # Combine standard dictionary with DICT table in input file to create an extended dictionary
         # This extended dictionary is used to check the file schema
-        dictionary, ags_errors = check.combine_DICT_tables(tables_std_dict, tables, ags_errors=ags_errors)
+        dictionary = check.combine_DICT_tables(tables_std_dict, tables)
 
         rprint('[green]  Checking file schema...[/green]')
         logger.info('Checking file schema...')
@@ -849,11 +849,9 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         # Warnings
         ags_errors = check.warning_16_1(tables, headings, tables_std_dict['ABBR'], ags_errors=ags_errors)
 
-    except AGS4Error:
-        msg = 'Could not continue with group checks on file. Please review error log and fix line errors first.'
-        logger.exception(msg)
-
-        ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', msg)
+    except AGS4Error as err:
+        logger.exception(err)
+        ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', str(err))
 
     except UnboundLocalError:
         # The presence of a byte-order-mark (BOM) in the same row as first
@@ -871,9 +869,14 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
 
     except Exception:
         err = traceback.format_exc()
-        rprint('[red] ERROR: Could not continue with group checks on file. Please review error log and fix line errors first.[/red]')
+        msg = 'Could not continue with group checks on file. Please review error log and fix line errors first.'
+
+        rprint(f'[red] ERROR: {msg}[/red]')
         rprint(f'[red]\n{err}[/red]')
-        logger.exception('Could not continue with group checks on file. Please review error log and fix line errors first.')
+        logger.exception(msg)
+
+        ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', msg)
+        ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', err)
 
     finally:
         # Add metadata

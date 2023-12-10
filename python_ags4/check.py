@@ -70,7 +70,7 @@ def add_error_msg(ags_errors, rule, line, group, desc):
     return ags_errors
 
 
-def combine_DICT_tables(*ags_tables, ags_errors={}):
+def combine_DICT_tables(*ags_tables):
     """Combine DICT tables from multiple AGS4 files.
 
     If duplicate rows are encountered, the first will be kept and the rest
@@ -116,15 +116,13 @@ def combine_DICT_tables(*ags_tables, ags_errors={}):
 
         rprint(f'[red]  ERROR: {msg}[/red]')
         logger.error(msg)
-        ags_errors = add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', msg)
 
-        raise AGS4Error("No DICT groups available to proceed with checking. "
-                        "Please ensure the input file has a DICT group or provide file with standard AGS4 dictionary.")
+        raise AGS4Error(msg)
 
     # Drop duplicate entries
     master_DICT.drop_duplicates(['HEADING', 'DICT_TYPE', 'DICT_GRP', 'DICT_HDNG'], keep='first', inplace=True)
 
-    return master_DICT, ags_errors
+    return master_DICT
 
 
 def fetch_record(record_link, tables):
