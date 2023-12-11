@@ -308,7 +308,7 @@ def rule_1(line, line_number=0, ags_errors={}, encoding='utf-8'):
                 add_error_msg(ags_errors, 'AGS Format Rule 1', line_number, '', msg)
         else:
             msg = "Has extended ASCII character(s)."
-            add_error_msg(ags_errors, 'FYI', line_number, '', msg)
+            add_error_msg(ags_errors, 'FYI (Related to Rule 1)', line_number, '', msg)
 
     return ags_errors
 
