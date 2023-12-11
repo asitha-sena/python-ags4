@@ -33,6 +33,10 @@ from rich.console import Console
 
 from python_ags4 import AGS4, __version__
 
+# Add warnings filter because Pandas 2.1 produces a lot of deprecation warnings
+import warnings
+warnings.filterwarnings('ignore')
+
 # Create rich console for pretty printing
 console = Console()
 
