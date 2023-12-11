@@ -211,7 +211,7 @@ def pick_standard_dictionary(tables=None, dict_version=None):
             rprint('[yellow]  WARNING: Standard dictionary for AGS4 version specified in TRAN_AGS not available.[/yellow]')
             rprint(f'[yellow]           Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
             logger.warning('Standard dictionary for AGS4 version specified in TRAN_AGS not available. '
-                         f'Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
+                           f'Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
             path_to_standard_dictionary = Path(__file__).parent / STANDARD_DICT_FILES[LATEST_DICT_VERSION]
 
     except KeyError:

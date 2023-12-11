@@ -143,8 +143,8 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                             rprint('[blue]        Automatically renamed columns do not conform to AGS4 Rules 19a and 19b.[/blue]')
                             rprint('[blue]        Therefore, please review the data and rename or drop duplicate columns as appropriate.[/blue]')
                             logger.info(f'Duplicate column {item} found and renamed as {item}_{count}. '
-                                      'Automatically renamed columns do not conform to AGS4 Rules 19a and 19b. '
-                                      'Therefore, please review the data and rename or drop duplicate columns as appropriate.')
+                                        'Automatically renamed columns do not conform to AGS4 Rules 19a and 19b. '
+                                        'Therefore, please review the data and rename or drop duplicate columns as appropriate.')
 
                 # Store HEADING line number
                 line_numbers[group]['HEADING'] = i
@@ -572,7 +572,7 @@ def convert_to_text(dataframe, dictionary=None):
             rprint("[red]  ERROR: Cannot convert to text as UNIT and/or TYPE row(s) are missing.")
             rprint("[red]         Please provide dictonary file or add UNIT & TYPE rows to input file to proceed.[/red]")
             logger.error('Cannot convert to text as UNIT and/or TYPE row(s) are missing. '
-                       'Please provide dictonary file or add UNIT & TYPE rows to input file to proceed.')
+                         'Please provide dictonary file or add UNIT & TYPE rows to input file to proceed.')
             raise AGS4Error("Cannot convert to text as UNIT and/or TYPE row(s) are missing. "
                             "Please provide dictonary file or add UNIT & TYPE rows to input file to proceed.")
 
@@ -916,6 +916,7 @@ def _is_file_like(obj):
 
     return True
 
+
 def _is_bytebuffer(obj):
     """Check if object is buffer like
 
@@ -929,6 +930,8 @@ def _is_bytebuffer(obj):
         return True
 
     return False
+
+
 class AGS4Error(Exception):
     """Exception class for AGS4 parsing errors.
     """

@@ -54,7 +54,8 @@ def main():
 @click.option('-f', '--format_columns', type=click.BOOL, default=True,
               help='Format numeric data based on TYPE values if converting from .xlsx to .ags (default True)')
 @click.option('-d', '--dictionary', type=click.File('r'), default=None,
-              help="Path to AGS4 dictionary file. Numeric data will be formatted based on TYPE values from this file if converting from .xlsx to .ags.")
+              help="Path to AGS4 dictionary file. "
+                   "Numeric data will be formatted based on TYPE values from this file if converting from .xlsx to .ags.")
 @click.option('-r', '--rename_duplicate_headers', type=click.BOOL, default=True,
               help="Rename duplicate headers when converting to Excel (default True)")
 @click.option('-s', '--sort_tables', type=click.BOOL, default=False,
@@ -62,7 +63,7 @@ def main():
 @click.option('-l', '--log_messages', is_flag=True,
               help='Log all messages to python_ags4.log file (default False)')
 def convert(input_file, output_file, format_columns, dictionary, rename_duplicate_headers, sort_tables, log_messages):
-    '''Convert .ags file to .xlsx file or vice versa.
+    r'''Convert .ags file to .xlsx file or vice versa.
 
     INPUT_FILE   Path to input file. The file should be either .ags or .xlsx
 
