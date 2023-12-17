@@ -654,10 +654,11 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
 
                     # Convert column to numeric values and convert back to correctly formatted strings
                     df['temp'] = pd.to_numeric(df[col], errors='coerce')
+                    filter_zeros = df['temp'].ne(0.0)  # Filter zeros as significant figures cannot be determined for them
                     df = format_numeric_column(df, 'temp', data_type)
 
                     # Compare correctly formatted strings with original strings
-                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].eq(df['temp'])
+                    mask = df.HEADING.eq('DATA') & ~df[col].eq('') & ~df[col].eq(df['temp']) & filter_zeros
 
                     # Replace NaN with ? to make error log clearer
                     df.loc[df.temp.isna(), 'temp'] = '?'

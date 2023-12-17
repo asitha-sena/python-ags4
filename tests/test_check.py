@@ -204,6 +204,11 @@ def test_rule_8_3():
     assert error_list['AGS Format Rule 8'][2]['group'] == 'LLPL'
     assert error_list['AGS Format Rule 8'][2]['desc'] == 'Value 0.2 in LLPL_PI not of data type 2SF. (Expected: 0.20)'
 
+    # Verify that SF checks on zeros are skipped by Line 75 which contains LLPL_PI=0 is not flagged
+    for val in error_list['AGS Format Rule 8']:
+        if val['line'] == 75:
+            assert 'LLPL_PI not of data type' not in val['desc']
+
 
 def test_rule_8_4():
     error_list = AGS4.check_file('tests/test_files/4.1-rule8-4.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
