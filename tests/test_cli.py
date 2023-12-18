@@ -1,5 +1,5 @@
 
-from python_ags4.ags4_cli import check, convert
+from python_ags4.ags4_cli import check, convert, sort
 from click.testing import CliRunner
 
 
@@ -28,6 +28,15 @@ def test_check_file_without_errors():
 def test_convert_ags_to_xlsx():
     runner = CliRunner()
     result = runner.invoke(convert, [TEST_FILE_WITH_ERRORS, 'tests/test_files/output.xlsx'])
+
+    assert result.exit_code == 0
+
+    print(result.stdout)
+
+
+def test_convert_sort():
+    runner = CliRunner()
+    result = runner.invoke(sort, [TEST_FILE_WITH_ERRORS, 'tests/test_files/UnsortedGroups.ags'])
 
     assert result.exit_code == 0
 

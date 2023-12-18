@@ -235,6 +235,64 @@ def check(input_file, output_file, dictionary_path, dictionary_version, encoding
     sys.exit(1)
 
 
+@main.command()
+@click.argument('input_file', type=click.Path('r'))
+@click.argument('output_file', type=click.Path(writable=True))
+@click.option('-s', '--sorting_strategy', type=click.Choice(['hierarchical', 'alphabetical', 'dictionary']),
+              default='hierarchical',
+              help="Sorting strategy.")
+@click.option('-l', '--log_messages', is_flag=True,
+              help='Log all messages to python_ags4.log file (default False)')
+def sort(input_file, output_file, sorting_strategy, log_messages):
+    '''Sort groups/tables in .ags file and create copy.
+
+    INPUT_FILE   Path to input .ags file
+
+    OUTPUT_FILE  Path to output .ags file
+
+    Exit codes:
+        0 - All checks passed
+        1 - Errors found or file read error
+    '''
+
+    # Log messages if specified
+    if log_messages is True:
+        logging.basicConfig(format='{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
+                            style='{', datefmt='%Y-%m-%dT%H:%M:%S%z',
+                            level=logging.DEBUG,
+                            handlers=[RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log', maxBytes=100e3, backupCount=1)])
+
+    else:
+        logging.basicConfig(level=logging.CRITICAL)
+
+    try:
+        if input_file.endswith('.ags') & output_file.endswith('.ags'):
+            console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
+            tables, headings = AGS4.AGS4_to_dataframe(input_file)
+
+            console.print(f'[green]Sorting tables... [/green]')
+            print('')
+            sorted_tables = AGS4.sort_groups(tables, sorting_strategy)
+
+            console.print(f'[green]Writing to... [bold]{output_file}[/bold][/green]')
+            AGS4.dataframe_to_AGS4(sorted_tables, headings, output_file)
+            console.print('\n[green]Files with sorted groups/tables created! :heavy_check_mark:[/green]\n')
+            sys.exit(0)
+
+        else:
+            console.print('[red]Please provide input and output files with a [bold].ags[/bold] extension.[/red]')
+
+    except FileNotFoundError:
+        console.print('[red]ERROR: Invalid output file path. Converted file could not be saved.[/red]')
+        console.print('[red]       Please ensure that the specified directory exists.[/red]')
+
+    except AGS4.AGS4Error:
+        pass
+
+    # All error cases exit here
+    sys.exit(1)
+
+
 def print_to_screen(ags_errors, show_warnings=False, show_fyi=False):
     '''Print error report to screen.'''
 
