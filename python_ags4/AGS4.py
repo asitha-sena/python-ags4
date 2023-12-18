@@ -251,7 +251,7 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=Fal
     return tables, headings
 
 
-def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_headers=True, sort_tables=False):
+def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_headers=True, sorting_strategy=None):
     """Load all the tables in an AGS4 file to an Excel spreasheet.
 
     Parameters
@@ -267,10 +267,10 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
         Rename duplicate headers if found. Neither AGS4 tables nor Pandas
         dataframes allow duplicate headers, therefore a number will be appended
         to duplicates to make them unique.
-    sort_tables : bool, default=False
-        Alphabetically sort worksheets in Excel file. WARNING: The original
-        order of groups will be lost and cannot be restored when .xlsx file is
-        converted back to .ags.
+    sorting_strategy : {None, dictionary', 'alphabetical', 'hierarchical'}, default=None
+        Sort groups in the order in which they appear in the dictionary or
+        alphabetically. WARNING: The original order of groups will be lost and
+        cannot be restored when .xlsx file is converted back to .ags.
 
     Returns
     -------
@@ -286,10 +286,16 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
                                          rename_duplicate_headers=rename_duplicate_headers)
 
     # Create list of tables that can be sorted
-    if sort_tables is True:
-        list_of_tables = sorted(tables.keys())
-        rprint('[yellow]WARNING: Worksheets in Excel file will be sorted alphabetically.[/yellow]')
-        rprint('[yellow]         The original group order will not be restored if this .xlsx file is converted back to .ags.[/yellow]')
+    if sorting_strategy is not None:
+        sorting_desc = {'dictionary': 'according to the order of appearance in the dictionary',
+                        'alphabetical': 'alphabetically',
+                        'hierarchical': 'according to the hierarchy defined in the dictionary'}
+        msg = f'WARNING: Worksheets in Excel file will be sorted {sorting_desc[sorting_strategy]}. The original group order will be lost.'
+        rprint(f"[yellow]{msg}[/yellow]")
+        logger.warning(f"{msg}")
+
+        list_of_tables = sort_groups(tables, sorting_strategy=sorting_strategy)
+
     else:
         list_of_tables = tables.keys()
 

@@ -197,7 +197,7 @@ def test_AGS4_to_excel(LOCA=LOCA, LLPL=LLPL):
 
 def test_AGS4_to_sorted_excel():
     tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
-    AGS4.AGS4_to_excel(TEST_DATA, 'tests/test_data.xlsx', sort_tables=True)
+    AGS4.AGS4_to_excel(TEST_DATA, 'tests/test_data.xlsx', sorting_strategy='alphabetical')
 
     sorted_tables = pd.read_excel('tests/test_data.xlsx', sheet_name=None, engine='openpyxl')
 
