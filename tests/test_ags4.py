@@ -298,3 +298,17 @@ def test_converting_dataframe_without_UNIT_TYPE_to_text_raises_error():
 def test_converting_empty_ags_file_to_xlsx_raises_error():
     with pytest.raises(AGS4.AGS4Error, match=r'No valid AGS4 data found in input file.'):
         _ = AGS4.AGS4_to_excel('tests/test_files/EmptyFile.ags', 'tests/test_files/EmptyFile.xlsx')
+
+
+@pytest.mark.parametrize("sorting_strategy", ['dictionary', 'alphabetical', 'hierarchical'])
+def test_sort_groups(sorting_strategy):
+    tables, headers = AGS4.AGS4_to_dataframe('tests/test_files/UnsortedGroups.ags')
+
+    sorted_tables = AGS4.sort_groups(tables, sorting_strategy=sorting_strategy)
+
+    if sorting_strategy == 'dictionary':
+        assert list(sorted_tables.keys()) == ['PROJ', 'ABBR', 'DICT', 'FILE', 'TRAN', 'TYPE', 'UNIT', 'LLPL', 'LOCA', 'SAMP', 'PQRS']
+    elif sorting_strategy == 'alphabetical':
+        assert list(sorted_tables.keys()) == ['ABBR', 'DICT', 'FILE', 'LLPL', 'LOCA', 'PQRS', 'PROJ', 'SAMP', 'TRAN', 'TYPE', 'UNIT']
+    elif sorting_strategy == 'hierarchical':
+        assert list(sorted_tables.keys()) == ['PROJ', 'TRAN', 'ABBR', 'DICT', 'FILE', 'TYPE', 'UNIT', 'LOCA', 'SAMP', 'LLPL', 'PQRS']

@@ -1023,6 +1023,72 @@ def count_errors(ags_errors):
     return error_count, warnings_count, fyi_count
 
 
+def sort_groups(tables, sorting_strategy='hierarchical'):
+    """Sort groups/tables parsed from AGS4 file.
+
+    Parameters
+    ----------
+    tables : dict of dataframes
+        Dictionary of Pandas dataframes (output from 'AGS4_to_dataframe()')
+    sorting_strategy : {'dictionary', 'alphabetical', 'hierarchical'}, default='dictionary'
+        Sort groups in the order in which they appear in the dictionary or
+        alphabetically.
+
+    Returns
+    -------
+    dict
+        Dictionary of Pandas dataframes (output from 'AGS4_to_dataframe()')
+    """
+
+    from .check import pick_standard_dictionary, combine_DICT_tables
+    from rich import print as rprint
+
+    # Combine standard dictionary with DICT table in input file to create an extended dictionary
+    # This extended dictionary is used to check the table order
+    standard_AGS4_dictionary = pick_standard_dictionary(tables=tables)
+    tables_std_dict, _ = AGS4_to_dataframe(standard_AGS4_dictionary)
+    dictionary = combine_DICT_tables(tables_std_dict, tables)
+
+    if sorting_strategy == 'dictionary':
+        group_list = dictionary.query(" DICT_TYPE.eq('GROUP') ")['DICT_GRP'].to_list()
+
+    elif sorting_strategy == 'alphabetical':
+        group_list = sorted(tables.keys())
+
+    elif sorting_strategy == 'hierarchical':
+        # Initiate hierarchical group list with groups with no parents
+        # (NOTE: LBST is the child of LBSG but is included to avoid second
+        # recursive search)
+        group_list = ['PROJ', 'TRAN',  'ABBR', 'DICT', 'FILE', 'TYPE', 'UNIT',
+                      'LBSG', 'LBST', 'PREM', 'STND']
+
+        # Recursive function to walk through dictionary in hierarchical order
+        # and return list of groups.
+        def get_child_groups_sorted_by_hierarchy(DICT, group, group_list=[]):
+            for item in DICT.query(" DICT_TYPE.eq('GROUP') & DICT_PGRP.eq(@group) ")['DICT_GRP']\
+                            .to_list():
+                group_list.append(item)
+                get_child_groups_sorted_by_hierarchy(DICT, item, group_list)
+
+            return group_list
+
+        # Get all child groups under 'PROJ' group
+        group_list = get_child_groups_sorted_by_hierarchy(dictionary, 'PROJ', group_list)
+
+    # Assemble sorted tables
+    sorted_tables = {x: tables[x] for x in group_list if x in tables.keys()}
+
+    # Issue warning if groups are missing after sorting (this can happen if
+    # custom groups in the file have not been defined in the custom dictionary)
+    for item in set(tables.keys()).difference(set(sorted_tables.keys())):
+        msg = 'WARNING:Table {item} appended to the end as it was not found in the dictionary.'
+        rprint(f"[yellow]{msg}[/yellow]")
+        logger.warning(f"{msg}")
+        sorted_tables[item] = tables[item]
+
+    return sorted_tables
+
+
 def _is_file_like(obj):
     """Check if object is file like
 
