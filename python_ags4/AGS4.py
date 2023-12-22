@@ -268,9 +268,10 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
         dataframes allow duplicate headers, therefore a number will be appended
         to duplicates to make them unique.
     sorting_strategy : {None, dictionary', 'alphabetical', 'hierarchical'}, default=None
-        Sort groups in the order in which they appear in the dictionary or
-        alphabetically. WARNING: The original order of groups will be lost and
-        cannot be restored when .xlsx file is converted back to .ags.
+        Sort groups in the order in which they appear in the dictionary, the
+        hierarchy defined in the dictionary, or alphabetically.
+        WARNING: The original order of groups will be lost and cannot be
+        restored when .xlsx file is converted back to .ags.
 
     Returns
     -------
@@ -1037,8 +1038,8 @@ def sort_groups(tables, sorting_strategy='hierarchical'):
     tables : dict of dataframes
         Dictionary of Pandas dataframes (output from 'AGS4_to_dataframe()')
     sorting_strategy : {'dictionary', 'alphabetical', 'hierarchical'}, default='dictionary'
-        Sort groups in the order in which they appear in the dictionary or
-        alphabetically.
+        Sort groups in the order in which they appear in the dictionary, the
+        hierarchy defined in the dictionary, or alphabetically.
 
     Returns
     -------
@@ -1084,10 +1085,11 @@ def sort_groups(tables, sorting_strategy='hierarchical'):
     # Assemble sorted tables
     sorted_tables = {x: tables[x] for x in group_list if x in tables.keys()}
 
-    # Issue warning if groups are missing after sorting (this can happen if
-    # custom groups in the file have not been defined in the custom dictionary)
-    for item in set(tables.keys()).difference(set(sorted_tables.keys())):
-        msg = 'WARNING:Table {item} appended to the end as it was not found in the dictionary.'
+    # Issue warning if groups are missing after sorting and append them to the
+    # end in alphabetical order
+    for item in sorted(set(tables.keys()).difference(set(sorted_tables.keys()))):
+        msg = f'WARNING:Table {item} appended to the end as it was either not found in the dictionary '\
+              'or its parent group is not defined under DICT_PGRP.'
         rprint(f"[yellow]{msg}[/yellow]")
         logger.warning(f"{msg}")
         sorted_tables[item] = tables[item]

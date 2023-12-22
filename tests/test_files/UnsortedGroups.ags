@@ -83,6 +83,9 @@
 "TYPE","PA","X","X","PA","PT","X","PU","X","X","X","X"
 "DATA","HEADING","LOCA","LOCA_CHKG","OTHER","X","The person who checked the data for this Location","","","","",""
 "DATA","HEADING","LOCA","LOCA_APPG","OTHER","X","The person who approved the data for this Location","","","","",""
+"DATA","GROUP","WXYZ","","","","Dummy group","","","","",""
+"DATA","HEADING","WXYZ","LOCA_ID","KEY","ID","Dummy field","","327","","",""
+"DATA","HEADING","WXYZ","WXYZ_NAME","KEY","X","Dummy field","","abc","","",""
 
 "GROUP","SAMP"
 "HEADING","LOCA_ID","SAMP_TOP","SAMP_REF","SAMP_TYPE","SAMP_ID","SAMP_BASE"
@@ -96,3 +99,9 @@
 "UNIT","","","","","","","",""
 "TYPE","X","X","X","X","X","X","X","X"
 "DATA","121415","ACME Gas Works Redevelopment","Anytown","ACME Enterprises","ACME Drilling Ltd","","",""
+
+"GROUP","WXYZ"
+"HEADING","LOCA_ID","WXYZ_NAME"
+"UNIT","",""
+"TYPE","ID","X"
+"DATA","327-16A","abc"

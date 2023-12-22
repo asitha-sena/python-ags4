@@ -36,7 +36,7 @@ def test_convert_ags_to_xlsx():
 
 def test_convert_sort():
     runner = CliRunner()
-    result = runner.invoke(sort, [TEST_FILE_WITH_ERRORS, 'tests/test_files/UnsortedGroups.ags'])
+    result = runner.invoke(sort, ['tests/test_files/UnsortedGroups.ags', 'tests/test_files/temp.ags'])
 
     assert result.exit_code == 0
 

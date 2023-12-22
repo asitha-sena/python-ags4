@@ -307,8 +307,8 @@ def test_sort_groups(sorting_strategy):
     sorted_tables = AGS4.sort_groups(tables, sorting_strategy=sorting_strategy)
 
     if sorting_strategy == 'dictionary':
-        assert list(sorted_tables.keys()) == ['PROJ', 'ABBR', 'DICT', 'FILE', 'TRAN', 'TYPE', 'UNIT', 'LLPL', 'LOCA', 'SAMP', 'PQRS']
+        assert list(sorted_tables.keys()) == ['PROJ', 'ABBR', 'DICT', 'FILE', 'TRAN', 'TYPE', 'UNIT', 'LLPL', 'LOCA', 'SAMP', 'WXYZ', 'PQRS']
     elif sorting_strategy == 'alphabetical':
-        assert list(sorted_tables.keys()) == ['ABBR', 'DICT', 'FILE', 'LLPL', 'LOCA', 'PQRS', 'PROJ', 'SAMP', 'TRAN', 'TYPE', 'UNIT']
+        assert list(sorted_tables.keys()) == ['ABBR', 'DICT', 'FILE', 'LLPL', 'LOCA', 'PQRS', 'PROJ', 'SAMP', 'TRAN', 'TYPE', 'UNIT', 'WXYZ']
     elif sorting_strategy == 'hierarchical':
-        assert list(sorted_tables.keys()) == ['PROJ', 'TRAN', 'ABBR', 'DICT', 'FILE', 'TYPE', 'UNIT', 'LOCA', 'SAMP', 'LLPL', 'PQRS']
+        assert list(sorted_tables.keys()) == ['PROJ', 'TRAN', 'ABBR', 'DICT', 'FILE', 'TYPE', 'UNIT', 'LOCA', 'SAMP', 'LLPL', 'PQRS', 'WXYZ']
