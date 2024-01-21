@@ -772,3 +772,10 @@ def test_duplicate_groups_raises_error():
     assert 'AGS Format Rule ?' in error_list.keys()
     msg = 'SAMP group duplicated in Line 42. Cannot parse file without overwriting data, therefore please combine all duplicate groups first.'
     assert error_list['AGS Format Rule ?'][0]['desc'] == msg
+
+
+def test_data_summary():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Summary of data' in error_list.keys()
+    assert error_list['Summary of data'][0]['desc'] == '7 groups identified in file: PROJ ABBR TRAN TYPE UNIT LOCA SAMP'

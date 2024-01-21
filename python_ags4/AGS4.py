@@ -897,6 +897,10 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         # Warnings
         ags_errors = check.warning_16_1(tables, headings, tables_std_dict['ABBR'], ags_errors=ags_errors)
 
+        # Add summary of data
+        for val in check.get_data_summary(tables):
+            ags_errors = check.add_error_msg(ags_errors, 'Summary of data', '', '', val)
+
     except AGS4Error as err:
         if print_output:
             logger.exception(err)
@@ -1001,6 +1005,14 @@ def write_error_report(ags_errors, output_file, show_warnings=False, show_fyi=Fa
                 for entry in ags_errors['General']:
                     msg = '\r\n  '.join(textwrap.wrap(entry['desc'], width=100))
                     f.write(f'''\r\n  {msg}\r\n''')
+                f.write('\r\n')
+
+            # Print 'Summary of data' if present
+            if 'Summary of data' in ags_errors.keys():
+                f.write('Summary of data:\r\n')
+                for entry in ags_errors['Summary of data']:
+                    msg = '\r\n  '.join(textwrap.wrap(entry['desc'], width=100))
+                    f.write(f'''  {msg}\r\n''')
                 f.write('\r\n')
 
             # Write other AGS Format error messages

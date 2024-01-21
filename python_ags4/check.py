@@ -276,6 +276,46 @@ def add_meta_data(filepath_or_buffer, standard_dictionary, ags_errors={}, encodi
     return ags_errors
 
 
+def get_data_summary(tables):
+    '''Get summary of data in an AGS4 file.
+
+    Parameters
+    ----------
+    tables : dict of dataframes
+      Dictionary of Pandas dataframes (output from 'AGS4_to_dataframe()')
+
+    Returns
+    -------
+    list
+    '''
+
+    summary = []
+
+    # Count and list groups in file
+    summary.append(f"{len(tables.keys())} groups identified in file: {' '.join(tables.keys())}")
+
+    # Count and list groups without data rows
+    temp = []
+    for key in tables.keys():
+        if tables[key].query(" HEADING.eq('DATA') ").shape[0] == 0:
+            temp.append(key)
+
+    if len(temp):
+        summary.append(f"{len(temp)} group(s) do not have any data: {' '.join(temp)}")
+
+    # Count data rows in specified gorups
+    for key in ['LOCA']:
+        if key in tables.keys():
+            N = tables[key].query(" HEADING.eq('DATA') ").shape[0]
+            summary.append(f"{N} data row(s) in {key} group")
+
+    # List optional groups
+    summary.append(f"Optional DICT group present? {'DICT' in tables.keys()}")
+    summary.append(f"Optional FILE group present? {'FILE' in tables.keys()}")
+
+    return summary
+
+
 def is_ags_ascii(s):
     '''Check if character is in the "extended" ASCII set.
 

@@ -318,6 +318,14 @@ def print_to_screen(ags_errors, show_warnings=False, show_fyi=False):
                 console.print(f'''  {msg}''')
                 console.print('')
 
+        # Print 'Summary of data' if present
+        if 'Summary of data' in ags_errors.keys():
+            console.print('[underline]Summary of data[/underline]:')
+            for entry in ags_errors['Summary of data']:
+                msg = '\r\n  '.join(textwrap.wrap(entry['desc'], width=100))
+                console.print(f'''  {msg}''')
+            console.print('')
+
         # Write other AGS Format error messages
         for key in [x for x in ags_errors if 'AGS Format Rule' in x]:
             console.print(f'''[white underline]{key}[/white underline]:''')
