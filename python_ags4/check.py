@@ -20,6 +20,8 @@
 
 import logging
 
+from python_ags4.AGS4 import _is_file_like
+
 logger = logging.getLogger(__name__)
 
 
@@ -235,12 +237,12 @@ def pick_standard_dictionary(tables=None, dict_version=None):
     return path_to_standard_dictionary
 
 
-def add_meta_data(input_file, standard_dictionary, ags_errors={}, encoding='utf-8'):
+def add_meta_data(filepath_or_buffer, standard_dictionary, ags_errors={}, encoding='utf-8'):
     """Add meta data from input file to error list.
 
     Parameters
     ----------
-    input_file : str
+    filepath_or_buffer : File path (str, pathlib.Path), or StringIO.
         Path to input file
     standard_dictionary : str
         Path to standard dictionary file
@@ -259,8 +261,9 @@ def add_meta_data(input_file, standard_dictionary, ags_errors={}, encoding='utf-
     from python_ags4 import __version__
     from datetime import datetime
 
-    add_error_msg(ags_errors, 'Metadata', 'File Name', '', f'{os.path.basename(input_file)}')
-    add_error_msg(ags_errors, 'Metadata', 'File Size', '', f'{int(os.path.getsize(input_file)/1024)} kB')
+    if not _is_file_like(filepath_or_buffer):
+        add_error_msg(ags_errors, 'Metadata', 'File Name', '', f'{os.path.basename(filepath_or_buffer)}')
+        add_error_msg(ags_errors, 'Metadata', 'File Size', '', f'{int(os.path.getsize(filepath_or_buffer) / 1024)} kB')
     add_error_msg(ags_errors, 'Metadata', 'Checker', '', f'python_ags4 v{__version__}')
 
     if standard_dictionary is not None:

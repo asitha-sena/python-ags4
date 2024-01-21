@@ -68,6 +68,9 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
 
     if _is_file_like(filepath_or_buffer):
         f = filepath_or_buffer
+        f.seek(0)
+        if hasattr(f, 'encoding') and getattr(f, 'encoding', None) != encoding:
+            f.reconfigure(encoding=encoding)
         close_file = False
     else:
         # Read file with errors="replace" to catch UnicodeDecodeErrors
@@ -719,13 +722,14 @@ def _format_SF(value, TYPE):
         return f"{value:.{i}f}"
 
 
-def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_headers=True, encoding='utf-8'):
+def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplicate_headers=True, encoding='utf-8', print_output:bool=True):
     """Validate AGS4 file against AGS4 rules.
 
     Parameters
     ----------
-    input_file : str
-        Path to AGS4 file (*.ags) to be checked
+    filepath_or_buffer : strFile path (str, pathlib.Path), or StringIO.
+        Path to AGS4 file or any object with a read() method (such as an open
+        file or StringIO) to be checked.
     standard_AGS4_dict : str
         Path to .ags file with standard AGS4 dictionary or version number
         (should be one of '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0').
@@ -735,6 +739,8 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         to duplicates to make them unique.
     encoding : str, default='utf-8'
         Encoding of text file.
+    print_output : bool, default=True
+        If True, then print output to the console and the logger, otherwise do not.
 
     Returns
     -------
@@ -748,18 +754,28 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
 
     ags_errors = {}
 
-    logger.info(f'Opening file... {input_file}')
+    if print_output:
+        logger.info(f'Opening file... {filepath_or_buffer}')
 
     # Line checks
-    with open(input_file, 'r', newline='', encoding=encoding, errors='replace') as f:
+    if _is_file_like(filepath_or_buffer):
+        f = filepath_or_buffer
+        f.seek(0)
+        if hasattr(f, 'encoding') and getattr(f, 'encoding', None) != encoding:
+            f.reconfigure(encoding=encoding)
+        close_file = False
+    else:
+        f = open(filepath_or_buffer, "r", newline='', encoding=encoding, errors="replace")
+        close_file = True
 
+    try:
         # Preflight check for AGS3 files
         for i, line in enumerate(f, start=1):
             ags_errors = check.is_ags3_like(line, i, ags_errors=ags_errors)
 
             # Exit if ags3_like line is found
             if ('AGS Format Rule 3' in ags_errors) and ('AGS3' in ags_errors['AGS Format Rule 3'][0]['desc']):
-                ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors, encoding=encoding)
+                ags_errors = check.add_meta_data(filepath_or_buffer, standard_AGS4_dictionary, ags_errors=ags_errors, encoding=encoding)
                 return ags_errors
 
         # Reset file stream to the beginning to start AGS4 checks
@@ -769,8 +785,10 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         group = ''
         headings = []
 
-        rprint('[green]  Checking lines...[/green]')
-        logger.info('Checking lines...')
+        if print_output:
+            rprint('[green]  Checking lines...[/green]')
+            logger.info('Checking lines...')
+
         for i, line in enumerate(f, start=1):
 
             # Track headings to be used with group checks
@@ -803,26 +821,31 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
             ags_errors = check.rule_19a(line, i, group=group, ags_errors=ags_errors)
             ags_errors = check.rule_19b_1(line, i, group=group, ags_errors=ags_errors)
 
-    # Add additional information about how Rule 1 is implemented if infringements are detected
-    if 'AGS Format Rule 1' in ags_errors:
-        msg = "AGS4 Rule 1 is interpreted as allowing both standard ASCII characters (Unicode code points 0-127) "\
-              "and extended ASCII characters (Unicode code points 160-255). "\
-              "Please beware that extended ASCII characters differ based on the encoding used when the file was created. "\
-              "The validator defaults to 'utf-8' encoding as it is the most widely used encoding compatible with Unicode. "\
-              "The user can override this default if the file encoding is different but, "\
-              "it is highly recommended that the 'utf-8' encoding be used when creating AGS4 files. "\
-              "(Hint: If not 'utf-8', then the encoding is most likely to be 'windows-1252' aka 'cp1252')"
-        ags_errors = check.add_error_msg(ags_errors, 'General', '', '', msg)
 
-    # Import data into Pandas dataframes to run group checks
-    try:
-        rprint('[green]  Loading tables...[/green]')
-        logger.info('Loading tables...')
-        tables, headings, line_numbers = AGS4_to_dataframe(input_file, get_line_numbers=True, rename_duplicate_headers=rename_duplicate_headers)
+        # Add additional information about how Rule 1 is implemented if infringements are detected
+        if 'AGS Format Rule 1' in ags_errors:
+            msg = "AGS4 Rule 1 is interpreted as allowing both standard ASCII characters (Unicode code points 0-127) "\
+                  "and extended ASCII characters (Unicode code points 160-255). "\
+                  "Please beware that extended ASCII characters differ based on the encoding used when the file was created. "\
+                  "The validator defaults to 'utf-8' encoding as it is the most widely used encoding compatible with Unicode. "\
+                  "The user can override this default if the file encoding is different but, "\
+                  "it is highly recommended that the 'utf-8' encoding be used when creating AGS4 files. "\
+                  "(Hint: If not 'utf-8', then the encoding is most likely to be 'windows-1252' aka 'cp1252')"
+            ags_errors = check.add_error_msg(ags_errors, 'General', '', '', msg)
+
+        # Import data into Pandas dataframes to run group checks
+        if print_output:
+            rprint('[green]  Loading tables...[/green]')
+            logger.info('Loading tables...')
+
+        f.seek(0)
+        tables, headings, line_numbers = AGS4_to_dataframe(f, get_line_numbers=True, rename_duplicate_headers=rename_duplicate_headers)
 
         # Group Checks
-        rprint('[green]  Checking headings and groups...[/green]')
-        logger.info('Checking headings and groups...')
+        if print_output:
+            rprint('[green]  Checking headings and groups...[/green]')
+            logger.info('Checking headings and groups...')
+
         ags_errors = check.rule_2(tables, headings, line_numbers, ags_errors=ags_errors)
         ags_errors = check.rule_2b(tables, headings, line_numbers, ags_errors=ags_errors)
         ags_errors = check.rule_8(tables, headings, line_numbers, ags_errors=ags_errors)
@@ -830,7 +853,11 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         ags_errors = check.rule_13(tables, headings, line_numbers, ags_errors=ags_errors)
         ags_errors = check.rule_14(tables, headings, line_numbers, ags_errors=ags_errors)
         ags_errors = check.rule_15(tables, headings, line_numbers, ags_errors=ags_errors)
-        ags_errors = check.rule_20(tables, headings, input_file, ags_errors=ags_errors)
+
+        # Not able to locate any other files in same folder for an already opened file/stream:
+        if close_file:
+            ags_errors = check.rule_20(tables, headings, filepath_or_buffer, ags_errors=ags_errors)
+
         ags_errors = check.is_TRAN_AGS_valid(tables, headings, line_numbers, ags_errors=ags_errors)
 
         # Dictionary Based Checks
@@ -850,8 +877,10 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         # This extended dictionary is used to check the file schema
         dictionary = check.combine_DICT_tables(tables_std_dict, tables)
 
-        rprint('[green]  Checking file schema...[/green]')
-        logger.info('Checking file schema...')
+        if print_output:
+            rprint('[green]  Checking file schema...[/green]')
+            logger.info('Checking file schema...')
+
         ags_errors = check.rule_7_2(headings, dictionary, line_numbers, ags_errors=ags_errors)
         ags_errors = check.rule_9(headings, dictionary, line_numbers, ags_errors=ags_errors)
         ags_errors = check.rule_10a(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
@@ -869,7 +898,9 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         ags_errors = check.warning_16_1(tables, headings, tables_std_dict['ABBR'], ags_errors=ags_errors)
 
     except AGS4Error as err:
-        logger.exception(err)
+        if print_output:
+            logger.exception(err)
+
         ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', str(err))
 
     except UnboundLocalError:
@@ -878,7 +909,9 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         # checks for Rule 1 (since the BOM is not an ASCII character) and Rule 3
         # (since the BOM precedes the string "GROUP"). The BOM encoding can be
         # ignored by setting the 'encoding' argument to 'utf-8-sig'.
-        tables, headings, line_numbers = AGS4_to_dataframe(input_file, encoding='utf-8-sig',
+        f.seek(0)
+
+        tables, headings, line_numbers = AGS4_to_dataframe(f, encoding='utf-8-sig',
                                                            get_line_numbers=True, rename_duplicate_headers=rename_duplicate_headers)
 
         # Add warning to error log
@@ -890,17 +923,21 @@ def check_file(input_file, standard_AGS4_dictionary=None, rename_duplicate_heade
         err = traceback.format_exc()
         msg = 'Could not continue with group checks on file. Please review error log and fix line errors first.'
 
-        rprint(f'[red] ERROR: {msg}[/red]')
-        rprint(f'[red]\n{err}[/red]')
-        logger.exception(msg)
+        if print_output:
+            rprint(f'[red] ERROR: {msg}[/red]')
+            rprint(f'[red]\n{err}[/red]')
+            logger.exception(msg)
 
         ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', msg)
         ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', err)
 
     finally:
-        # Add metadata
-        ags_errors = check.add_meta_data(input_file, standard_AGS4_dictionary, ags_errors=ags_errors, encoding=encoding)
+        if close_file:
+            f.close()
 
+        # Add metadata
+        ags_errors = check.add_meta_data(filepath_or_buffer, standard_AGS4_dictionary, ags_errors=ags_errors,
+                                         encoding=encoding)
         return ags_errors
 
 
