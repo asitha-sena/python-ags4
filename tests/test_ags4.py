@@ -256,6 +256,33 @@ def test_check_file():
     assert 'Rule' not in error_list.keys()
 
 
+def test_check_stream():
+    # Check file with some errors
+    with open(TEST_DATA, 'r') as file:
+        error_list = AGS4.check_file(file, standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+        # Remove Rule 2a errors since file streams do not have line breaks, therefore each line breaks this rule
+        # Remove 'Metadata' entry since file name and file size are not added when a file stream is checked
+        error_list.pop('AGS Format Rule 2a')
+        error_list.pop('Metadata')
+
+    reference_error_list = AGS4.check_file(TEST_DATA, standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    # Remove Rule 2a errors since file streams do not have line breaks, therefore each line breaks this rule
+    # Remove 'Metadata' entry since file name and file size are not added when a file stream is checked
+    if 'AGS Format Rule 2a' in reference_error_list:
+        reference_error_list.pop('AGS Format Rule 2a')
+
+    reference_error_list.pop('Metadata')
+
+    assert error_list == reference_error_list
+
+    # Check file without any errors
+    with open('tests/test_files/example1.ags', 'r') as file:
+        error_list = AGS4.check_file(file, standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+        assert 'Rule' not in error_list.keys()
+
+
 @pytest.mark.parametrize("dict_version", ['4.1.1', '4.1', '4.0.4', '4.0.3'])
 def test_check_file_with_specified_dictionary_version(dict_version):
     error_list = AGS4.check_file(TEST_DATA, standard_AGS4_dictionary=dict_version)
