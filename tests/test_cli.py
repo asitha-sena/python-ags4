@@ -1,4 +1,3 @@
-
 from python_ags4.ags4_cli import check, convert, sort
 from click.testing import CliRunner
 

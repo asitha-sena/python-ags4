@@ -1,4 +1,3 @@
-
 import os
 
 from python_ags4 import AGS4, __version__
