@@ -1,3 +1,9 @@
+![PyPI](https://img.shields.io/pypi/v/python-ags4?label=Current%20Release)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/python-ags4?label=Downloads%20pypi)
+![Conda](https://img.shields.io/conda/dn/conda-forge/python-ags4?label=Downloads%20conda-forge)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.04569/status.svg)](https://doi.org/10.21105/joss.04569)
+![Tests](https://gitlab.com/ags-data-format-wg/ags-python-library/badges/main/pipeline.svg?ignore_skipped=true&key_text=Tests)
+
 # python-ags4
 
 [[_TOC_]]
@@ -22,12 +28,6 @@ This project is maintained by the [AGS Data Format Working Group](https://gitlab
 
 ## Documentation
 
-### Juypter Notebook
-
-We have created an example Juypter Notebook which imports an AGS file, plots boreholes on a map and creates a Striplog.  
-
-[See here](./examples/Plot_locations_and_create_strip_log.ipynb)
-
 ### Installation
 
 ```bash
@@ -36,7 +36,7 @@ pip install python-ags4
 
 >>>
 **Note**
-Installation requires Python 3.7 or later.
+Installation requires Python 3.8 or later.
 >>>
 
 ### Code Examples
@@ -47,7 +47,7 @@ First import the module.
 from python_ags4 import AGS4
 ```
 
-#### Import data from an AGS4 file:
+#### Import data from an AGS4 file
 
 ```python
 # Load from a file
@@ -72,7 +72,7 @@ LOCA = AGS4.convert_to_numeric(tables['LOCA'])
 
 The `AGS4.convert_to_numeric()` function automatically converts all columns in the input DataFrame with the a numeric *TYPE* to a float. (*Note: The UNIT and TYPE rows are removed during this operation as they are non-numeric.*)
 
-#### Export data back to an AGS4 file:
+#### Export data back to an AGS4 file
 
 ``` python
 AGS4.dataframe_to_AGS4(tables, headings, 'output.ags')
@@ -84,6 +84,12 @@ LOCA_txt = AGS4.convert_to_text(LOCA, 'DICT.ags')
 ```
 
 Tables converted to numeric using the ```AGS4.convert_to_numeric()``` function should always be converted back to text before exporting to an AGS4 file. (*Note: The UNIT and TYPE rows will be added back in addition to formatting the numeric columns.*) 
+
+### Juypter Notebook
+
+We have created an example Juypter Notebook which imports an AGS file, plots boreholes on a map and creates a Striplog.  
+
+[See here](./notebooks/Plot_locations_and_create_strip_log.ipynb)
 
 ### Command Line Interface 
 
@@ -124,6 +130,12 @@ AGS4.dataframe_to_AGS4(updated_tables, headings, 'output.ags')
 ### Development
 
 Please refer to the [Wiki](https://gitlab.com/ags-data-format-wg/ags-python-library/-/wikis/home) page for details about the development environment and how to get involved in the project.
+
+API documentation available at https://ags-data-format-wg.gitlab.io/ags-python-library
+
+### Citation
+
+Senanayake et al., (2022). python-ags4: A Python library to read, write, and validate AGS4 geodata files. Journal of Open Source Software, 7(79), 4569, https://doi.org/10.21105/joss.04569
 
 ## Implementations
 

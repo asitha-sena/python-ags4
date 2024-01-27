@@ -1,6 +1,27 @@
 Changelog
 =========
 
+0.5.0 (2024-01-27)
+------------------
+
+- Remove support for Python version 3.7
+- Add support for Pandas version 2.x and drop support for version 1.x.
+- Add functionality to log internal messages
+- Add functionality for FYI and warning messages
+- Return error message if multiple instances of the same group are found.
+  Previous behavior was to simply overwrite the data.
+- Update check for Rule 1 to allow extend ASCII characters
+- Improve checks for data types DMS, DT, and SF under Rule 8
+- Improve check for Rule 10b and avoid returning duplicate error messages
+- Improve check for Rule 15 to include units defined in PU columns
+- Improve check for Rule 16 to provide warning if a user-defined abbreviation
+  duplicates an existing standard abbreviation for the same field
+- Update check_file() to handle an already opened file or stream. The first
+  parameter name input_file is changed to filepath_or_buffer.
+- Reinstate deprecated fields/groups that had been deleted from the v4.1.1
+  standard dictionary
+- Add summary of data to error log
+
 0.4.1 (2022-09-12)
 ------------------
 

@@ -21,7 +21,7 @@ authors:
 affiliations:
  - name: Norwegian Geotechnical Institute (formerly Fugro USA Marine, Inc.)
    index: 1
- - name: Bentley Systems
+ - name: Seequent
    index: 2
  - name: Association of Geotechnical and Geoenvironmental Specialists
    index: 3
@@ -39,7 +39,7 @@ investigations can be broadly described as "geodata". The AGS4 data format
 transmittal formats for geodata and is used across the world. It is a plain text
 format consisting of multiple tables of comma-separated values, tied together
 with a robust data schema and a comprehensive suite of validation rules. The
-basic structure of AGS4 file is is shown in Figure 1.
+basic structure of an AGS4 file is shown in Figure 1.
 
 ![Simplified schematic of AGS4 data structure](Schematic_of_AGS4_data_structure.png)
 
@@ -87,9 +87,9 @@ tested in Linux, Windows, and Mac environments.
 
 The current state of practice for validation of AGS4 files is to use one of two
 proprietary software, namely [KeyAGS
-Checker](https://communities.bentley.com/products/geotechnical1/w/wiki/50417/keyags-free-version)
-which is freeware and [gINT AGS
-Checker](https://www.bentley.com/en/products/brands/gint) which is part of the
+Checker](https://communities.bentley.com/products/geotechnical1/w/wiki/50417/keyags-free-version),
+which is freeware, and [gINT AGS
+Checker](https://www.bentley.com/en/products/brands/gint), which is part of the
 widely used `gINT` geotechnical data management suite. They are only available
 for the Windows operating system and can provide slightly different results in
 some cases. Therefore, validators based on `python-ags4` are expected to become
@@ -122,6 +122,8 @@ It has also been used in commercial projects. (e.g.
 
 The authors acknowledge the work done by the AGS Data Format Working Group to
 develop the AGS4 data format and the support it has extended to develop this
-library.
+library. Contributions by Edward Lewis to this project and the development of https://agsapi.bgs.ac.uk/ 
+were supported by the British Geological Survey via NERC national capability.
+
 
 # References
