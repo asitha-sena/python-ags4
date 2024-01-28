@@ -1,12 +1,13 @@
 stages:
   - test
+  - deploy_html_docs
 
 .test:
   image: python:$PYTHON_VERSION
   stage: test
   parallel:
     matrix:
-      - PYTHON_VERSION: ["3.7", "3.8", "3.9", "3.10"]
+      - PYTHON_VERSION: ["3.8", "3.9", "3.10", "3.11", "3.12"]
   script:
     - python -m pip install .
     - python -m pip install pytest nbval
@@ -14,9 +15,23 @@ stages:
     - python -m pytest -v --ignore=tests/test_batch.py
     - python -m doctest README.md
     - python -m pip install striplog
-    - python -m pytest -v --nbval examples/Plot_locations_and_create_strip_log.ipynb
+    - python -m pytest -v --nbval notebooks/Plot_locations_and_create_strip_log.ipynb
 
 build-linux:
   extends: .test
   tags:
     - linux
+
+pages:
+  stage: deploy_html_docs
+  image: python:3.10
+  script:
+  - pip install -U sphinx sphinx-rtd-theme
+  - cd docs
+  - sphinx-build -b html . ../public
+  - cp custom.css ../public/_static/custom.css # Custom CSS file to increase width of html pages
+  artifacts:
+    paths:
+    - public
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH

@@ -1,8 +1,5 @@
-
-
 import toml
 import pandas as pd
-import pathlib
 import pytest
 
 from python_ags4 import AGS4, __version__
@@ -59,6 +56,14 @@ def test_AGS4_stream_to_dict(LOCA=LOCA):
     assert tables['LOCA'] == LOCA
 
 
+def test_AGS4_bytestream_to_dict(LOCA=LOCA):
+
+    with open(TEST_DATA, 'rb') as file:
+        tables, headings = AGS4.AGS4_to_dict(file)
+
+    assert tables['LOCA'] == LOCA
+
+
 def test_AGS4_file_to_dataframe(LOCA=LOCA):
     tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
 
@@ -68,6 +73,14 @@ def test_AGS4_file_to_dataframe(LOCA=LOCA):
 
 def test_AGS4_stream_to_dataframe(LOCA=LOCA):
     with open(TEST_DATA, 'r') as file:
+        tables, headings = AGS4.AGS4_to_dataframe(file)
+
+    assert tables['LOCA'].loc[2, 'LOCA_ID'] == 'Location_1'
+    assert tables['LOCA'].equals(pd.DataFrame(LOCA))
+
+
+def test_AGS4_bytestream_to_dataframe(LOCA=LOCA):
+    with open(TEST_DATA, 'rb') as file:
         tables, headings = AGS4.AGS4_to_dataframe(file)
 
     assert tables['LOCA'].loc[2, 'LOCA_ID'] == 'Location_1'
@@ -106,6 +119,21 @@ def test_dataframe_to_AGS4():
     assert tables['TRAN'].equals(new_tables['TRAN'])
     assert tables['TYPE'].equals(new_tables['TYPE'])
     assert tables['UNIT'].equals(new_tables['UNIT'])
+    assert tables['LOCA'].equals(new_tables['LOCA'])
+
+
+def test_dataframe_to_AGS4_with_modified_table():
+    tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
+
+    # Drop some columns from LOCA table
+    tables['LOCA'] = tables['LOCA'].drop(columns=["LOCA_TYPE", "LOCA_NATE", "LOCA_NATN", "LOCA_REM"])
+
+    # Export modified data
+    AGS4.dataframe_to_AGS4(tables, headings, 'tests/test.out')
+
+    # Reimport and verify that data was exported correctly
+    new_tables, new_headings = AGS4.AGS4_to_dataframe('tests/test.out')
+
     assert tables['LOCA'].equals(new_tables['LOCA'])
 
 
@@ -166,7 +194,7 @@ def test_AGS4_to_excel(LOCA=LOCA, LLPL=LLPL):
 
 def test_AGS4_to_sorted_excel():
     tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
-    AGS4.AGS4_to_excel(TEST_DATA, 'tests/test_data.xlsx', sort_tables=True)
+    AGS4.AGS4_to_excel(TEST_DATA, 'tests/test_data.xlsx', sorting_strategy='alphabetical')
 
     sorted_tables = pd.read_excel('tests/test_data.xlsx', sheet_name=None, engine='openpyxl')
 
@@ -225,7 +253,34 @@ def test_check_file():
     assert 'Rule' not in error_list.keys()
 
 
-@pytest.mark.parametrize("dict_version", ['4.1', '4.0.4', '4.0.3'])
+def test_check_stream():
+    # Check file with some errors
+    with open(TEST_DATA, 'r') as file:
+        error_list = AGS4.check_file(file, standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+        # Remove Rule 2a errors since file streams do not have line breaks, therefore each line breaks this rule
+        # Remove 'Metadata' entry since file name and file size are not added when a file stream is checked
+        error_list.pop('AGS Format Rule 2a')
+        error_list.pop('Metadata')
+
+    reference_error_list = AGS4.check_file(TEST_DATA, standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    # Remove Rule 2a errors since file streams do not have line breaks, therefore each line breaks this rule
+    # Remove 'Metadata' entry since file name and file size are not added when a file stream is checked
+    if 'AGS Format Rule 2a' in reference_error_list:
+        reference_error_list.pop('AGS Format Rule 2a')
+
+    reference_error_list.pop('Metadata')
+
+    assert error_list == reference_error_list
+
+    # Check file without any errors
+    with open('tests/test_files/example1.ags', 'r') as file:
+        error_list = AGS4.check_file(file, standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+        assert 'Rule' not in error_list.keys()
+
+
+@pytest.mark.parametrize("dict_version", ['4.1.1', '4.1', '4.0.4', '4.0.3'])
 def test_check_file_with_specified_dictionary_version(dict_version):
     error_list = AGS4.check_file(TEST_DATA, standard_AGS4_dictionary=dict_version)
 
@@ -239,10 +294,16 @@ def test_duplicate_headers_with_rename_renames(function):
     assert "SAMP_BASE_1" in headers['SAMP']
 
 
-@pytest.mark.parametrize("function", [AGS4.AGS4_to_dict, AGS4.AGS4_to_dataframe, AGS4.check_file])
+@pytest.mark.parametrize("function", [AGS4.AGS4_to_dict, AGS4.AGS4_to_dataframe])
 def test_duplicate_headers_without_rename_raises_error(function):
     with pytest.raises(AGS4.AGS4Error, match=r'HEADER row.*has duplicate entries'):
         function('tests/test_files/DuplicateHeaders.ags', rename_duplicate_headers=False)
+
+
+@pytest.mark.parametrize("function", [AGS4.AGS4_to_dict, AGS4.AGS4_to_dataframe])
+def test_duplicate_groups_raises_error(function):
+    with pytest.raises(AGS4.AGS4Error, match=r'.*group duplicated in Line.*therefore please combine all duplicate groups'):
+        function('tests/test_files/DuplicateGroups.ags', rename_duplicate_headers=False)
 
 
 def test_row_with_missing_field_raises_error():
@@ -258,15 +319,20 @@ def test_converting_dataframe_without_UNIT_TYPE_to_text_raises_error():
         _ = AGS4.convert_to_text(LOCA)
 
 
-def test_checking_without_dictionary_raises_error():
-    with pytest.raises(AGS4.AGS4Error, match=r'No DICT tables available to proceed with checking.*'):
-        # Check file without a DICT table
-        # The same file is passed as the standard dictionary to
-        # force exception to be raised
-        _ = AGS4.check_file('tests/test_files/4.1-rule1.ags',
-                            standard_AGS4_dictionary='tests/test_files/4.1-rule1.ags')
-
-
 def test_converting_empty_ags_file_to_xlsx_raises_error():
     with pytest.raises(AGS4.AGS4Error, match=r'No valid AGS4 data found in input file.'):
         _ = AGS4.AGS4_to_excel('tests/test_files/EmptyFile.ags', 'tests/test_files/EmptyFile.xlsx')
+
+
+@pytest.mark.parametrize("sorting_strategy", ['dictionary', 'alphabetical', 'hierarchical'])
+def test_sort_groups(sorting_strategy):
+    tables, headers = AGS4.AGS4_to_dataframe('tests/test_files/UnsortedGroups.ags')
+
+    sorted_tables = AGS4.sort_groups(tables, sorting_strategy=sorting_strategy)
+
+    if sorting_strategy == 'dictionary':
+        assert list(sorted_tables.keys()) == ['PROJ', 'ABBR', 'DICT', 'FILE', 'TRAN', 'TYPE', 'UNIT', 'LLPL', 'LOCA', 'SAMP', 'WXYZ', 'PQRS']
+    elif sorting_strategy == 'alphabetical':
+        assert list(sorted_tables.keys()) == ['ABBR', 'DICT', 'FILE', 'LLPL', 'LOCA', 'PQRS', 'PROJ', 'SAMP', 'TRAN', 'TYPE', 'UNIT', 'WXYZ']
+    elif sorting_strategy == 'hierarchical':
+        assert list(sorted_tables.keys()) == ['PROJ', 'TRAN', 'ABBR', 'DICT', 'FILE', 'TYPE', 'UNIT', 'LOCA', 'SAMP', 'LLPL', 'PQRS', 'WXYZ']

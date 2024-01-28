@@ -1,7 +1,45 @@
-
 import os
 
 from python_ags4 import AGS4, __version__
+
+
+def test_rule_1_utf8():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule1-utf8.ags',
+                                 standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags',
+                                 encoding='utf-8')
+
+    # File only contains characters 160 to 255 so there shoudn't be any errors
+    # when opened with the correct encoding
+    assert 'AGS Format Rule 1' not in error_list.keys()
+
+
+def test_rule_1_latin1():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule1-latin1.ags',
+                                 standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags',
+                                 encoding='cp1252')
+    # 'cp1252' is a superset of 'latin1' so it can be used to decode this file
+
+    # File only contains characters 160 to 255 so there shoudn't be any errors
+    # when opened with the correct encoding
+    assert 'AGS Format Rule 1' not in error_list.keys()
+
+
+def test_rule_1_cp1252():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule1-cp1252.ags',
+                                 standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags',
+                                 encoding='cp1252')
+
+    # File contains characters 128 to 159 which should cause errors even when
+    # opened with the correct encoding
+    assert 'AGS Format Rule 1' in error_list.keys()
+
+    assert error_list['AGS Format Rule 1'][0]['line'] == 154
+    assert error_list['AGS Format Rule 1'][0]['group'] == ''
+    assert error_list['AGS Format Rule 1'][0]['desc'] == "Has Non-ASCII character(s) (assuming that file encoding is 'cp1252')."
+
+    assert error_list['AGS Format Rule 1'][-1]['line'] == 185
+    assert error_list['AGS Format Rule 1'][-1]['group'] == ''
+    assert error_list['AGS Format Rule 1'][-1]['desc'] == "Has Non-ASCII character(s) (assuming that file encoding is 'cp1252')."
 
 
 def test_rule_2():
@@ -75,6 +113,29 @@ def test_rule_3():
     assert error_list['AGS Format Rule 3'][0]['desc'] == 'Does not start with a valid data descriptor.'
 
 
+def test_rule_6_1():
+    # Check file that is not in CSV format
+    error_list = AGS4.check_file('tests/test_files/4.1-rule6_1.ags')
+
+    assert 'AGS Format Rule 3' in error_list.keys()
+    assert 'AGS Format Rule 5' in error_list.keys()
+    assert 'AGS Format Rule 19a' in error_list.keys()
+
+
+def test_rule_6_2():
+    # Check file that contains field with line break
+    error_list = AGS4.check_file('tests/test_files/4.1-rule6_2.ags')
+
+    assert 'AGS Format Rule 4' in error_list.keys()
+    assert error_list['AGS Format Rule 4'][0]['line'] == 26
+    assert error_list['AGS Format Rule 4'][0]['group'] == 'ABBR'
+    assert error_list['AGS Format Rule 4'][0]['desc'] == 'Number of fields does not match the HEADING row.'
+
+    assert 'AGS Format Rule 5' in error_list.keys()
+    assert error_list['AGS Format Rule 5'][0]['line'] == 26
+    assert error_list['AGS Format Rule 5'][0]['desc'] == 'Contains fields that are not enclosed in double quotes.'
+
+
 def test_rule_7_1():
     error_list = AGS4.check_file('tests/test_files/DuplicateHeaders.ags')
 
@@ -90,6 +151,10 @@ def test_rule_7_2():
     assert error_list['AGS Format Rule 7'][0]['line'] == 2
     assert error_list['AGS Format Rule 7'][0]['group'] == 'PROJ'
     assert error_list['AGS Format Rule 7'][0]['desc'] == 'Headings not in order starting from FILE_FSET. Expected order: ...PROJ_MEMO|FILE_FSET'
+
+    assert error_list['AGS Format Rule 7'][1]['line'] == 8
+    assert error_list['AGS Format Rule 7'][1]['group'] == 'ABBR'
+    assert error_list['AGS Format Rule 7'][1]['desc'] == 'Headings not in order starting from ABBR_REM. Expected order: ...ABBR_LIST|ABBR_REM|FILE_FSET'
 
 
 def test_rule_8_1():
@@ -138,18 +203,43 @@ def test_rule_8_3():
     assert error_list['AGS Format Rule 8'][2]['group'] == 'LLPL'
     assert error_list['AGS Format Rule 8'][2]['desc'] == 'Value 0.2 in LLPL_PI not of data type 2SF. (Expected: 0.20)'
 
+    # Verify that SF checks on zeros are skipped by Line 75 which contains LLPL_PI=0 is not flagged
+    for val in error_list['AGS Format Rule 8']:
+        if val['line'] == 75:
+            assert 'LLPL_PI not of data type' not in val['desc']
+
 
 def test_rule_8_4():
     error_list = AGS4.check_file('tests/test_files/4.1-rule8-4.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
     assert 'AGS Format Rule 8' in error_list.keys()
-    assert error_list['AGS Format Rule 8'][1]['line'] == 79
-    assert error_list['AGS Format Rule 8'][1]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 8'][1]['desc'] == 'Value 01-12-2020 in LOCA_START not in the ISO date/time format or is an invalid date/time.'
 
-    assert error_list['AGS Format Rule 8'][2]['line'] == 80
-    assert error_list['AGS Format Rule 8'][2]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 8'][2]['desc'] == 'Value 2021-02-29 in LOCA_START not in the ISO date/time format or is an invalid date/time.'
+    for i, (line, group, desc) in enumerate([
+            (18, 'LOCA', 'Value 2023-11-16T12:00 in LOCA_STAR does not match the specified format (yyyy-mm-dd) or is an invalid date/time.'),
+            (19, 'LOCA', 'Value 01-12-2020 in LOCA_STAR does not match the specified format (yyyy-mm-dd) or is an invalid date/time.'),
+            (20, 'LOCA', 'Value 2021-02-29 in LOCA_STAR does not match the specified format (yyyy-mm-dd) or is an invalid date/time.'),
+            (18, 'LOCA', 'Value 2023-13 in LOCA_ENDD does not match the specified format (yyyy-mm) or is an invalid date/time.'),
+            (27, 'SAMP', 'Value 2023-09-21 in SAMP_DTIM does not match the specified format (yyyy-mm-ddThh:mm) or is an invalid date/time.'),
+            (28, 'SAMP', 'Value 2023-09-21T10:01Z(+03:00) in SAMP_DTIM does not match the specified format (yyyy-mm-ddThh:mm) or is an invalid date/time.'),
+            (34, 'HDPH', 'Value 2023-11-17 in HDPH_STAR does not match the specified format (yyyy-mm-ddThh:mm) or is an invalid date/time.'),
+            (35, 'HDPH', 'Value 2023-11-17T9:00 in HDPH_STAR does not match the specified format (yyyy-mm-ddThh:mm) or is an invalid date/time.'),
+            (34, 'HDPH', 'Value 2023-11-17 in HDPH_ENDD does not match the specified format (yyyy-mm-ddThh:mm) or is an invalid date/time.'),
+            (43, 'CHIS', 'Value 1:00 in CHIS_TIME not in the specified elapsed time format (hh:mm) or is an invalid elapsed time.'),
+            (44, 'CHIS', 'Value 01:00:00 in CHIS_TIME not in the specified elapsed time format (hh:mm) or is an invalid elapsed time.'),
+            (46, 'CHIS', 'Value 23:77 in CHIS_TIME not in the specified elapsed time format (hh:mm) or is an invalid elapsed time.'),
+            (47, 'CHIS', 'Value 23:34:56 in CHIS_TIME not in the specified elapsed time format (hh:mm) or is an invalid elapsed time.'),
+            (48, 'CHIS', 'Value 23:34:77 in CHIS_TIME not in the specified elapsed time format (hh:mm) or is an invalid elapsed time.'),
+            (43, 'CHIS', 'Value 2023-13-16T11:34 in CHIS_STAR does not match the specified format (yyyy-mm-ddThh:mmZ(+hh:mm)) or is an invalid date/time.'),
+            (44, 'CHIS', 'Value 2023-11-16T11:34 in CHIS_STAR does not match the specified format (yyyy-mm-ddThh:mmZ(+hh:mm)) or is an invalid date/time.'),
+            (45, 'CHIS', 'Value 2023-11-16 in CHIS_STAR does not match the specified format (yyyy-mm-ddThh:mmZ(+hh:mm)) or is an invalid date/time.'),
+            (47, 'CHIS', 'Value 11:34 in CHIS_STAR does not match the specified format (yyyy-mm-ddThh:mmZ(+hh:mm)) or is an invalid date/time.'),
+            (48, 'CHIS', 'Value 2023 in CHIS_STAR does not match the specified format (yyyy-mm-ddThh:mmZ(+hh:mm)) or is an invalid date/time.'),
+            (49, 'CHIS', 'Value 23:34:00 in CHIS_STAR does not match the specified format (yyyy-mm-ddThh:mmZ(+hh:mm)) or is an invalid date/time.'),
+            (50, 'CHIS', 'Value 25:34:00 in CHIS_STAR does not match the specified format (yyyy-mm-ddThh:mmZ(+hh:mm)) or is an invalid date/time.')
+    ]):
+        assert error_list['AGS Format Rule 8'][i]['line'] == line
+        assert error_list['AGS Format Rule 8'][i]['group'] == group
+        assert error_list['AGS Format Rule 8'][i]['desc'] == desc
 
 
 def test_rule_8_5():
@@ -182,13 +272,17 @@ def test_rule_8_7():
     error_list = AGS4.check_file('tests/test_files/4.1-rule8-5.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
     assert 'AGS Format Rule 8' in error_list.keys()
-    assert error_list['AGS Format Rule 8'][4]['line'] == 88
-    assert error_list['AGS Format Rule 8'][4]['group'] == 'SAMP'
-    assert error_list['AGS Format Rule 8'][4]['desc'] == 'Value xyz in SAMP_XXXX not of data type YN.'
 
-    assert error_list['AGS Format Rule 8'][5]['line'] == 89
-    assert error_list['AGS Format Rule 8'][5]['group'] == 'SAMP'
-    assert error_list['AGS Format Rule 8'][5]['desc'] == 'Value 10 in SAMP_XXXX not of data type YN.'
+    for i, (line, desc) in enumerate([(95, 'Value yes in ISPT_ROCK not of data type YN.'),
+                                      (96, 'Value no in ISPT_ROCK not of data type YN.'),
+                                      (97, 'Value YES in ISPT_ROCK not of data type YN.'),
+                                      (98, 'Value NO in ISPT_ROCK not of data type YN.'),
+                                      (99, 'Value xyz in ISPT_ROCK not of data type YN.'),
+                                      (100, 'Value 10 in ISPT_ROCK not of data type YN.')],
+                                     start=4):
+        assert error_list['AGS Format Rule 8'][i]['line'] == line
+        assert error_list['AGS Format Rule 8'][i]['group'] == 'ISPT'
+        assert error_list['AGS Format Rule 8'][i]['desc'] == desc
 
 
 def test_rule_8_8():
@@ -198,6 +292,15 @@ def test_rule_8_8():
     assert error_list['AGS Format Rule 8'][0]['line'] == 83
     assert error_list['AGS Format Rule 8'][0]['group'] == 'SAMP'
     assert error_list['AGS Format Rule 8'][0]['desc'] == 'Value ABC121415010 in SAMP_ID is not unique.'
+
+
+def test_rule_8_9():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule8-7.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule 8' in error_list.keys()
+    assert error_list['AGS Format Rule 8'][0]['line'] == 73
+    assert error_list['AGS Format Rule 8'][0]['group'] == 'LOCA'
+    assert error_list['AGS Format Rule 8'][0]['desc'] == 'Value 45:45:45,454 in LOCA_LON not of data type DMS or is an invalid value.'
 
 
 # def test_rule_9():
@@ -214,7 +317,7 @@ def test_rule_9_2():
     assert 'AGS Format Rule 9' in error_list.keys()
     assert error_list['AGS Format Rule 9'][0]['line'] == 78
     assert error_list['AGS Format Rule 9'][0]['group'] == 'SAMP'
-    assert error_list['AGS Format Rule 9'][0]['desc'] == 'SAMP_XXXX not found in DICT table or the standard AGS4 dictionary.'
+    assert error_list['AGS Format Rule 9'][0]['desc'] == 'SAMP_XXXX not found in DICT group or the standard AGS4 dictionary.'
 
 
 def test_rule_10_1():
@@ -290,6 +393,19 @@ def test_rule_10_8():
     assert error_list['AGS Format Rule 10c'][1]['desc'] == 'TEST_A defined as key field(s) in the parent group (TEST) but not in the child group. Please check DICT group.'
 
 
+def test_rule_10_9():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule10-9.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule 10b' in error_list.keys()
+    assert error_list['AGS Format Rule 10b'][0]['line'] == 23
+    assert error_list['AGS Format Rule 10b'][0]['group'] == 'ABBR'
+    assert error_list['AGS Format Rule 10b'][0]['desc'] == 'Empty REQUIRED fields: DATA|SAMP_TYPE|??ABBR_CODE??|Small disturbed sample|||'
+
+    assert error_list['AGS Format Rule 10b'][2]['line'] == 40
+    assert error_list['AGS Format Rule 10b'][2]['group'] == 'TYPE'
+    assert error_list['AGS Format Rule 10b'][2]['desc'] == 'Empty REQUIRED fields: DATA|X|??TYPE_DESC??|'
+
+
 def test_rule_11_1():
     error_list = AGS4.check_file('tests/test_files/4.1-rule11-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
@@ -329,7 +445,7 @@ def test_rule_13_1():
     assert 'AGS Format Rule 13' in error_list.keys()
     assert error_list['AGS Format Rule 13'][0]['line'] == 6
     assert error_list['AGS Format Rule 13'][0]['group'] == 'PROJ'
-    assert error_list['AGS Format Rule 13'][0]['desc'] == 'There should not be more than one DATA row in the PROJ table.'
+    assert error_list['AGS Format Rule 13'][0]['desc'] == 'There should not be more than one DATA row in the PROJ group.'
 
 
 def test_rule_13_2():
@@ -337,7 +453,7 @@ def test_rule_13_2():
 
     assert 'AGS Format Rule 13' in error_list.keys()
     assert error_list['AGS Format Rule 13'][0]['group'] == 'PROJ'
-    assert error_list['AGS Format Rule 13'][0]['desc'] == 'PROJ table not found.'
+    assert error_list['AGS Format Rule 13'][0]['desc'] == 'PROJ group not found.'
 
 
 def test_rule_14_1():
@@ -346,7 +462,7 @@ def test_rule_14_1():
     assert 'AGS Format Rule 14' in error_list.keys()
     assert error_list['AGS Format Rule 14'][0]['line'] == 25
     assert error_list['AGS Format Rule 14'][0]['group'] == 'TRAN'
-    assert error_list['AGS Format Rule 14'][0]['desc'] == 'There should not be more than one DATA row in the TRAN table.'
+    assert error_list['AGS Format Rule 14'][0]['desc'] == 'There should not be more than one DATA row in the TRAN group.'
 
 
 def test_rule_14_2():
@@ -354,7 +470,7 @@ def test_rule_14_2():
 
     assert 'AGS Format Rule 14' in error_list.keys()
     assert error_list['AGS Format Rule 14'][0]['group'] == 'TRAN'
-    assert error_list['AGS Format Rule 14'][0]['desc'] == 'TRAN table not found.'
+    assert error_list['AGS Format Rule 14'][0]['desc'] == 'TRAN group not found.'
 
 
 def test_rule_14_3():
@@ -362,7 +478,7 @@ def test_rule_14_3():
 
     assert 'AGS Format Rule 17' in error_list.keys()
     assert error_list['AGS Format Rule 17'][0]['group'] == 'TYPE'
-    assert error_list['AGS Format Rule 17'][0]['desc'] == 'Data type "YN" not found in TYPE table.'
+    assert error_list['AGS Format Rule 17'][0]['desc'] == 'Data type "YN" not found in TYPE group.'
 
 
 def test_rule_15_1():
@@ -370,16 +486,25 @@ def test_rule_15_1():
 
     assert 'AGS Format Rule 15' in error_list.keys()
     assert error_list['AGS Format Rule 15'][0]['group'] == 'UNIT'
-    assert error_list['AGS Format Rule 15'][0]['desc'] == 'UNIT table not found.'
+    assert error_list['AGS Format Rule 15'][0]['desc'] == 'UNIT group not found.'
 
 
 def test_rule_15_2():
     error_list = AGS4.check_file('tests/test_files/4.1-rule15-2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
     assert 'AGS Format Rule 15' in error_list.keys()
-    assert error_list['AGS Format Rule 15'][0]['line'] == 47
+    assert error_list['AGS Format Rule 15'][0]['line'] == '-'
     assert error_list['AGS Format Rule 15'][0]['group'] == 'UNIT'
-    assert error_list['AGS Format Rule 15'][0]['desc'] == 'Unit "%" not found in UNIT table.'
+    assert error_list['AGS Format Rule 15'][0]['desc'] == 'Unit "%" not found in UNIT group. (This unit first appears in UNIT row in LLPL group)'
+
+
+def test_rule_15_3():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule15-3.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule 15' in error_list.keys()
+    assert error_list['AGS Format Rule 15'][0]['line'] == '-'
+    assert error_list['AGS Format Rule 15'][0]['group'] == 'UNIT'
+    assert error_list['AGS Format Rule 15'][0]['desc'] == 'Unit "mg/l" not found in UNIT group. (This unit first appears in ELRG_RUNI column in ELRG group)'
 
 
 def test_rule_16_1():
@@ -387,9 +512,21 @@ def test_rule_16_1():
 
     assert 'AGS Format Rule 16' in error_list.keys()
     assert error_list['AGS Format Rule 16'][0]['group'] == 'SAMP'
-    assert error_list['AGS Format Rule 16'][0]['desc'] == '"U" under SAMP_TYPE in SAMP not found in ABBR table.'
+    assert error_list['AGS Format Rule 16'][0]['desc'] == '"U" under SAMP_TYPE in SAMP not found in ABBR group.'
     assert error_list['AGS Format Rule 16'][1]['group'] == 'LLPL'
-    assert error_list['AGS Format Rule 16'][1]['desc'] == '"U" under SAMP_TYPE in LLPL not found in ABBR table.'
+    assert error_list['AGS Format Rule 16'][1]['desc'] == '"U" under SAMP_TYPE in LLPL not found in ABBR group.'
+
+
+def test_warning_16_1():
+    error_list = AGS4.check_file('tests/test_files/4.1-warning16-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Warning (Related to Rule 16)' in error_list.keys()
+    assert error_list['Warning (Related to Rule 16)'][0]['group'] == 'ABBR'
+    assert error_list['Warning (Related to Rule 16)'][0]['desc'] == 'DICT_TYPE: Description of abbreviation "GROUP" is "Group" but it should be '\
+        '"Flag to indicate definition is a GROUP" according to the standard abbreviations list.'
+    assert error_list['Warning (Related to Rule 16)'][2]['group'] == 'ABBR'
+    assert error_list['Warning (Related to Rule 16)'][2]['desc'] == 'SAMP_TYPE: Description of abbreviation "U" is "Different Description" but '\
+        'it should be "Undisturbed sample - open drive" according to the standard abbreviations list.'
 
 
 def test_rule_16_3():
@@ -397,7 +534,7 @@ def test_rule_16_3():
 
     assert 'AGS Format Rule 16' in error_list.keys()
     assert error_list['AGS Format Rule 16'][0]['group'] == 'ABBR'
-    assert error_list['AGS Format Rule 16'][0]['desc'] == 'ABBR table not found.'
+    assert error_list['AGS Format Rule 16'][0]['desc'] == 'ABBR group not found.'
 
 
 def test_rule_16b_2():
@@ -405,9 +542,9 @@ def test_rule_16b_2():
 
     assert 'AGS Format Rule 16' in error_list.keys()
     assert error_list['AGS Format Rule 16'][0]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 16'][0]['desc'] == '"CP" under LOCA_TYPE in LOCA not found in ABBR table.'
+    assert error_list['AGS Format Rule 16'][0]['desc'] == '"CP" under LOCA_TYPE in LOCA not found in ABBR group.'
     assert error_list['AGS Format Rule 16'][1]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 16'][1]['desc'] == '"RC" under LOCA_TYPE in LOCA not found in ABBR table.'
+    assert error_list['AGS Format Rule 16'][1]['desc'] == '"RC" under LOCA_TYPE in LOCA not found in ABBR group.'
 
 
 def test_rule_16b_3():
@@ -415,9 +552,9 @@ def test_rule_16b_3():
 
     assert 'AGS Format Rule 16' in error_list.keys()
     assert error_list['AGS Format Rule 16'][0]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 16'][0]['desc'] == '"CP " under LOCA_TYPE in LOCA not found in ABBR table.'
+    assert error_list['AGS Format Rule 16'][0]['desc'] == '"CP " under LOCA_TYPE in LOCA not found in ABBR group.'
     assert error_list['AGS Format Rule 16'][1]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 16'][1]['desc'] == '" RC" under LOCA_TYPE in LOCA not found in ABBR table.'
+    assert error_list['AGS Format Rule 16'][1]['desc'] == '" RC" under LOCA_TYPE in LOCA not found in ABBR group.'
 
 
 def test_rule_16b_4():
@@ -441,7 +578,7 @@ def test_rule_17_1():
 
     assert 'AGS Format Rule 17' in error_list.keys()
     assert error_list['AGS Format Rule 17'][0]['group'] == 'TYPE'
-    assert error_list['AGS Format Rule 17'][0]['desc'] == 'Data type "ID" not found in TYPE table.'
+    assert error_list['AGS Format Rule 17'][0]['desc'] == 'Data type "ID" not found in TYPE group.'
 
 
 def test_rule_17_2():
@@ -449,7 +586,7 @@ def test_rule_17_2():
 
     assert 'AGS Format Rule 17' in error_list.keys()
     assert error_list['AGS Format Rule 17'][0]['group'] == 'TYPE'
-    assert error_list['AGS Format Rule 17'][0]['desc'] == 'TYPE table not found.'
+    assert error_list['AGS Format Rule 17'][0]['desc'] == 'TYPE group not found.'
 
 
 def test_rule_18_1():
@@ -457,7 +594,7 @@ def test_rule_18_1():
 
     assert 'AGS Format Rule 9' in error_list.keys()
     assert error_list['AGS Format Rule 9'][0]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 9'][0]['desc'] == 'LOCA_APPG not found in DICT table or the standard AGS4 dictionary.'
+    assert error_list['AGS Format Rule 9'][0]['desc'] == 'LOCA_APPG not found in DICT group or the standard AGS4 dictionary.'
 
 
 def test_rule_18_2():
@@ -538,9 +675,9 @@ def test_rule_20_1():
 
     assert 'AGS Format Rule 20' in error_list.keys()
     assert error_list['AGS Format Rule 20'][0]['group'] == 'LOCA'
-    assert error_list['AGS Format Rule 20'][0]['desc'] == 'FILE_FSET entry "327-16A" not found in FILE table.'
+    assert error_list['AGS Format Rule 20'][0]['desc'] == 'FILE_FSET entry "327-16A" not found in FILE group.'
     assert error_list['AGS Format Rule 20'][1]['group'] == 'FILE'
-    assert error_list['AGS Format Rule 20'][1]['desc'] == f'Sub-folder named "{os.path.join("FILE", "327")}" not found even though it is defined in the FILE table.'
+    assert error_list['AGS Format Rule 20'][1]['desc'] == f'Sub-folder named "{os.path.join("FILE", "327")}" not found even though it is defined in the FILE group.'
 
 
 def test_rule_20_2():
@@ -548,7 +685,7 @@ def test_rule_20_2():
 
     assert 'AGS Format Rule 20' in error_list.keys()
     assert error_list['AGS Format Rule 20'][0]['group'] == 'FILE'
-    assert error_list['AGS Format Rule 20'][0]['desc'] == f'Sub-folder named "{os.path.join("FILE", "327")}" not found even though it is defined in the FILE table.'
+    assert error_list['AGS Format Rule 20'][0]['desc'] == f'Sub-folder named "{os.path.join("FILE", "327")}" not found even though it is defined in the FILE group.'
 
 
 def test_rule_20_3():
@@ -556,7 +693,7 @@ def test_rule_20_3():
 
     assert 'AGS Format Rule 20' in error_list.keys()
     assert error_list['AGS Format Rule 20'][0]['group'] == 'FILE'
-    assert error_list['AGS Format Rule 20'][0]['desc'] == f'File named "{os.path.join("FILE", "327-16A", "wrong Report.pdf")}" not found even though it is defined in the FILE table.'
+    assert error_list['AGS Format Rule 20'][0]['desc'] == f'File named "{os.path.join("FILE", "327-16A", "wrong Report.pdf")}" not found even though it is defined in the FILE group.'
 
 
 def test_rule_20_OK():
@@ -598,8 +735,47 @@ def test_file_with_BOM():
     error_list = AGS4.check_file('tests/test_files/File_with_BOM.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
     msg1 = 'This file seems to be encoded with a byte-order-mark (BOM). It is highly recommended that the '\
-           'file be saved without BOM encoding to avoid issues with other sofware.'
-    msg2 = 'Has Non-ASCII character(s) and/or a byte-order-mark (BOM).'
+           'file be saved without BOM encoding to avoid issues with other software.'
+    msg2 = f"Has Non-ASCII character(s) (assuming that file encoding is 'utf-8') and/or a byte-order-mark (BOM)."
 
-    assert msg1 in error_list['General'][0]['desc']
+    assert msg1 in error_list['General'][1]['desc']
     assert msg2 in error_list['AGS Format Rule 1'][0]['desc']
+
+
+def test_file_with_invalid_TRAN_AGS():
+    error_list = AGS4.check_file('tests/test_files/Invalid_TRAN_AGS.ags')
+
+    assert 'TRAN_AGS is not a recognized AGS4 version' not in error_list['Warnings'][0]
+
+
+def test_file_with_standalone_SAMP_IDs():
+    error_list = AGS4.check_file('tests/test_files/Standalone_SAMP_IDs.ags')
+
+    assert not bool([x for x in error_list if 'Rule' in x])
+
+
+def test_checking_without_dictionary_raises_error():
+    # Check file without a DICT table
+    # The same file is passed as the standard dictionary to
+    # force exception to be raised
+    error_list = AGS4.check_file('tests/test_files/4.1-rule1-utf8.ags', standard_AGS4_dictionary='tests/test_files/4.1-rule1-utf8.ags')
+
+    assert 'AGS Format Rule ?' in error_list.keys()
+    assert error_list['AGS Format Rule ?'][0]['group'] == ''
+    assert error_list['AGS Format Rule ?'][0]['desc'] == 'No DICT groups available to proceed with checking. Please ensure '\
+                                                         'the input file has a DICT group or provide file with standard AGS4 dictionary.'
+
+
+def test_duplicate_groups_raises_error():
+    error_list = AGS4.check_file('tests/test_files/DuplicateGroups.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule ?' in error_list.keys()
+    msg = 'SAMP group duplicated in Line 42. Cannot parse file without overwriting data, therefore please combine all duplicate groups first.'
+    assert error_list['AGS Format Rule ?'][0]['desc'] == msg
+
+
+def test_data_summary():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'Summary of data' in error_list.keys()
+    assert error_list['Summary of data'][0]['desc'] == '7 groups identified in file: PROJ ABBR TRAN TYPE UNIT LOCA SAMP'
