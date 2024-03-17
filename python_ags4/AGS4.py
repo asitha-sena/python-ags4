@@ -904,6 +904,8 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
     except AGS4Error as err:
         logger.exception(err)
 
+        ags_errors = check.add_error_msg(ags_errors, 'General', '-', '',
+                                         'Could not complete validation. Please fix listed errors and try again.')
         ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', str(err))
 
     except UnboundLocalError:
@@ -922,17 +924,14 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
               'file be saved without BOM encoding to avoid issues with other software.'
         ags_errors = check.add_error_msg(ags_errors, 'General', '', '', msg)
 
-    except Exception:
-        err = traceback.format_exc()
-        msg = 'Could not continue with group checks on file. Please review error log and fix line errors first.'
-
-        logger.exception(msg)
+    except Exception as err:
+        logger.exception(err)
         if print_output:
-            rprint(f'[red] ERROR: {msg}[/red]')
-            rprint(f'[red]\n{err}[/red]')
+            rprint(f'[red]\n{traceback.format_exc()}[/red]')
 
-        ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', msg)
-        ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', err)
+        ags_errors = check.add_error_msg(ags_errors, 'General', '-', '',
+                                         'Could not complete validation. Please fix listed errors and try again.')
+        ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', 'Unexpected parsing error.')
 
     finally:
         if close_file:
