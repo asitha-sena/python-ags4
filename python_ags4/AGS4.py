@@ -722,7 +722,8 @@ def _format_SF(value, TYPE):
         return f"{value:.{i}f}"
 
 
-def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplicate_headers=True, encoding='utf-8', print_output:bool=True):
+def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplicate_headers=True, encoding='utf-8',
+               print_output=True):
     """Validate AGS4 file against AGS4 rules.
 
     Parameters
@@ -754,8 +755,7 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
 
     ags_errors = {}
 
-    if print_output:
-        logger.info(f'Opening file... {filepath_or_buffer}')
+    logger.info(f'Opening file... {filepath_or_buffer}')
 
     # Line checks
     if _is_file_like(filepath_or_buffer):
@@ -785,9 +785,9 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         group = ''
         headings = []
 
+        logger.info('Checking lines...')
         if print_output:
             rprint('[green]  Checking lines...[/green]')
-            logger.info('Checking lines...')
 
         for i, line in enumerate(f, start=1):
 
@@ -834,17 +834,17 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
             ags_errors = check.add_error_msg(ags_errors, 'General', '', '', msg)
 
         # Import data into Pandas dataframes to run group checks
+        logger.info('Loading tables...')
         if print_output:
             rprint('[green]  Loading tables...[/green]')
-            logger.info('Loading tables...')
 
         f.seek(0)
         tables, headings, line_numbers = AGS4_to_dataframe(f, get_line_numbers=True, rename_duplicate_headers=rename_duplicate_headers)
 
         # Group Checks
+        logger.info('Checking headings and groups...')
         if print_output:
             rprint('[green]  Checking headings and groups...[/green]')
-            logger.info('Checking headings and groups...')
 
         ags_errors = check.rule_2(tables, headings, line_numbers, ags_errors=ags_errors)
         ags_errors = check.rule_2b(tables, headings, line_numbers, ags_errors=ags_errors)
@@ -877,9 +877,9 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         # This extended dictionary is used to check the file schema
         dictionary = check.combine_DICT_tables(tables_std_dict, tables)
 
+        logger.info('Checking file schema...')
         if print_output:
             rprint('[green]  Checking file schema...[/green]')
-            logger.info('Checking file schema...')
 
         ags_errors = check.rule_7_2(headings, dictionary, line_numbers, ags_errors=ags_errors)
         ags_errors = check.rule_9(headings, dictionary, line_numbers, ags_errors=ags_errors)
@@ -902,8 +902,7 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
             ags_errors = check.add_error_msg(ags_errors, 'Summary of data', '', '', val)
 
     except AGS4Error as err:
-        if print_output:
-            logger.exception(err)
+        logger.exception(err)
 
         ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', str(err))
 
@@ -927,10 +926,10 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         err = traceback.format_exc()
         msg = 'Could not continue with group checks on file. Please review error log and fix line errors first.'
 
+        logger.exception(msg)
         if print_output:
             rprint(f'[red] ERROR: {msg}[/red]')
             rprint(f'[red]\n{err}[/red]')
-            logger.exception(msg)
 
         ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', msg)
         ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', err)
