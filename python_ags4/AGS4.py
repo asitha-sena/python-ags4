@@ -270,7 +270,7 @@ def AGS4_to_excel(input_file, output_file, encoding='utf-8', rename_duplicate_he
         Rename duplicate headers if found. Neither AGS4 tables nor Pandas
         dataframes allow duplicate headers, therefore a number will be appended
         to duplicates to make them unique.
-    sorting_strategy : {None, dictionary', 'alphabetical', 'hierarchical'}, default=None
+    sorting_strategy : {None, 'dictionary', 'alphabetical', 'hierarchical'}, default=None
         Sort groups in the order in which they appear in the dictionary, the
         hierarchy defined in the dictionary, or alphabetically.
         WARNING: The original order of groups will be lost and cannot be
@@ -1079,7 +1079,7 @@ def count_errors(ags_errors):
     return error_count, warnings_count, fyi_count
 
 
-def sort_groups(tables, sorting_strategy='hierarchical'):
+def sort_groups(tables, sorting_strategy='dictionary'):
     """Sort groups/tables parsed from AGS4 file.
 
     Parameters
