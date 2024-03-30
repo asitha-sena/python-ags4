@@ -1,0 +1,52 @@
+site_name: Official documentation - AGS4 library
+repo_url: https://gitlab.com/didymograptus/ags-python-library
+
+theme:
+  name: "material"
+  palette:
+  - media: "(prefers-color-scheme)"
+    toggle:
+      icon: material/brightness-auto
+      name: Switch to light mode
+  - media: "(prefers-color-scheme: light)"
+    scheme: default
+    primary: teal
+    accent: purple
+    toggle:
+      icon: material/weather-sunny
+      name: Switch to dark mode
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    primary: black
+    accent: lime
+    toggle:
+      icon: material/weather-night
+      name: Switch to system preference
+  features:
+    - navigation.expand
+    - content.code.copy
+
+plugins:
+- search:
+- mkdocstrings:
+    handlers:
+      python: 
+        paths: []
+        options:
+          docstring_style: numpy
+          members_order: source
+          filters: ["!^_"]
+          docstring_section_style: table
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences          
+
+nav:
+  - Home: index.md
+  - Usage: usage.md
+  - Code:
+    - AGS4.py: ags4.md
+    - check.py: check.md
+    - ags4_cli.py: ags4_cli.md
