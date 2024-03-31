@@ -3,6 +3,7 @@ Changelog
 
 0.6.0 (Pending)
 --------------
+- Remove support for Python 3.8 and require Pandas 2.1+
 - Report exceptions in the error log using the description 'Validation Process
   Error'
 

@@ -10,8 +10,8 @@ repository = "https://gitlab.com/ags-data-format-wg/ags-python-library"
 include = ["COPYING.LESSER"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-pandas = "^2.0"
+python = "^3.9"
+pandas = "^2.1"
 openpyxl = "^3.0"
 defusedxml = ">=0.6, <0.8"
 click = ">=7.0, <9.0"
