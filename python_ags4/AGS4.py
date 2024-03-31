@@ -906,9 +906,11 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
 
         ags_errors = check.add_error_msg(ags_errors, 'General', '-', '',
                                          'Could not complete validation. Please fix listed errors and try again.')
-        ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', str(err))
+        ags_errors = check.add_error_msg(ags_errors, 'Validator Process Error', '-', '', str(err))
 
-    except UnboundLocalError:
+    except UnboundLocalError as err:
+        logger.exception(err)
+
         # The presence of a byte-order-mark (BOM) in the same row as first
         # "GROUP" line can cause this exception. This will be caught by line
         # checks for Rule 1 (since the BOM is not an ASCII character) and Rule 3
@@ -931,7 +933,7 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
 
         ags_errors = check.add_error_msg(ags_errors, 'General', '-', '',
                                          'Could not complete validation. Please fix listed errors and try again.')
-        ags_errors = check.add_error_msg(ags_errors, 'AGS Format Rule ?', '-', '', 'Unexpected parsing error.')
+        ags_errors = check.add_error_msg(ags_errors, 'Validator Process Error', '-', '', str(err))
 
     finally:
         if close_file:
@@ -1020,6 +1022,13 @@ def write_error_report(ags_errors, output_file, show_warnings=False, show_fyi=Fa
                     f.write(f'''  Line {entry['line']:<8} {entry['group'].strip('"'):<7} {entry['desc']}\r\n''')
                 f.write('\r\n')
 
+            # Write parsing and process error messages
+            for key in [x for x in ags_errors if 'Validator Process Error' in x]:
+                f.write(f'{key}:\r\n')
+                for entry in ags_errors[key]:
+                    f.write(f'''  Line {entry['line']:<8} {entry['group'].strip('"'):<7} {entry['desc']}\r\n''')
+                f.write('\r\n')
+
             # Write warning messages
             if show_warnings is True:
                 for key in [x for x in ags_errors if 'Warning' in x]:
@@ -1070,7 +1079,7 @@ def count_errors(ags_errors):
     warnings_count = 0
     fyi_count = 0
     for key, val in ags_errors.items():
-        error_count += len(val) if 'AGS Format Rule' in key else 0
+        error_count += len(val) if ('AGS Format Rule' in key) or ('Validator Process Error' in key) else 0
         warnings_count += len(val) if 'Warning' in key else 0
         fyi_count += len(val) if 'FYI' in key else 0
 

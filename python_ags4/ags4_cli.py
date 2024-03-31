@@ -333,6 +333,13 @@ def print_to_screen(ags_errors, show_warnings=False, show_fyi=False):
                 console.print(f'''  Line {entry['line']}\t [bold]{entry['group'].strip('"')}[/bold]\t {entry['desc']}''')
             console.print('')
 
+        # Write parsing and process error messages
+        for key in [x for x in ags_errors if 'Validator Process Error' in x]:
+            console.print(f'''[white underline]{key}[/white underline]:''')
+            for entry in ags_errors[key]:
+                console.print(f'''  Line {entry['line']}\t [bold]{entry['group'].strip('"')}[/bold]\t {entry['desc']}''')
+            console.print('')
+
         # Print warnings
         if show_warnings is True:
             for key in [x for x in ags_errors if 'Warning' in x]:
