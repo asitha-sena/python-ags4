@@ -686,7 +686,7 @@ def format_numeric_column(dataframe, column_name, TYPE):
             # Apply formatting DATA rows with real numbers. NaNs will be avoided so that they will be exported
             # as "" rather than "nan"
             mask = (df.HEADING == "DATA") & df[col].notna()
-            df.loc[mask, [col]] = df.loc[mask, [col]].applymap(lambda x: _format_SF(x, TYPE))
+            df.loc[mask, [col]] = df.loc[mask, [col]].map(lambda x: _format_SF(x, TYPE))
 
         else:
             pass
