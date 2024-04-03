@@ -96,7 +96,6 @@ def combine_DICT_tables(*ags_tables):
 
     from pandas import DataFrame, concat
     from .AGS4 import AGS4Error
-    from rich import print as rprint
 
     # Initialize DataFrame to hold all dictionary entries
     master_DICT = DataFrame()
@@ -108,15 +107,12 @@ def combine_DICT_tables(*ags_tables):
 
         except KeyError:
             # KeyError if there is no DICT table in an input file
-            rprint('[yellow]  WARNING: DICT group not found in input file.[/yellow]')
             logger.warning('DICT group not found in input file.')
 
     # Check whether master_DICT is empty
     if master_DICT.shape[0] == 0:
         msg = 'No DICT groups available to proceed with checking. '\
               'Please ensure the input file has a DICT group or provide file with standard AGS4 dictionary.'
-
-        rprint(f'[red]  ERROR: {msg}[/red]')
         logger.error(msg)
 
         raise AGS4Error(msg)
@@ -198,7 +194,6 @@ def pick_standard_dictionary(tables=None, dict_version=None):
     """
 
     from pathlib import Path
-    from rich import print as rprint
 
     # Select standard dictionary based on TRAN_AGS
     try:
@@ -210,27 +205,22 @@ def pick_standard_dictionary(tables=None, dict_version=None):
             path_to_standard_dictionary = Path(__file__).parent / STANDARD_DICT_FILES[dict_version]
 
         else:
-            rprint('[yellow]  WARNING: Standard dictionary for AGS4 version specified in TRAN_AGS not available.[/yellow]')
-            rprint(f'[yellow]           Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
             logger.warning('Standard dictionary for AGS4 version specified in TRAN_AGS not available. '
                            f'Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
             path_to_standard_dictionary = Path(__file__).parent / STANDARD_DICT_FILES[LATEST_DICT_VERSION]
 
     except KeyError:
         # TRAN table not in file
-        rprint(f'[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
         logger.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
         path_to_standard_dictionary = Path(__file__).parent / STANDARD_DICT_FILES[LATEST_DICT_VERSION]
 
     except IndexError:
         # No DATA rows in TRAN table
-        rprint(f'[yellow]  WARNING: TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
         logger.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
         path_to_standard_dictionary = Path(__file__).parent / STANDARD_DICT_FILES[LATEST_DICT_VERSION]
 
     except TypeError:
         # TRAN table not found and dict_version not valid
-        rprint(f'[yellow]  WARNING: Neither TRAN_AGS nor dict_version is valid. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.[/yellow]')
         logger.warning(f'TRAN_AGS not found. Defaulting to standard dictionary v{LATEST_DICT_VERSION}.')
         path_to_standard_dictionary = Path(__file__).parent / STANDARD_DICT_FILES[LATEST_DICT_VERSION]
 
