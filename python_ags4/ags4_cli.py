@@ -21,19 +21,20 @@
 # https://gitlab.com/ags-data-format-wg/ags-python-library
 
 
-import sys
+import click
 import logging
+import sys
+import textwrap
+import warnings
+
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-import textwrap
-
-import click
-from rich.console import Console
-
 from python_ags4 import AGS4, __version__
+from rich.console import Console
+from rich.logging import RichHandler
+from rich.highlighter import NullHighlighter
 
 # Add warnings filter because Pandas 2.1 produces a lot of deprecation warnings
-import warnings
 warnings.filterwarnings('ignore')
 
 # Create rich console for pretty printing
@@ -87,7 +88,9 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
                             handlers=[RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log', maxBytes=100e3, backupCount=1)])
 
     else:
-        logging.basicConfig(level=logging.CRITICAL)
+        logging.basicConfig(level=logging.INFO,
+                            format='%{message}',
+                            handlers=[RichHandler(console=console, show_time=False, show_path=False)])
 
     try:
         if input_file.endswith('.ags') & output_file.endswith('.xlsx'):
@@ -186,7 +189,12 @@ def check(input_file, output_file, dictionary_path, dictionary_version, encoding
                             handlers=[RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log', maxBytes=100e3, backupCount=1)])
 
     else:
-        logging.basicConfig(level=logging.CRITICAL)
+        logging.basicConfig(level=logging.INFO,
+                            format='{message}',
+                            style='{',
+                            handlers=[RichHandler(show_time=False,
+                                                  show_path=False,
+                                                  highlighter=NullHighlighter())])
 
     # Run validation
     if input_file.lower().endswith('.ags'):
