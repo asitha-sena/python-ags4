@@ -21,18 +21,19 @@
 # https://gitlab.com/ags-data-format-wg/ags-python-library
 
 
-import click
 import logging
 import sys
 import textwrap
 import warnings
-
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from python_ags4 import AGS4, __version__
+
+import click
 from rich.console import Console
-from rich.logging import RichHandler
 from rich.highlighter import NullHighlighter
+from rich.logging import RichHandler
+
+from . import AGS4, __version__
 
 # Add warnings filter because Pandas 2.1 produces a lot of deprecation warnings
 warnings.filterwarnings('ignore')
