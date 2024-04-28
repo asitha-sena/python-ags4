@@ -3,9 +3,12 @@ Changelog
 
 0.6.0 (Pending)
 --------------
-- Remove support for Python 3.8 and require Pandas 2.1+
+- Remove support for Python 3.8
+- Require Pandas 2.1+
 - Report exceptions in the error log using the description 'Validation Process
   Error'
+- Update default sort strategy to 'dictionary'
+- Remove debug print statements to stdout
 
 0.5.0 (2024-01-27)
 ------------------
