@@ -40,6 +40,13 @@ warnings.filterwarnings('ignore')
 # Create rich console for pretty printing
 console = Console()
 
+# Logging
+stream_handler = RichHandler(console=console, show_time=False, show_path=False,
+                             highlighter=NullHighlighter(),
+                             rich_tracebacks=True)
+logger = logging.getLogger('python_ags4')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(stream_handler)
 
 @click.group()
 def main():
@@ -80,17 +87,16 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
         1 - Conversion failed
     '''
 
-    # Log messages if specified
+    # Log messages to file if specified
     if log_messages is True:
-        logging.basicConfig(format='{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
-                            style='{', datefmt='%Y-%m-%dT%H:%M:%S%z',
-                            level=logging.DEBUG,
-                            handlers=[RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log', maxBytes=100e3, backupCount=1)])
-
-    else:
-        logging.basicConfig(level=logging.INFO,
-                            format='%{message}',
-                            handlers=[RichHandler(console=console, show_time=False, show_path=False)])
+        file_handler = RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log',
+                                        maxBytes=100e3,
+                                        backupCount=1)
+        file_formatter = logging.Formatter('{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
+                                        style='{',
+                                        datefmt='%Y-%m-%d %H:%M:%S')
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
 
     try:
         if input_file.endswith('.ags') & output_file.endswith('.xlsx'):
@@ -181,20 +187,16 @@ def check(input_file, output_file, dictionary_path, dictionary_version, encoding
         1 - Errors found or file read error
     '''
 
-    # Log messages if specified
+    # Log messages to file if specified
     if log_messages is True:
-        logging.basicConfig(format='{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
-                            style='{', datefmt='%Y-%m-%dT%H:%M:%S%z',
-                            level=logging.DEBUG,
-                            handlers=[RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log', maxBytes=100e3, backupCount=1)])
-
-    else:
-        logging.basicConfig(level=logging.INFO,
-                            format='{message}',
-                            style='{',
-                            handlers=[RichHandler(show_time=False,
-                                                  show_path=False,
-                                                  highlighter=NullHighlighter())])
+        file_handler = RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log',
+                                        maxBytes=100e3,
+                                        backupCount=1)
+        file_formatter = logging.Formatter('{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
+                                        style='{',
+                                        datefmt='%Y-%m-%d %H:%M:%S')
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
 
     # Run validation
     if input_file.lower().endswith('.ags'):
