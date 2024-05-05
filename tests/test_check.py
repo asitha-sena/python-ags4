@@ -760,18 +760,18 @@ def test_checking_without_dictionary_raises_error():
     # force exception to be raised
     error_list = AGS4.check_file('tests/test_files/4.1-rule1-utf8.ags', standard_AGS4_dictionary='tests/test_files/4.1-rule1-utf8.ags')
 
-    assert 'AGS Format Rule ?' in error_list.keys()
-    assert error_list['AGS Format Rule ?'][0]['group'] == ''
-    assert error_list['AGS Format Rule ?'][0]['desc'] == 'No DICT groups available to proceed with checking. Please ensure '\
-                                                         'the input file has a DICT group or provide file with standard AGS4 dictionary.'
+    assert 'Validator Process Error' in error_list.keys()
+    assert error_list['Validator Process Error'][0]['group'] == ''
+    assert error_list['Validator Process Error'][0]['desc'] == 'No DICT groups available to proceed with checking. Please ensure '\
+                                                               'the input file has a DICT group or provide file with standard AGS4 dictionary.'
 
 
 def test_duplicate_groups_raises_error():
     error_list = AGS4.check_file('tests/test_files/DuplicateGroups.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
-    assert 'AGS Format Rule ?' in error_list.keys()
+    assert 'Validator Process Error' in error_list.keys()
     msg = 'SAMP group duplicated in Line 42. Cannot parse file without overwriting data, therefore please combine all duplicate groups first.'
-    assert error_list['AGS Format Rule ?'][0]['desc'] == msg
+    assert error_list['Validator Process Error'][0]['desc'] == msg
 
 
 def test_data_summary():

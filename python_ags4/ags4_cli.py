@@ -21,24 +21,33 @@
 # https://gitlab.com/ags-data-format-wg/ags-python-library
 
 
-import sys
 import logging
+import sys
+import textwrap
+import warnings
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-import textwrap
 
 import click
 from rich.console import Console
+from rich.highlighter import NullHighlighter
+from rich.logging import RichHandler
 
-from python_ags4 import AGS4, __version__
+from . import AGS4, __version__
 
 # Add warnings filter because Pandas 2.1 produces a lot of deprecation warnings
-import warnings
 warnings.filterwarnings('ignore')
 
 # Create rich console for pretty printing
 console = Console()
 
+# Logging
+stream_handler = RichHandler(console=console, show_time=False, show_path=False,
+                             highlighter=NullHighlighter(),
+                             rich_tracebacks=True)
+logger = logging.getLogger('python_ags4')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(stream_handler)
 
 @click.group()
 def main():
@@ -79,15 +88,16 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
         1 - Conversion failed
     '''
 
-    # Log messages if specified
+    # Log messages to file if specified
     if log_messages is True:
-        logging.basicConfig(format='{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
-                            style='{', datefmt='%Y-%m-%dT%H:%M:%S%z',
-                            level=logging.DEBUG,
-                            handlers=[RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log', maxBytes=100e3, backupCount=1)])
-
-    else:
-        logging.basicConfig(level=logging.CRITICAL)
+        file_handler = RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log',
+                                        maxBytes=100e3,
+                                        backupCount=1)
+        file_formatter = logging.Formatter('{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
+                                        style='{',
+                                        datefmt='%Y-%m-%d %H:%M:%S')
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
 
     try:
         if input_file.endswith('.ags') & output_file.endswith('.xlsx'):
@@ -178,15 +188,16 @@ def check(input_file, output_file, dictionary_path, dictionary_version, encoding
         1 - Errors found or file read error
     '''
 
-    # Log messages if specified
+    # Log messages to file if specified
     if log_messages is True:
-        logging.basicConfig(format='{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
-                            style='{', datefmt='%Y-%m-%dT%H:%M:%S%z',
-                            level=logging.DEBUG,
-                            handlers=[RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log', maxBytes=100e3, backupCount=1)])
-
-    else:
-        logging.basicConfig(level=logging.CRITICAL)
+        file_handler = RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log',
+                                        maxBytes=100e3,
+                                        backupCount=1)
+        file_formatter = logging.Formatter('{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
+                                        style='{',
+                                        datefmt='%Y-%m-%d %H:%M:%S')
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
 
     # Run validation
     if input_file.lower().endswith('.ags'):
@@ -328,6 +339,13 @@ def print_to_screen(ags_errors, show_warnings=False, show_fyi=False):
 
         # Write other AGS Format error messages
         for key in [x for x in ags_errors if 'AGS Format Rule' in x]:
+            console.print(f'''[white underline]{key}[/white underline]:''')
+            for entry in ags_errors[key]:
+                console.print(f'''  Line {entry['line']}\t [bold]{entry['group'].strip('"')}[/bold]\t {entry['desc']}''')
+            console.print('')
+
+        # Write parsing and process error messages
+        for key in [x for x in ags_errors if 'Validator Process Error' in x]:
             console.print(f'''[white underline]{key}[/white underline]:''')
             for entry in ags_errors[key]:
                 console.print(f'''  Line {entry['line']}\t [bold]{entry['group'].strip('"')}[/bold]\t {entry['desc']}''')

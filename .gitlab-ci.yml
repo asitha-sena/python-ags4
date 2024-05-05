@@ -7,7 +7,7 @@ stages:
   stage: test
   parallel:
     matrix:
-      - PYTHON_VERSION: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+      - PYTHON_VERSION: ["3.9", "3.10", "3.11", "3.12"]
   script:
     - python -m pip install .
     - python -m pip install pytest nbval
@@ -22,16 +22,21 @@ build-linux:
   tags:
     - linux
 
+
+# Create docs
+image: python:3.8-buster
+
+before_script:
+  - pip install mkdocs
+  - pip install mkdocs-material
+  - pip install mkdocstrings[python]
 pages:
   stage: deploy_html_docs
-  image: python:3.10
   script:
-  - pip install -U sphinx sphinx-rtd-theme
-  - cd docs
-  - sphinx-build -b html . ../public
-  - cp custom.css ../public/_static/custom.css # Custom CSS file to increase width of html pages
+  - mkdocs build
+  - mv site public
   artifacts:
     paths:
     - public
-  rules:
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+  only:
+  - main
