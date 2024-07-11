@@ -1440,7 +1440,9 @@ def is_TRAN_AGS_valid(tables, headings, line_numbers, ags_errors={}):
         dict_version = TRAN.loc[TRAN.HEADING.eq('DATA'), 'TRAN_AGS'].values[0]
 
         if dict_version not in STANDARD_DICT_FILES.keys():
-            line_number = TRAN.loc[TRAN.HEADING.eq('DATA'), 'line_number'].values[0]
+            line_number = int(TRAN.loc[TRAN.HEADING.eq('DATA'), 'line_number'].values[0])
+            # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+            # that Pandas returns by default
             msg = f"'{dict_version}' in TRAN_AGS is not a recognized AGS4 version. Therefore, v{LATEST_DICT_VERSION}"\
                   f" of the standard dictionary will be used for validation if a different version is not explictly specified."
             add_error_msg(ags_errors, 'Warnings', line_number, 'TRAN', msg)
