@@ -67,7 +67,7 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
     if _is_file_like(filepath_or_buffer):
         f = filepath_or_buffer
         f.seek(0)
-        if hasattr(f, 'encoding') and getattr(f, 'encoding', None) != encoding:
+        if hasattr(f, 'encoding') and getattr(f, 'encoding', None) != encoding and hasattr(f, 'reconfigure'):
             f.reconfigure(encoding=encoding)
         close_file = False
     else:
@@ -726,7 +726,7 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
     if _is_file_like(filepath_or_buffer):
         f = filepath_or_buffer
         f.seek(0)
-        if hasattr(f, 'encoding') and getattr(f, 'encoding', None) != encoding:
+        if hasattr(f, 'encoding') and getattr(f, 'encoding', None) != encoding and hasattr(f, 'reconfigure'):
             f.reconfigure(encoding=encoding)
         close_file = False
     else:

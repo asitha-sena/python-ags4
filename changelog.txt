@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.6.1 (Pending)
+--------------
+- Fix crash in Python 3.12.4 trying to change which character set to use
+  reading a file/stream that does not support the reconfigure() method.
+  Typical error message `'_io.StringIO' object has no attribute 'reconfigure'`
+
+
+
 0.6.0 (2024-05-05)
 --------------
 - Remove support for Python 3.8
