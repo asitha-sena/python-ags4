@@ -729,6 +729,7 @@ def test_rule_AGS3():
 
     assert 'AGS Format Rule 3' in error_list.keys()
     assert 'AGS3' in error_list['AGS Format Rule 3'][0]['desc']
+    assert 'Validator Process Error' in error_list.keys()
 
 
 def test_file_with_BOM():
