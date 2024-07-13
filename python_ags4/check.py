@@ -1445,7 +1445,7 @@ def is_TRAN_AGS_valid(tables, headings, line_numbers, ags_errors={}):
             # that Pandas returns by default
             msg = f"'{dict_version}' in TRAN_AGS is not a recognized AGS4 version. Therefore, v{LATEST_DICT_VERSION}"\
                   f" of the standard dictionary will be used for validation if a different version is not explictly specified."
-            add_error_msg(ags_errors, 'Warnings', line_number, 'TRAN', msg)
+            add_error_msg(ags_errors, 'FYI', line_number, 'TRAN', msg)
 
     except KeyError:
         # TRAN table missing. AGS Format Rule 14 should catch this error.
