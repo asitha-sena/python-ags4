@@ -1494,11 +1494,15 @@ def is_ags3_like(line, line_number=0, ags_errors={}):
 
 
 # Warnings
+# TO BE ADDED
 
-def warning_16_1(tables, headings, standard_ABBR, ags_errors={}):
+
+# FYI
+
+def fyi_16_1(tables, headings, standard_ABBR, ags_errors={}):
     '''Related to AGS Format Rule 16: Verify ABBR_DESC for entries already defined in the standard dictionaries are correct.
 
-    This warning is especially important in cases where user defined
+    This FYI is especially important in cases where user defined
     abbreviations overwrite ones that already exist in the standard
     abbreviations list.
     '''
@@ -1518,7 +1522,7 @@ def warning_16_1(tables, headings, standard_ABBR, ags_errors={}):
                     f'but it should be "{row["ABBR_DESC_y"]}" according to the standard abbreviations list.'
                 line_number = int(row['line_number'])
 
-                add_error_msg(ags_errors, 'Warning (Related to Rule 16)', line_number, 'ABBR', msg)
+                add_error_msg(ags_errors, 'FYI (Related to Rule 16)', line_number, 'ABBR', msg)
 
             else:
                 # ABBR_DESC field not available to continue with check

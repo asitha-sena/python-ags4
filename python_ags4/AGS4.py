@@ -856,7 +856,10 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         ags_errors = check.rule_19b_3(tables, headings, dictionary, line_numbers, ags_errors=ags_errors)
 
         # Warnings
-        ags_errors = check.warning_16_1(tables, headings, tables_std_dict['ABBR'], ags_errors=ags_errors)
+        # TO BE ADDED
+
+        # FYI
+        ags_errors = check.fyi_16_1(tables, headings, tables_std_dict['ABBR'], ags_errors=ags_errors)
 
         # Add summary of data
         for val in check.get_data_summary(tables):

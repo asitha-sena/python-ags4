@@ -517,15 +517,15 @@ def test_rule_16_1():
     assert error_list['AGS Format Rule 16'][1]['desc'] == '"U" under SAMP_TYPE in LLPL not found in ABBR group.'
 
 
-def test_warning_16_1():
-    error_list = AGS4.check_file('tests/test_files/4.1-warning16-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+def test_fyi_16_1():
+    error_list = AGS4.check_file('tests/test_files/4.1-fyi16-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
-    assert 'Warning (Related to Rule 16)' in error_list.keys()
-    assert error_list['Warning (Related to Rule 16)'][0]['group'] == 'ABBR'
-    assert error_list['Warning (Related to Rule 16)'][0]['desc'] == 'DICT_TYPE: Description of abbreviation "GROUP" is "Group" but it should be '\
+    assert 'FYI (Related to Rule 16)' in error_list.keys()
+    assert error_list['FYI (Related to Rule 16)'][0]['group'] == 'ABBR'
+    assert error_list['FYI (Related to Rule 16)'][0]['desc'] == 'DICT_TYPE: Description of abbreviation "GROUP" is "Group" but it should be '\
         '"Flag to indicate definition is a GROUP" according to the standard abbreviations list.'
-    assert error_list['Warning (Related to Rule 16)'][2]['group'] == 'ABBR'
-    assert error_list['Warning (Related to Rule 16)'][2]['desc'] == 'SAMP_TYPE: Description of abbreviation "U" is "Different Description" but '\
+    assert error_list['FYI (Related to Rule 16)'][2]['group'] == 'ABBR'
+    assert error_list['FYI (Related to Rule 16)'][2]['desc'] == 'SAMP_TYPE: Description of abbreviation "U" is "Different Description" but '\
         'it should be "Undisturbed sample - open drive" according to the standard abbreviations list.'
 
 
