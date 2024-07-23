@@ -716,7 +716,6 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
     """
 
     from python_ags4 import check
-    import traceback
 
     ags_errors = {}
 
@@ -787,7 +786,6 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
             ags_errors = check.rule_19(line, i, ags_errors=ags_errors)
             ags_errors = check.rule_19a(line, i, group=group, ags_errors=ags_errors)
             ags_errors = check.rule_19b_1(line, i, group=group, ags_errors=ags_errors)
-
 
         # Add additional information about how Rule 1 is implemented if infringements are detected
         if 'AGS Format Rule 1' in ags_errors:

@@ -737,7 +737,7 @@ def test_file_with_BOM():
 
     msg1 = 'This file seems to be encoded with a byte-order-mark (BOM). It is highly recommended that the '\
            'file be saved without BOM encoding to avoid issues with other software.'
-    msg2 = f"Has Non-ASCII character(s) (assuming that file encoding is 'utf-8') and/or a byte-order-mark (BOM)."
+    msg2 = "Has Non-ASCII character(s) (assuming that file encoding is 'utf-8') and/or a byte-order-mark (BOM)."
 
     assert msg1 in error_list['General'][1]['desc']
     assert msg2 in error_list['AGS Format Rule 1'][0]['desc']
