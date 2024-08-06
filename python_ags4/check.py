@@ -306,6 +306,34 @@ def get_data_summary(tables):
     return summary
 
 
+def get_TRAN_AGS(tables):
+    '''Get TRAN_AGS from AGS4 file.
+
+    Parameters
+    ----------
+    tables : dict of dataframes
+      Dictionary of Pandas dataframes (output from 'AGS4_to_dataframe()')
+
+    Returns
+    -------
+    str or None
+    '''
+
+    try:
+        TRAN = tables['TRAN']
+        tran_ags = TRAN.loc[TRAN.HEADING.eq('DATA'), 'TRAN_AGS'].values[0]
+
+    except KeyError:
+        # TRAN table missing. AGS Format Rule 14 should catch this error.
+        tran_ags = None
+
+    except IndexError:
+        # No DATA rows in TRAN table. AGS Format Rule 14 should catch this error.
+        tran_ags = None
+
+    return tran_ags
+
+
 def is_ags_ascii(s):
     '''Check if character is in the "extended" ASCII set.
 

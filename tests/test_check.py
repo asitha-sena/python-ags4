@@ -1,6 +1,7 @@
 import os
 
-from python_ags4 import AGS4, __version__
+from python_ags4 import AGS4, check, __version__
+from python_ags4.data import TEST_DATA
 
 
 def test_rule_1_utf8():
@@ -773,6 +774,12 @@ def test_duplicate_groups_raises_error():
     assert 'Validator Process Error' in error_list.keys()
     msg = 'SAMP group duplicated in Line 42. Cannot parse file without overwriting data, therefore please combine all duplicate groups first.'
     assert error_list['Validator Process Error'][0]['desc'] == msg
+
+
+def test_get_TRAN_AGS():
+    tables, _ = AGS4.AGS4_to_dataframe(TEST_DATA)
+
+    assert check.get_TRAN_AGS(tables) == '4.0.4'
 
 
 def test_data_summary():
