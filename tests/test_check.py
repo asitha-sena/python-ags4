@@ -782,6 +782,12 @@ def test_get_TRAN_AGS():
     assert check.get_TRAN_AGS(tables) == '4.0.4'
 
 
+def test_sha256_hash():
+    error_list = AGS4.check_file(TEST_DATA)
+
+    assert error_list['Metadata'][6]['desc'] == 'ade6e26a9b48320647835a7aa957207c67708a433720a8b1b89d8c9f86b3e937'
+
+
 def test_data_summary():
     error_list = AGS4.check_file('tests/test_files/4.1-rule2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 

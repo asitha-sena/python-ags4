@@ -715,6 +715,7 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         Dictionary contains AGS4 error in input file.
     """
 
+    import hashlib
     from python_ags4 import check
 
     ags_errors = {}
@@ -733,7 +734,9 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         close_file = True
 
     try:
-        # Preflight check for AGS3 files
+        # Preflight check for AGS3 files and to calculate SHA256 hash of file
+        sha256_hash = hashlib.sha256()
+
         for i, line in enumerate(f, start=1):
             ags_errors = check.is_ags3_like(line, i, ags_errors=ags_errors)
 
@@ -743,6 +746,9 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
                                                  'Validation terminated due to suspected AGS3 file. Please fix errors and try again.')
                 ags_errors = check.add_meta_data(filepath_or_buffer, standard_AGS4_dictionary, ags_errors=ags_errors, encoding=encoding)
                 return ags_errors
+
+            # Perform SHA256 checksum calculation
+            sha256_hash.update(line.encode(encoding))
 
         # Reset file stream to the beginning to start AGS4 checks
         f.seek(0)
@@ -902,6 +908,15 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         # Add metadata
         ags_errors = check.add_meta_data(filepath_or_buffer, standard_AGS4_dictionary, ags_errors=ags_errors,
                                          encoding=encoding)
+
+        if ('AGS Format Rule 3' in ags_errors) and ('AGS3' in ags_errors['AGS Format Rule 3'][0]['desc']):
+            # If AGS3 file is detected, the for loop in which the SHA256 hash is
+            # calculated will be terminated, therefore report it as "Not calculated"
+            ags_errors = check.add_error_msg(ags_errors, 'Metadata', 'SHA256 hash', '', 'Not calculated')
+
+        else:
+            ags_errors = check.add_error_msg(ags_errors, 'Metadata', 'SHA256 hash', '', sha256_hash.hexdigest())
+
         return ags_errors
 
 
