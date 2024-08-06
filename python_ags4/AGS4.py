@@ -744,7 +744,6 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
             if ('AGS Format Rule 3' in ags_errors) and ('AGS3' in ags_errors['AGS Format Rule 3'][0]['desc']):
                 ags_errors = check.add_error_msg(ags_errors, 'Validator Process Error', '-', '',
                                                  'Validation terminated due to suspected AGS3 file. Please fix errors and try again.')
-                ags_errors = check.add_meta_data(filepath_or_buffer, standard_AGS4_dictionary, ags_errors=ags_errors, encoding=encoding)
                 return ags_errors
 
             # Perform SHA256 checksum calculation
