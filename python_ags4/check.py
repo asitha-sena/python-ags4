@@ -281,6 +281,14 @@ def get_data_summary(tables):
 
     summary = []
 
+    # Get TRAN_AGS
+    tran_ags = get_TRAN_AGS(tables)
+
+    if tran_ags is None:
+        summary.append("TRAN_AGS: Not found")
+    else:
+        summary.append(f'TRAN_AGS: "{tran_ags}"')
+
     # Count and list groups in file
     summary.append(f"{len(tables.keys())} groups identified in file: {' '.join(tables.keys())}")
 

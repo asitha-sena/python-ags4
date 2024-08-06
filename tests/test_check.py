@@ -786,4 +786,5 @@ def test_data_summary():
     error_list = AGS4.check_file('tests/test_files/4.1-rule2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
     assert 'Summary of data' in error_list.keys()
-    assert error_list['Summary of data'][0]['desc'] == '7 groups identified in file: PROJ ABBR TRAN TYPE UNIT LOCA SAMP'
+    assert error_list['Summary of data'][0]['desc'] == 'TRAN_AGS: "4.1"'
+    assert error_list['Summary of data'][1]['desc'] == '7 groups identified in file: PROJ ABBR TRAN TYPE UNIT LOCA SAMP'
