@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0.0 (Pending)
+1.0.0 (2024-08-06)
 --------------
 - Report TRAN_AGS in error report. This allows the reader to verify whether the
   validation was performed using correct dictionary (Issue #112)
