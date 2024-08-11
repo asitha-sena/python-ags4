@@ -19,9 +19,6 @@ stages:
 
 build-linux:
   extends: .test
-  tags:
-    - linux
-
 
 # Create docs
 image: python:3.8-buster
