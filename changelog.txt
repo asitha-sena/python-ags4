@@ -1,6 +1,27 @@
 Changelog
 =========
 
+1.0.0 (2024-08-06)
+--------------
+- Report TRAN_AGS in error report. This allows the reader to verify whether the
+  validation was performed using correct dictionary (Issue #112)
+- Report SHA256 hash of file in error report. This provides a traceable link
+  between the error report and the AGS4 file from which it was generated.
+  (Issue #112)
+- Fix bug that could cause a crash when exporting error log to JSON. (Issue #113)
+- Add new category of error named "Validator Process Error". This indicates that
+  the validation terminated prematurely and should be re-run after fixing
+  current errors. (Issue #114)
+- Fix crash in Python 3.12.4 trying to change which character set to use
+  reading a file/stream that does not support the reconfigure() method.
+  Typical error message `'_io.StringIO' object has no attribute 'reconfigure'`
+  (Issue #116)
+- Change message about invalid TRAN_AGS entries from warning to FYI.
+- Change message about ABBR_DESC entries not matching those in the standard
+  dictionary from warning to FYI.
+
+
+
 0.6.0 (2024-05-05)
 --------------
 - Remove support for Python 3.8

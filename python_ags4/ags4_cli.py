@@ -49,6 +49,7 @@ logger = logging.getLogger('python_ags4')
 logger.setLevel(logging.DEBUG)
 logger.addHandler(stream_handler)
 
+
 @click.group()
 def main():
     '''A tool to read, write, and check AGS4 files.
@@ -91,11 +92,11 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
     # Log messages to file if specified
     if log_messages is True:
         file_handler = RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log',
-                                        maxBytes=100e3,
-                                        backupCount=1)
+                                           maxBytes=100e3,
+                                           backupCount=1)
         file_formatter = logging.Formatter('{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
-                                        style='{',
-                                        datefmt='%Y-%m-%d %H:%M:%S')
+                                           style='{',
+                                           datefmt='%Y-%m-%d %H:%M:%S')
         file_handler.setFormatter(file_formatter)
         logger.addHandler(file_handler)
 
@@ -191,11 +192,11 @@ def check(input_file, output_file, dictionary_path, dictionary_version, encoding
     # Log messages to file if specified
     if log_messages is True:
         file_handler = RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log',
-                                        maxBytes=100e3,
-                                        backupCount=1)
+                                           maxBytes=100e3,
+                                           backupCount=1)
         file_formatter = logging.Formatter('{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
-                                        style='{',
-                                        datefmt='%Y-%m-%d %H:%M:%S')
+                                           style='{',
+                                           datefmt='%Y-%m-%d %H:%M:%S')
         file_handler.setFormatter(file_formatter)
         logger.addHandler(file_handler)
 
@@ -281,7 +282,7 @@ def sort(input_file, output_file, sorting_strategy, log_messages):
             console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
             tables, headings = AGS4.AGS4_to_dataframe(input_file)
 
-            console.print(f'[green]Sorting tables... [/green]')
+            console.print('[green]Sorting tables... [/green]')
             print('')
             sorted_tables = AGS4.sort_groups(tables, sorting_strategy)
 

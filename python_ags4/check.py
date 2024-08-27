@@ -281,6 +281,14 @@ def get_data_summary(tables):
 
     summary = []
 
+    # Get TRAN_AGS
+    tran_ags = get_TRAN_AGS(tables)
+
+    if tran_ags is None:
+        summary.append("TRAN_AGS: Not found")
+    else:
+        summary.append(f'TRAN_AGS: "{tran_ags}"')
+
     # Count and list groups in file
     summary.append(f"{len(tables.keys())} groups identified in file: {' '.join(tables.keys())}")
 
@@ -304,6 +312,34 @@ def get_data_summary(tables):
     summary.append(f"Optional FILE group present? {'FILE' in tables.keys()}")
 
     return summary
+
+
+def get_TRAN_AGS(tables):
+    '''Get TRAN_AGS from AGS4 file.
+
+    Parameters
+    ----------
+    tables : dict of dataframes
+      Dictionary of Pandas dataframes (output from 'AGS4_to_dataframe()')
+
+    Returns
+    -------
+    str or None
+    '''
+
+    try:
+        TRAN = tables['TRAN']
+        tran_ags = TRAN.loc[TRAN.HEADING.eq('DATA'), 'TRAN_AGS'].values[0]
+
+    except KeyError:
+        # TRAN table missing. AGS Format Rule 14 should catch this error.
+        tran_ags = None
+
+    except IndexError:
+        # No DATA rows in TRAN table. AGS Format Rule 14 should catch this error.
+        tran_ags = None
+
+    return tran_ags
 
 
 def is_ags_ascii(s):
@@ -1440,10 +1476,12 @@ def is_TRAN_AGS_valid(tables, headings, line_numbers, ags_errors={}):
         dict_version = TRAN.loc[TRAN.HEADING.eq('DATA'), 'TRAN_AGS'].values[0]
 
         if dict_version not in STANDARD_DICT_FILES.keys():
-            line_number = TRAN.loc[TRAN.HEADING.eq('DATA'), 'line_number'].values[0]
+            line_number = int(TRAN.loc[TRAN.HEADING.eq('DATA'), 'line_number'].values[0])
+            # line_number is converted to int since the json module (particularly json.dumps) cannot process numpy.int64 data types
+            # that Pandas returns by default
             msg = f"'{dict_version}' in TRAN_AGS is not a recognized AGS4 version. Therefore, v{LATEST_DICT_VERSION}"\
                   f" of the standard dictionary will be used for validation if a different version is not explictly specified."
-            add_error_msg(ags_errors, 'Warnings', line_number, 'TRAN', msg)
+            add_error_msg(ags_errors, 'FYI', line_number, 'TRAN', msg)
 
     except KeyError:
         # TRAN table missing. AGS Format Rule 14 should catch this error.
@@ -1492,11 +1530,15 @@ def is_ags3_like(line, line_number=0, ags_errors={}):
 
 
 # Warnings
+# TO BE ADDED
 
-def warning_16_1(tables, headings, standard_ABBR, ags_errors={}):
+
+# FYI
+
+def fyi_16_1(tables, headings, standard_ABBR, ags_errors={}):
     '''Related to AGS Format Rule 16: Verify ABBR_DESC for entries already defined in the standard dictionaries are correct.
 
-    This warning is especially important in cases where user defined
+    This FYI is especially important in cases where user defined
     abbreviations overwrite ones that already exist in the standard
     abbreviations list.
     '''
@@ -1516,7 +1558,7 @@ def warning_16_1(tables, headings, standard_ABBR, ags_errors={}):
                     f'but it should be "{row["ABBR_DESC_y"]}" according to the standard abbreviations list.'
                 line_number = int(row['line_number'])
 
-                add_error_msg(ags_errors, 'Warning (Related to Rule 16)', line_number, 'ABBR', msg)
+                add_error_msg(ags_errors, 'FYI (Related to Rule 16)', line_number, 'ABBR', msg)
 
             else:
                 # ABBR_DESC field not available to continue with check

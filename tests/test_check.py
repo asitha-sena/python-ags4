@@ -1,6 +1,7 @@
 import os
 
-from python_ags4 import AGS4, __version__
+from python_ags4 import AGS4, check, __version__
+from python_ags4.data import TEST_DATA
 
 
 def test_rule_1_utf8():
@@ -517,15 +518,15 @@ def test_rule_16_1():
     assert error_list['AGS Format Rule 16'][1]['desc'] == '"U" under SAMP_TYPE in LLPL not found in ABBR group.'
 
 
-def test_warning_16_1():
-    error_list = AGS4.check_file('tests/test_files/4.1-warning16-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+def test_fyi_16_1():
+    error_list = AGS4.check_file('tests/test_files/4.1-fyi16-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
-    assert 'Warning (Related to Rule 16)' in error_list.keys()
-    assert error_list['Warning (Related to Rule 16)'][0]['group'] == 'ABBR'
-    assert error_list['Warning (Related to Rule 16)'][0]['desc'] == 'DICT_TYPE: Description of abbreviation "GROUP" is "Group" but it should be '\
+    assert 'FYI (Related to Rule 16)' in error_list.keys()
+    assert error_list['FYI (Related to Rule 16)'][0]['group'] == 'ABBR'
+    assert error_list['FYI (Related to Rule 16)'][0]['desc'] == 'DICT_TYPE: Description of abbreviation "GROUP" is "Group" but it should be '\
         '"Flag to indicate definition is a GROUP" according to the standard abbreviations list.'
-    assert error_list['Warning (Related to Rule 16)'][2]['group'] == 'ABBR'
-    assert error_list['Warning (Related to Rule 16)'][2]['desc'] == 'SAMP_TYPE: Description of abbreviation "U" is "Different Description" but '\
+    assert error_list['FYI (Related to Rule 16)'][2]['group'] == 'ABBR'
+    assert error_list['FYI (Related to Rule 16)'][2]['desc'] == 'SAMP_TYPE: Description of abbreviation "U" is "Different Description" but '\
         'it should be "Undisturbed sample - open drive" according to the standard abbreviations list.'
 
 
@@ -729,6 +730,7 @@ def test_rule_AGS3():
 
     assert 'AGS Format Rule 3' in error_list.keys()
     assert 'AGS3' in error_list['AGS Format Rule 3'][0]['desc']
+    assert 'Validator Process Error' in error_list.keys()
 
 
 def test_file_with_BOM():
@@ -736,7 +738,7 @@ def test_file_with_BOM():
 
     msg1 = 'This file seems to be encoded with a byte-order-mark (BOM). It is highly recommended that the '\
            'file be saved without BOM encoding to avoid issues with other software.'
-    msg2 = f"Has Non-ASCII character(s) (assuming that file encoding is 'utf-8') and/or a byte-order-mark (BOM)."
+    msg2 = "Has Non-ASCII character(s) (assuming that file encoding is 'utf-8') and/or a byte-order-mark (BOM)."
 
     assert msg1 in error_list['General'][1]['desc']
     assert msg2 in error_list['AGS Format Rule 1'][0]['desc']
@@ -745,7 +747,7 @@ def test_file_with_BOM():
 def test_file_with_invalid_TRAN_AGS():
     error_list = AGS4.check_file('tests/test_files/Invalid_TRAN_AGS.ags')
 
-    assert 'TRAN_AGS is not a recognized AGS4 version' not in error_list['Warnings'][0]
+    assert 'TRAN_AGS is not a recognized AGS4 version' in error_list['FYI'][0]['desc']
 
 
 def test_file_with_standalone_SAMP_IDs():
@@ -774,8 +776,21 @@ def test_duplicate_groups_raises_error():
     assert error_list['Validator Process Error'][0]['desc'] == msg
 
 
+def test_get_TRAN_AGS():
+    tables, _ = AGS4.AGS4_to_dataframe(TEST_DATA)
+
+    assert check.get_TRAN_AGS(tables) == '4.0.4'
+
+
+def test_sha256_hash():
+    error_list = AGS4.check_file(TEST_DATA)
+
+    assert error_list['Metadata'][6]['desc'] == 'ade6e26a9b48320647835a7aa957207c67708a433720a8b1b89d8c9f86b3e937'
+
+
 def test_data_summary():
     error_list = AGS4.check_file('tests/test_files/4.1-rule2.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
     assert 'Summary of data' in error_list.keys()
-    assert error_list['Summary of data'][0]['desc'] == '7 groups identified in file: PROJ ABBR TRAN TYPE UNIT LOCA SAMP'
+    assert error_list['Summary of data'][0]['desc'] == 'TRAN_AGS: "4.1"'
+    assert error_list['Summary of data'][1]['desc'] == '7 groups identified in file: PROJ ABBR TRAN TYPE UNIT LOCA SAMP'
