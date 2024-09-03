@@ -93,17 +93,29 @@ We have created an example Jupyter Notebook which imports an AGS file, plots bor
 
 ### Command Line Interface 
 
-A cli tool was added in version 0.2.0. It should be available from the terminal (or on the Anaconda Powershell prompt in Windows) after running ```python pip install python-ags4>=0.2.0```
+A command-line interface (CLI) to access the core functionality of the library
+is available since version 0.2.0. It is automatically installed together with the
+library and can be accessed by typing ```ags4_cli``` in a terminal/shell. If you
+want the CLI to be available globally (i.e. not limited to a single virtual
+environment), then you can install it using ```pipx```.
 
-It does not yet have the full functionality of the library, but it does provide a quick and easy way to convert .ags files to Excel spreadsheets (.xlsx) and back. The data can be easily edited in a spreadsheet and then converted back a .ags file. The TYPE values for numeric columns can be changed in the spreadsheet and the data will be automatically reformatted correctly when converted back to .ags, as long as all values in a column are numbers. Any supposedly numeric columns with text entries will be skipped with a warning message.
+You can do the following operations via the CLI:
+1. Check/validate AGS4 files
+  [![asciicast](https://asciinema.org/a/tROg0S28hPmcyYsUrkuAgWoAB.svg)](https://asciinema.org/a/tROg0S28hPmcyYsUrkuAgWoAB)
 
-*(Note: All data is imported to the spreadsheet as text entries so any column that should be reformatted should be explicitly converted to numbers in Excel.)*
+2. Convert AGS4 to Excel spreadsheets (.xlsx) and back
+  [![asciicast](https://asciinema.org/a/O7zhgGqWlobK8Hiyqrx3NGtaf.svg)](https://asciinema.org/a/O7zhgGqWlobK8Hiyqrx3NGtaf)
+  The data can be easily edited in a spreadsheet and then converted back a .ags
+  file. The TYPE values for numeric columns can be changed in the spreadsheet
+  and the data will be automatically reformatted correctly when converted back
+  to .ags, as long as all values in a column are numbers. Any supposedly numeric
+  columns with text entries will be skipped with a warning message. *(Note: All
+  data is imported to the spreadsheet as text entries so any column that should
+  be reformatted should be explicitly converted to numbers in Excel.)*
+  
+3. Sort groups/tables in AGS4 files
+  [![asciicast](https://asciinema.org/a/fEMPXSGGssXy2eoYbUiKFoW8b.svg)](https://asciinema.org/a/fEMPXSGGssXy2eoYbUiKFoW8b)
 
-[![asciicast](https://asciinema.org/a/O7zhgGqWlobK8Hiyqrx3NGtaf.svg)](https://asciinema.org/a/O7zhgGqWlobK8Hiyqrx3NGtaf)
-
-A checking tool is available as of version 0.3.0 and it can be used to make sure that the file conforms to the AGS4 rules. The tool has been tested in both bash and Powershell.
-
-[![asciicast](https://asciinema.org/a/OOVN1rtqpvggzt9ZlHAlLBb6M.svg)](https://asciinema.org/a/OOVN1rtqpvggzt9ZlHAlLBb6M)
 
 ### Graphical User Interface using *pandasgui*
 
@@ -116,7 +128,6 @@ from python_ags4.data import load_test_data
 tables, headings = load_test_data()
 gui = show(**tables)
 ```
-
 <img src="./docs/media/pandasgui_screenshot.png" width=800>
 
 Any edits made in the GUI can be saved and exported back to an AGS4 file as follows:
