@@ -1,5 +1,5 @@
 site_name: Official documentation - AGS4 library
-repo_url: https://gitlab.com/didymograptus/ags-python-library
+repo_url: https://gitlab.com/ags-data-format-wg/ags-python-library
 
 theme:
   name: "material"

@@ -269,14 +269,16 @@ def sort(input_file, output_file, sorting_strategy, log_messages):
 
     # Log messages if specified
     if log_messages is True:
-        logging.basicConfig(format='{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
-                            style='{', datefmt='%Y-%m-%dT%H:%M:%S%z',
-                            level=logging.DEBUG,
-                            handlers=[RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log', maxBytes=100e3, backupCount=1)])
+        file_handler = RotatingFileHandler(filename=Path(input_file).parent/'python_ags4.log',
+                                           maxBytes=100e3,
+                                           backupCount=1)
+        file_formatter = logging.Formatter('{asctime}  {levelname:<8}  {module}.{funcName:<20}  {message}',
+                                           style='{',
+                                           datefmt='%Y-%m-%d %H:%M:%S')
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
 
-    else:
-        logging.basicConfig(level=logging.CRITICAL)
-
+    # Sort tables in file
     try:
         if input_file.endswith('.ags') & output_file.endswith('.ags'):
             console.print(f'[green]Opening file... [bold]{input_file}[/bold][/green]')
