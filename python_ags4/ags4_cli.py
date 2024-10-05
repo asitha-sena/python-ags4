@@ -51,8 +51,10 @@ logger.addHandler(stream_handler)
 
 
 @click.group()
+@click.version_option(version=__version__, prog_name='python_ags4',
+                      message='%(prog)s v%(version)s')
 def main():
-    '''A tool to read, write, and check AGS4 files.
+    '''A tool to read, write, and check/validate AGS4 files.
     '''
     pass
 
@@ -263,8 +265,8 @@ def sort(input_file, output_file, sorting_strategy, log_messages):
     OUTPUT_FILE  Path to output .ags file
 
     Exit codes:
-        0 - All checks passed
-        1 - Errors found or file read error
+        0 - Sorting succeeded
+        1 - Sorting failed
     '''
 
     # Log messages if specified
