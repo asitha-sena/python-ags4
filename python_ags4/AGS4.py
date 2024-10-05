@@ -720,8 +720,6 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
 
     ags_errors = {}
 
-    logger.info(f'Opening file... {filepath_or_buffer}')
-
     # Line checks
     if _is_file_like(filepath_or_buffer):
         f = filepath_or_buffer
