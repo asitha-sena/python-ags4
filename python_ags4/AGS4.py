@@ -964,10 +964,15 @@ def write_error_report(ags_errors, output_file, show_warnings=False, show_fyi=Fa
 
             else:
                 f.write(f'{error_count} error(s) found in file!\r\n')
+                f.write('\r\n')
 
-                if warnings_count + fyi_count > 0:
-                    f.write(f'{warnings_count} warning(s) and {fyi_count} FYI message(s) returned.\r\n')
+            # Write summary of warnings and FYI messages
+            if show_warnings:
+                f.write(f'{warnings_count} warning(s) returned.\r\n')
+                f.write('\r\n')
 
+            if show_fyi:
+                f.write(f'{fyi_count} FYI message(s) returned.\r\n')
                 f.write('\r\n')
 
             # Write 'General' error messages first if present
