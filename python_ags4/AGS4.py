@@ -431,7 +431,8 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
     from pandas import read_excel
 
     # Read data from Excel file in to a dictionary of dataframes
-    tables = read_excel(input_file, sheet_name=None, engine='openpyxl')
+    tables = read_excel(input_file, sheet_name=None, engine='openpyxl',
+                        keep_default_na=False, na_values='')
 
     # Not all worksheets in the spreadsheet may contain valid AGS4 tables, therefore
     # initiate variable to keep track of worksheets to export
