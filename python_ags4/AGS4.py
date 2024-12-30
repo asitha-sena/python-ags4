@@ -689,8 +689,7 @@ def _format_SF(value, TYPE):
         return f"{value:.{i}f}"
 
 
-def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplicate_headers=True, encoding='utf-8',
-               print_output=True):
+def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplicate_headers=True, encoding='utf-8'):
     """Validate AGS4 file against AGS4 rules.
 
     Parameters
@@ -707,8 +706,6 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         to duplicates to make them unique.
     encoding : str, default='utf-8'
         Encoding of text file.
-    print_output : bool, default=True
-        If True, then print output to the console and the logger, otherwise do not.
 
     Returns
     -------
@@ -756,8 +753,6 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         headings = []
 
         logger.info('Checking lines...')
-        if print_output:
-            logger.info('Checking lines...')
 
         for i, line in enumerate(f, start=1):
 
