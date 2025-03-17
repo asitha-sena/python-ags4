@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2020-2024  Asitha Senanayake
+# Copyright (C) 2020-2025  Asitha Senanayake
 #
 # This file is part of python_ags4.
 #
