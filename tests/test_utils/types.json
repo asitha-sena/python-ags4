@@ -1,0 +1,122 @@
+[
+	{
+		"Type": "ID",
+		"Desc": "Unique Identifier",
+		"Notes": "An ID is a unique identifier used across the project.<br></br>The ID shall be unique in the parent group but may be repeated in child groups i.e. SAMP (parent) vs ELRG (child), LOCA (parent) vs SAMP (child).",
+		"Version": "4.0,4.1"
+	},
+	{
+		"Type": "PA",
+		"Desc": "Text listed in ABBR Group",
+		"Notes": "Abbreviations listed in ABBR group. Rule 16 refers.<br></br>The list of standard abbreviations and descriptions are presented on the AGS website and shall not be redefined.<br></br>Other abbreviations may be defined as required within a project, but shall not match/impersonate existing standard abbreviations<br></br>e.g. \"CP\" for 'Cable percussion' in LOCA_TYPE shall not be given a non-standard abbreviation defined as \"CH\" for 'Cable hole'; likewise \"SCP\" (Static cone penetrometer) shall not be replaced by a non-standard abbreviation of \"CPT\" (Cone penetration test).<br></br>Multiple abbreviations can be used in a data VARIABLE. Where this occurs, abbreviations are joined using the concatenation character defined in TRAN_RCON (a \"+\" character by default).",
+		"Version": "4.0,4.1"
+	},
+	{
+		"Type": "PT",
+		"Desc": "Text listed in TYPE Group",
+		"Notes": "Abbreviations listed in TYPE group. Rule 17 refers.",
+		"Version": "4.0,4.1"
+	},
+	{
+		"Type": "PU",
+		"Desc": "Text listed in UNIT Group",
+		"Notes": "Abbreviations listed in UNIT group.  Rule 15 refers.<br></br>The list of standard units and descriptions are presented on the AGS website and shall not be redefined.<br></br>This list is case sensitive.",
+		"Version": "4.0,4.1"
+	},
+	{
+		"Type": "X",
+		"Desc": "Text",
+		"Notes": "Abbreviations used in text data are to be listed in ABBR group. Rule 16 refers.",
+		"Version": "4.0,4.1"
+	},
+	{
+		"Type": "XN",
+		"Desc": "Text/numeric",
+		"Notes": "There are some measured parameters that are typically numeric but can have a valid result that is text; examples include plastic limit (34 or NP) and depth of water in a borehole (2.34 or dry).<br></br>Abbreviations used in text data are to be listed in ABBR group. Rule 16 refers.",
+		"Version": "4.0,4.1"
+	},
+	{
+		"Type": "T",
+		"Desc": "Elapsed Time",
+		"Notes": "e.g. hh:mm:ss",
+		"Version": "4.0,4.1"
+	},
+	{
+		"Type": "DT",
+		"Desc": "Date time in international format",
+		"Notes": "Ref: ISO 8601:2004<br></br>e.g. yyyy-mm-ddThh:mm:ss.sssZ(+hh:mm) or yyyy-mm-dd or hh:mm:ss or yyyy<br></br>This format is flexible and can be used in full or part according to user requirements",
+		"Version": "4.0"
+	},
+	{
+		"Type": "DT",
+		"Desc": "Date time in international format",
+		"Notes": "yyyy-mm-ddThh:mm:ss.sssZ(+hh:mm) or yyyy-mm-dd or hh:mm:ss or yyyy<br></br>This format may be used in full or part based on user requirements",
+		"Version": "4.1"
+	},
+	{
+		"Type": "MC",
+		"Desc": "British Standard BS1377 : Part 2 reported moisture content",
+		"Notes": "",
+		"Version": "4.0"
+	},
+	{
+		"Type": "MC",
+		"Desc": "British Standard BS1377 : Part 2 reported moisture content",
+		"Notes": "<i>This data type is included for legacy reasons and not used in AGS 4.1</i>",
+		"Version": "4.1"
+	},
+	{
+		"Type": "nDP",
+		"Desc": "Value with required number of decimal places",
+		"Notes": "e.g. 2DP = 2 decimal places = 2.34",
+		"Version": "4.0,4.1"
+	},
+	{
+		"Type": "nSF",
+		"Desc": "Value with required number of significant figures",
+		"Notes": "e.g. 2SF = 2 significant figures = 1.2, 10",
+		"Version": "4.0,4.1"
+	},
+	{
+		"Type": "nSCI",
+		"Desc": "Scientific Notation with required number of decimal places",
+		"Notes": "e.g. 73100 as 2SCI = 7.31E4; 73100 as 1SCI = 7.3E4",
+		"Version": "4.0,4.1"
+	},
+	{
+		"Type": "U",
+		"Desc": "Value with a variable format",
+		"Notes": "This is used for fields that contain values with differing accuracy; e.g. ERES_RVAL.",
+		"Version": "4.0"
+	},
+	{
+		"Type": "U",
+		"Desc": "Value with a variable format",
+		"Notes": "This is used for fields that contain values with differing accuracy; e.g. AGS 4.1 = ELRG_RVAL (AGS 4.0 = ERES_RVAL).",
+		"Version": "4.1"
+	},
+	{
+		"Type": "DMS",
+		"Desc": "Degrees: Minutes: Seconds",
+		"Notes": "e.g. 51: 28: 52.498",
+		"Version": "4.0,4.1"
+	},
+	{
+		"Type": "YN",
+		"Desc": "Yes or No",
+		"Notes": "Data in the file will be either a Y or N<br>e.g.Y<br>These fields if included in a data group should include data to prevent any possible mis - interpretation.",
+		"Version": "4.0"
+	},
+	{
+		"Type": "YN",
+		"Desc": "Yes or No",
+		"Notes": "Data in the file will be either a Y or N or Null (Rule 12)<br></br>e.g. Y",
+		"Version": "4.1"
+	},
+	{
+		"Type": "RL",
+		"Desc": "Record Link",
+		"Notes": "Rule 11 refers.<br>Text in specified format that refers to one or more records in other Groups by Key fields.",
+		"Version": "4.0,4.1"
+	}
+]
