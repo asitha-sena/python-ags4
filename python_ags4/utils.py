@@ -64,12 +64,12 @@ def get_DICT_table_from_json_file(filepath):
     # Extract heading DICT_TYPE='GROUP' rows from JSON data
     group_rows = heading_rows.groupby('DICT_GRP').first()\
                              .reset_index()\
-                             .drop('DICT_DESC', axis=1)\
-                             .rename(columns={'group_description': 'DICT_DESC'})\
+                             .drop(['DICT_DESC', 'DICT_STAT'], axis=1)\
+                             .rename(columns={'group_description': 'DICT_DESC',
+                                              'group_status': 'DICT_STAT'})\
                              .pipe(lambda df: df.assign(HEADING='DATA',
                                                         DICT_TYPE='GROUP',
                                                         DICT_HDNG='',
-                                                        DICT_STAT='',
                                                         DICT_DTYP='',
                                                         DICT_UNIT='',
                                                         DICT_EXMP='',
@@ -96,7 +96,7 @@ def get_DICT_table_from_json_file(filepath):
     DICT = concat([unit_and_type_rows, heading_rows, group_rows])
 
     # Mark deprecated groups and headings
-    mask = DICT.group_status.eq('Deprecated')
+    mask = DICT.DICT_STAT.eq('Deprecated')
     DICT.loc[mask & DICT.DICT_TYPE.eq('GROUP'), 'DICT_STAT'] = 'DEPRECATED'
 
     # Sort rows and keep only relevant columns
