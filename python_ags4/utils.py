@@ -98,10 +98,6 @@ def get_DICT_table_from_json_file(filepath):
     # Mark deprecated groups and headings
     mask = DICT.group_status.eq('Deprecated')
     DICT.loc[mask & DICT.DICT_TYPE.eq('GROUP'), 'DICT_STAT'] = 'DEPRECATED'
-    DICT.loc[mask & DICT.DICT_TYPE.eq('GROUP'), 'DICT_REM'] = 'This group has been deprecated and will be removed in a future version.'
-    DICT.loc[mask & DICT.DICT_TYPE.eq('HEADING'), 'DICT_REM'] = 'This heading is in a deprecated group and will be removed in a future version.'
-
-    DICT.loc[DICT.heading_status.eq('DEPRECATED'), 'DICT_REM'] = 'This heading has been deprecated and will be removed in a future version.'
 
     # Sort rows and keep only relevant columns
     DICT = DICT.sort_values(by=['group_order', 'in_group_order'])\
