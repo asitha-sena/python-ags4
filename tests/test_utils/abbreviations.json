@@ -738,6 +738,15 @@
    "Version": "4.0,4.1"
  },
  {
+   "Group": "DICT_STAT",
+   "Code": "DEPRECATED",
+   "Description": "Deprecated field",
+   "Status": "Approved",
+   "Date": "23/04/2025",
+   "Comments": "",
+   "Version": "4.1"
+ },
+ {
    "Group": "DICT_TYPE",
    "Code": "GROUP",
    "Description": "Flag to indicate definition is a GROUP",
