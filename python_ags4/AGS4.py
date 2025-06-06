@@ -949,10 +949,7 @@ def write_error_report(ags_errors, output_file, show_warnings=False, show_fyi=Fa
             # Summary of errors log
             if error_count == 0:
                 f.write('All checks passed!\r\n')
-
-                if warnings_count + fyi_count > 0:
-                    f.write(f'{warnings_count} warning(s) and {fyi_count} FYI message(s) returned.\r\n')
-                    f.write('\r\n')
+                f.write('\r\n')
 
             elif ('AGS Format Rule 3' in ags_errors) and ('AGS3' in ags_errors['AGS Format Rule 3'][0]['desc']):
                 f.write('Checking aborted as AGS3 files are not supported!\r\n')
