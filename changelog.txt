@@ -1,6 +1,21 @@
 Changelog
 =========
 
+1.1.0 (2025-06-03)
+------------------
+- Fix minor issues in v4.1 and v4.1.1 standard dictionaries and include latest
+  abbreviations
+- Show warnings and FYI count in error log only if explicitly requested (Issue
+  #122)
+- Export None and NA entries in in .xlsx file to "" instead of "NaN" when
+  converting to .ags (Issue #126)
+- Add utils.py module with functions to convert official AGS4 standard
+  dictionaries from .json to .ags
+- Add support for Python 3.13
+- Improve documentation in CLI
+- Remove redundant log messages
+
+
 1.0.0 (2024-08-06)
 --------------
 - Report TRAN_AGS in error report. This allows the reader to verify whether the

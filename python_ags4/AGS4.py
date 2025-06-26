@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2024  Asitha Senanayake
+# Copyright (C) 2020-2025  Asitha Senanayake
 #
 # This file is part of python_ags4.
 #
@@ -431,7 +431,8 @@ def excel_to_AGS4(input_file, output_file, format_numeric_columns=True, dictiona
     from pandas import read_excel
 
     # Read data from Excel file in to a dictionary of dataframes
-    tables = read_excel(input_file, sheet_name=None, engine='openpyxl')
+    tables = read_excel(input_file, sheet_name=None, engine='openpyxl',
+                        keep_default_na=False, na_values='')
 
     # Not all worksheets in the spreadsheet may contain valid AGS4 tables, therefore
     # initiate variable to keep track of worksheets to export
@@ -688,8 +689,7 @@ def _format_SF(value, TYPE):
         return f"{value:.{i}f}"
 
 
-def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplicate_headers=True, encoding='utf-8',
-               print_output=True):
+def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplicate_headers=True, encoding='utf-8'):
     """Validate AGS4 file against AGS4 rules.
 
     Parameters
@@ -706,8 +706,6 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         to duplicates to make them unique.
     encoding : str, default='utf-8'
         Encoding of text file.
-    print_output : bool, default=True
-        If True, then print output to the console and the logger, otherwise do not.
 
     Returns
     -------
@@ -719,8 +717,6 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
     from python_ags4 import check
 
     ags_errors = {}
-
-    logger.info(f'Opening file... {filepath_or_buffer}')
 
     # Line checks
     if _is_file_like(filepath_or_buffer):
@@ -757,8 +753,6 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         headings = []
 
         logger.info('Checking lines...')
-        if print_output:
-            logger.info('Checking lines...')
 
         for i, line in enumerate(f, start=1):
 
@@ -955,10 +949,7 @@ def write_error_report(ags_errors, output_file, show_warnings=False, show_fyi=Fa
             # Summary of errors log
             if error_count == 0:
                 f.write('All checks passed!\r\n')
-
-                if warnings_count + fyi_count > 0:
-                    f.write(f'{warnings_count} warning(s) and {fyi_count} FYI message(s) returned.\r\n')
-                    f.write('\r\n')
+                f.write('\r\n')
 
             elif ('AGS Format Rule 3' in ags_errors) and ('AGS3' in ags_errors['AGS Format Rule 3'][0]['desc']):
                 f.write('Checking aborted as AGS3 files are not supported!\r\n')
@@ -966,10 +957,15 @@ def write_error_report(ags_errors, output_file, show_warnings=False, show_fyi=Fa
 
             else:
                 f.write(f'{error_count} error(s) found in file!\r\n')
+                f.write('\r\n')
 
-                if warnings_count + fyi_count > 0:
-                    f.write(f'{warnings_count} warning(s) and {fyi_count} FYI message(s) returned.\r\n')
+            # Write summary of warnings and FYI messages
+            if show_warnings:
+                f.write(f'{warnings_count} warning(s) returned.\r\n')
+                f.write('\r\n')
 
+            if show_fyi:
+                f.write(f'{fyi_count} FYI message(s) returned.\r\n')
                 f.write('\r\n')
 
             # Write 'General' error messages first if present
