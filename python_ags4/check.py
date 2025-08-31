@@ -453,7 +453,7 @@ def rule_5(line, line_number=0, ags_errors={}):
     import re
 
     if not line.isspace():
-        if not line.startswith('"') or not line.strip('\r\n').endswith('"'):
+        if not line.startswith('"') or not line.strip('\r\n').endswith('"') or line.strip('\r\n').endswith('","'):
             add_error_msg(ags_errors, 'AGS Format Rule 5', line_number, '', 'Contains fields that are not enclosed in double quotes.')
 
         elif line.strip('"').startswith(('HEADING', 'UNIT', 'TYPE')):
