@@ -64,6 +64,9 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
         function.
     """
 
+    import csv
+    from io import StringIO
+
     if _is_file_like(filepath_or_buffer):
         f = filepath_or_buffer
         f.seek(0)
@@ -91,11 +94,13 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
             if _is_bytebuffer(line):
                 line = line.decode(encoding)
 
-            temp = line.rstrip().split('","')
-            temp = [item.strip('"') for item in temp]
+            line = list(csv.reader(StringIO(line), quotechar='"'))[0]
 
-            if temp[0] == 'GROUP':
-                group = temp[1]
+            if len(line) == 0:
+                continue
+
+            elif line[0] == 'GROUP':
+                group = line[1]
 
                 # Raise exception if duplicate group is found as previous copy
                 # of that group will be overwritten
@@ -113,12 +118,12 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                 # avoid KeyErrors in case of missing HEADING rows)
                 line_numbers[group] = {'GROUP': i, 'HEADING': '-'}
 
-            elif temp[0] == 'HEADING':
+            elif line[0] == 'HEADING':
 
                 # Catch HEADER rows with duplicate entries as it will result in
                 # a dictionary with arrays of unequal lengths and cause a
                 # ValueError when trying to convert to a Pandas dataframe
-                if len(temp) != len(set(temp)):
+                if len(line) != len(set(line)):
 
                     if rename_duplicate_headers is False:
                         raise AGS4Error(f"HEADER row in {group} (Line {i}) has duplicate entries")
@@ -128,7 +133,7 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                     # Rename duplicate headers by appending a number
                     item_count = {}
 
-                    for i, item in enumerate(temp):
+                    for i, item in enumerate(line):
                         if item not in item_count:
                             item_count[item] = {'i': i, 'count': 0}
                         else:
@@ -136,7 +141,7 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                             item_count[item]['count'] += 1
                             count = item_count[item]['count']
 
-                            temp[i] = temp[i]+'_'+str(item_count[item]['count'])
+                            line[i] = line[i]+'_'+str(item_count[item]['count'])
 
                             logger.info(f'Duplicate column {item} found and renamed as {item}_{count}. '
                                         'Automatically renamed columns do not conform to AGS4 Rules 19a and 19b. '
@@ -147,27 +152,27 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
 
                 # Store UNIT, TYPE, and DATA line numbers
                 if get_line_numbers is True:
-                    temp.append('line_number')
+                    line.append('line_number')
 
-                headings[group] = temp
+                headings[group] = line
 
-                for item in temp:
+                for item in line:
                     data[group][item] = []
 
-            elif temp[0] in ['TYPE', 'UNIT', 'DATA']:
+            elif line[0] in ['TYPE', 'UNIT', 'DATA']:
 
                 # Append line number
                 if get_line_numbers is True:
-                    temp.append(i)
+                    line.append(i)
 
                 # Check whether line has the same number of entries as the
                 # number of headings in the group. If not, print error and exit.
-                if len(temp) != len(headings[group]):
+                if len(line) != len(headings[group]):
                     logger.error(f"Line {i} does not have the same number of entries as the HEADING row in {group}.")
                     raise AGS4Error(f"Line {i} does not have the same number of entries as the HEADING row in {group}.")
 
-                for i in range(0, len(temp)):
-                    data[group][headings[group][i]].append(temp[i])
+                for i in range(0, len(line)):
+                    data[group][headings[group][i]].append(line[i])
 
             else:
                 continue
