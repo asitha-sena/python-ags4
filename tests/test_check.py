@@ -114,6 +114,12 @@ def test_rule_3():
     assert error_list['AGS Format Rule 3'][0]['desc'] == 'Does not start with a valid data descriptor.'
 
 
+def test_rule_5():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule5.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule 5' not in error_list.keys()
+
+
 def test_rule_5_1():
     error_list = AGS4.check_file('tests/test_files/4.1-rule5-1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
 
@@ -128,6 +134,12 @@ def test_rule_5_2():
     assert 'AGS Format Rule 5' in error_list.keys()
     assert error_list['AGS Format Rule 5'][0]['line'] == 5
     assert error_list['AGS Format Rule 5'][0]['desc'] == 'Contains fields that are not enclosed in double quotes.'
+
+
+def test_rule_5_3():
+    error_list = AGS4.check_file('tests/test_files/4.1-rule5-3.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+
+    assert 'AGS Format Rule 5' not in error_list.keys()
 
 
 def test_rule_6_1():

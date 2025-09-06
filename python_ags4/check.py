@@ -451,6 +451,8 @@ def rule_5(line, line_number=0, ags_errors={}):
     """
 
     import re
+    import csv
+    from io import StringIO
 
     if not line.isspace():
         if not line.startswith('"') or not line.strip('\r\n').endswith('"') or line.strip('\r\n').endswith('","'):
@@ -470,9 +472,13 @@ def rule_5(line, line_number=0, ags_errors={}):
         else:
             # Verify that quotes within data fields are enclosed by a second double quote
 
-            # Remove quotes enclosing data fields
-            temp = re.sub(r'","', ' ', line.strip('\r\n')).strip(r'"')
-            # Remove correct double-double quotes
+            # First split line using csv.reader. Double quotes enclosing each
+            # field and double-double quotes within fields are preseverved by
+            # specifying a quotechar that is different from the default '"'.
+            split_line = list(csv.reader(StringIO(line), quotechar='|'))[0]
+
+            # Reassemble line and remove correct double-double quotes
+            temp = " ".join([x.strip('"') for x in split_line])
             temp = re.sub(r'""', ' ', temp)
 
             # Find orphan double quotes
