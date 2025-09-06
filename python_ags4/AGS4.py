@@ -90,6 +90,9 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
         # the first column in order to preserve the AGS data format. Other
         # columns in certain groups have a preferred order as well)
 
+        # Initialize variable to track current group
+        group = None
+
         for i, line in enumerate(f, start=1):
             if _is_bytebuffer(line):
                 line = line.decode(encoding)
@@ -97,6 +100,9 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
             line = list(csv.reader(StringIO(line), quotechar='"'))[0]
 
             if len(line) == 0:
+                # This indicates a blank line so assume that the current group has ended
+                group = None
+
                 continue
 
             elif line[0] == 'GROUP':
@@ -119,6 +125,13 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                 line_numbers[group] = {'GROUP': i, 'HEADING': '-'}
 
             elif line[0] == 'HEADING':
+
+                if group is None:
+                    msg = f"HEADER row in Line {i} is not associated with a GROUP. "\
+                        "Please ensure that the GROUP name is defined in the line immediately preceding the HEADER row."
+
+                    logger.error(msg)
+                    raise AGS4Error(msg)
 
                 # Catch HEADER rows with duplicate entries as it will result in
                 # a dictionary with arrays of unequal lengths and cause a
