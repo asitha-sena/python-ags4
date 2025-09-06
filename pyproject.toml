@@ -5,9 +5,12 @@ description = "A library to read, write, and check AGS4 files using Pandas DataF
 authors = ["Asitha Senanayake <asitha_sena@yahoo.com>"]
 license = "LGPL-3.0"
 readme = "README.md"
-homepage = "https://github.com/asitha-sena/python-AGS4"
-repository = "https://gitlab.com/ags-data-format-wg/ags-python-library"
 include = ["COPYING.LESSER"]
+
+[project.urls]
+source = "https://gitlab.com/ags-data-format-wg/ags-python-library"
+mirror = "https://github.com/asitha-sena/python-AGS4"
+documentation = "https://ags-data-format-wg.gitlab.io/ags-python-library/index.html"
 
 [tool.poetry.dependencies]
 python = "^3.9"
