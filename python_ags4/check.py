@@ -18,9 +18,21 @@
 # https://github.com/asitha-sena/python-ags4
 # https://gitlab.com/ags-data-format-wg/ags-python-library
 
+import csv
 import logging
+import os
+import re
+from datetime import datetime
+from io import StringIO
+from pathlib import Path
 
-from python_ags4.AGS4 import _is_file_like
+import pandas as pd
+from pandas import DataFrame, concat
+from pandas.errors import MergeError
+
+from python_ags4 import __version__
+
+from .AGS4 import AGS4Error, _is_file_like, format_numeric_column
 
 logger = logging.getLogger(__name__)
 
@@ -94,9 +106,6 @@ def combine_DICT_tables(*ags_tables):
         Dataframe with combined DICT tables.
     """
 
-    from pandas import DataFrame, concat
-    from .AGS4 import AGS4Error
-
     # Initialize DataFrame to hold all dictionary entries
     master_DICT = DataFrame()
 
@@ -137,9 +146,6 @@ def fetch_record(record_link, tables):
     -------
     Pandas DataFrame
     """
-
-    from pandas import DataFrame
-    from pandas.errors import MergeError
 
     try:
         # Get name(s) of GROUP and KEY fields
@@ -193,8 +199,6 @@ def pick_standard_dictionary(tables=None, dict_version=None):
       File path to standard dictionary
     """
 
-    from pathlib import Path
-
     # Select standard dictionary based on TRAN_AGS
     try:
         if dict_version is None:
@@ -246,10 +250,6 @@ def add_meta_data(filepath_or_buffer, standard_dictionary, ags_errors={}, encodi
     dict
         Updated Python dictionary.
     """
-
-    import os
-    from python_ags4 import __version__
-    from datetime import datetime
 
     if not _is_file_like(filepath_or_buffer):
         add_error_msg(ags_errors, 'Metadata', 'File Name', '', f'{os.path.basename(filepath_or_buffer)}')
@@ -426,9 +426,6 @@ def rule_4_2(line, line_number=0, group='', headings=[], ags_errors={}):
     """AGS Format Rule 4: UNIT, TYPE, and DATA rows should have entries defined by the HEADING row.
     """
 
-    import csv
-    from io import StringIO
-
     if line.strip('"').startswith(('UNIT', 'TYPE', 'DATA')):
         temp = list(csv.reader(StringIO(line)))[0]
 
@@ -451,10 +448,6 @@ def rule_4_2(line, line_number=0, group='', headings=[], ags_errors={}):
 def rule_5(line, line_number=0, ags_errors={}):
     """AGS Format Rule 5: All fields should be enclosed in double quotes.
     """
-
-    import re
-    import csv
-    from io import StringIO
 
     if not line.isspace():
         if not line.startswith('"') or not line.strip('\r\n').endswith('"') or line.strip('\r\n').endswith('","'):
@@ -540,8 +533,6 @@ def rule_19(line, line_number=0, ags_errors={}):
 def rule_19a(line, line_number=0, group='', ags_errors={}):
     """AGS Format Rule 19a: HEADING names should consist of uppercase letters.
     """
-
-    import re
 
     if line.strip('"').startswith('HEADING'):
         temp = line.rstrip().split('","')
@@ -685,9 +676,6 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
     and type that are described by the appropriate data field UNIT and data
     field TYPE defined at the start of the GROUP.
     """
-
-    import pandas as pd
-    from python_ags4.AGS4 import format_numeric_column
 
     for group in tables:
         # First make copy of table to avoid unexpected side-effects
@@ -926,8 +914,6 @@ def rule_10a(tables, headings, dictionary, line_numbers, ags_errors={}):
 def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
     """AGS Format Rule 10b: REQUIRED fields in a GROUP must be present and cannot be empty.
     """
-
-    from pandas import DataFrame, concat
 
     for group in tables:
         # Extract REQUIRED fields from dictionary
@@ -1401,8 +1387,6 @@ def rule_20(tables, headings, filepath, ags_errors={}):
     """AGS Format Rule 20: Additional computer files included within a data submission shall be defined in a FILE GROUP.
     """
 
-    import os
-
     try:
         # Load FILE group
         FILE = tables['FILE'].copy()
@@ -1505,8 +1489,6 @@ def is_TRAN_AGS_valid(tables, headings, line_numbers, ags_errors={}):
 def is_ags3(tables, input_file, ags_errors={}):
     """Check if file is likely to be in AGS3 format and issue warning.
     """
-
-    import re
 
     # Check whether dictionary of tables is empty
     if not tables:
