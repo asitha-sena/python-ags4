@@ -426,9 +426,11 @@ def rule_4_2(line, line_number=0, group='', headings=[], ags_errors={}):
     """AGS Format Rule 4: UNIT, TYPE, and DATA rows should have entries defined by the HEADING row.
     """
 
+    import csv
+    from io import StringIO
+
     if line.strip('"').startswith(('UNIT', 'TYPE', 'DATA')):
-        temp = line.rstrip().split('","')
-        temp = [item.strip('"') for item in temp]
+        temp = list(csv.reader(StringIO(line)))[0]
 
         if len(headings) == 0:
             # Avoid repetitions of same error by adding it only it is not already there
