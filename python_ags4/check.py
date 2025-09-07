@@ -372,6 +372,9 @@ def rule_1(line, line_number=0, ags_errors={}, encoding='utf-8'):
                 msg = f"Has Non-ASCII character(s) (assuming that file encoding is '{encoding}') and/or a byte-order-mark (BOM)."
                 add_error_msg(ags_errors, 'AGS Format Rule 1', line_number, '', msg)
 
+                fyi_msg = "If a BOM is present, then it is highly recommended that the file be saved without BOM encoding to avoid issues with other software."
+                add_error_msg(ags_errors, 'FYI (Related to Rule 1)', line_number, '', fyi_msg)
+
             else:
                 msg = f"Has Non-ASCII character(s) (assuming that file encoding is '{encoding}')."
                 add_error_msg(ags_errors, 'AGS Format Rule 1', line_number, '', msg)

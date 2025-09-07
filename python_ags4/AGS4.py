@@ -97,6 +97,10 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
             if _is_bytebuffer(line):
                 line = line.decode(encoding)
 
+            else:
+                # Strip byte-order mark from line, if present
+                line = _remove_byte_order_mark(line, encoding)
+
             line = list(csv.reader(StringIO(line), quotechar='"'))[0]
 
             if len(line) == 0:
@@ -887,24 +891,6 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
                                          'Could not complete validation. Please fix listed errors and try again.')
         ags_errors = check.add_error_msg(ags_errors, 'Validator Process Error', '-', '', str(err))
 
-    except UnboundLocalError as err:
-        logger.exception(err)
-
-        # The presence of a byte-order-mark (BOM) in the same row as first
-        # "GROUP" line can cause this exception. This will be caught by line
-        # checks for Rule 1 (since the BOM is not an ASCII character) and Rule 3
-        # (since the BOM precedes the string "GROUP"). The BOM encoding can be
-        # ignored by setting the 'encoding' argument to 'utf-8-sig'.
-        f.seek(0)
-
-        tables, headings, line_numbers = AGS4_to_dataframe(f, encoding='utf-8-sig',
-                                                           get_line_numbers=True, rename_duplicate_headers=rename_duplicate_headers)
-
-        # Add warning to error log
-        msg = 'This file seems to be encoded with a byte-order-mark (BOM). It is highly recommended that the '\
-              'file be saved without BOM encoding to avoid issues with other software.'
-        ags_errors = check.add_error_msg(ags_errors, 'General', '', '', msg)
-
     except Exception as err:
         logger.exception(err)
 
@@ -1169,6 +1155,22 @@ def _is_bytebuffer(obj):
         return True
 
     return False
+
+
+def _remove_byte_order_mark(string, encoding):
+    """Remove byte-order mark from string.
+    """
+
+    import codecs
+
+    string_without_BOM = string.encode(encoding)\
+                               .strip(codecs.BOM_UTF8)\
+                               .strip(codecs.BOM)\
+                               .strip(codecs.BOM_BE)\
+                               .strip(codecs.BOM_LE)\
+                               .decode(encoding)
+
+    return string_without_BOM
 
 
 class AGS4Error(Exception):
