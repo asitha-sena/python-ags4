@@ -599,6 +599,12 @@ def convert_to_text(dataframe, dictionary=None):
         # Format columns and add UNIT/TYPE rows if necessary
         for col in df.columns:
 
+            # Convert data type to 'object' since string values will be added in
+            # UNIT and TYPE rows resulting in a mix of data types in numeric
+            # columns. This raises a FutureWarning as it will not be supported in
+            # future version of Pandas.
+            df[col] = df[col].astype('object')
+
             if col == 'HEADING':
 
                 if not is_UNIT_row_present:
@@ -656,6 +662,11 @@ def format_numeric_column(dataframe, column_name, TYPE):
 
     df = dataframe.copy()
     col = column_name
+
+    # Convert data type to 'object' since adding string values to numeric
+    # columns raises a FutureWarning as it will not be supported in future
+    # version of Pandas.
+    df[col] = df[col].astype('object')
 
     try:
         if 'DP' in TYPE:
