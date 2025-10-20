@@ -259,7 +259,7 @@ def add_meta_data(filepath_or_buffer, standard_dictionary, ags_errors={}, encodi
     if standard_dictionary is not None:
         add_error_msg(ags_errors, 'Metadata', 'Dictionary', '', f'{os.path.basename(standard_dictionary)}')
 
-    add_error_msg(ags_errors, 'Metadata', 'Time (UTC)', '', f'{datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d %H:%M:%S")}')
+    add_error_msg(ags_errors, 'Metadata', 'Time (UTC)', '', f'{datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")}')
 
     add_error_msg(ags_errors, 'Metadata', 'File encoding', '', encoding)
 
