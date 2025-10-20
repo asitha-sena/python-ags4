@@ -38,7 +38,7 @@ LLPL = {'HEADING': ['UNIT', 'TYPE', 'DATA', 'DATA'],
 def test_version():
     pyproject = toml.load('pyproject.toml')
 
-    assert __version__ == pyproject['tool']['poetry']['version']
+    assert __version__ == pyproject['project']['version']
 
 
 @pytest.mark.parametrize("test_file", [str(TEST_DATA), TEST_DATA])
