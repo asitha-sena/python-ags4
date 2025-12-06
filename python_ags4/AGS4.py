@@ -925,7 +925,7 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         else:
             ags_errors = check.add_error_msg(ags_errors, 'Metadata', 'SHA256 hash', '', sha256_hash.hexdigest())
 
-        return ags_errors
+    return ags_errors
 
 
 # Helper functions/classes #
