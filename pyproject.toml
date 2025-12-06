@@ -1,7 +1,7 @@
 [project]
 name = "python-ags4"
 version = "1.1.0"
-description = "A library to read, write, and check AGS4 files using Pandas DataFrames\""
+description = "A library to read, write, and check AGS4 files using Pandas DataFrames"
 authors = [
     {name = "Asitha Senanayake",email = "asitha_sena@yahoo.com"}
 ]
