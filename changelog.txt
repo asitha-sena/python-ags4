@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Next release (?)
+----------------
+- Replace bespoke CSV parsing code with CSV module. This allows escaped double
+  quotes to be handle correctly (affects Rules 4 & 5).
+- Raise exception if GROUP lines are missing
+- Add support for Python 3.14
+- Update pyproject.toml to PEP621 format
+- Address various warnings related to future changes and deprecations in Python
+
+
 1.1.0 (2025-06-03)
 ------------------
 - Fix minor issues in v4.1 and v4.1.1 standard dictionaries and include latest
@@ -48,7 +58,6 @@ Changelog
 
 0.5.0 (2024-01-27)
 ------------------
-
 - Remove support for Python version 3.7
 - Add support for Pandas version 2.x and drop support for version 1.x.
 - Add functionality to log internal messages
