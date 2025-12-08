@@ -203,7 +203,8 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
     return data, headings
 
 
-def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, rename_duplicate_headers=True):
+def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, rename_duplicate_headers=True,
+                      only_groups=None):
     """Load all the tables in an AGS4 file to a dictionary of Pandas dataframes.
 
     The output is a dictionary of dataframes with the name of each AGS4 table
@@ -223,6 +224,9 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=Fal
         Rename duplicate headers if found. Neither AGS4 tables nor Pandas
         dataframes allow duplicate headers, therefore a number will be appended
         to duplicates to make them unique.
+    only_groups : list or None (default=None)
+        An optional list of groups to convert instead of converting all the
+        groups in the input file.
 
     Returns
     -------
@@ -263,8 +267,13 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=Fal
 
     # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
     tables = {}
-    for key in data:
-        tables[key] = DataFrame(data[key])
+
+    if only_groups:
+        for key in only_groups:
+            tables[key] = DataFrame(data[key])
+    else:
+        for key in data:
+            tables[key] = DataFrame(data[key])
 
     return tables, headings
 

@@ -64,11 +64,15 @@ def test_AGS4_bytestream_to_dict(LOCA=LOCA):
     assert tables['LOCA'] == LOCA
 
 
-def test_AGS4_file_to_dataframe(LOCA=LOCA):
-    tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
+@pytest.mark.parametrize("only_groups", [None, ['PROJ', 'TRAN', 'LOCA']])
+def test_AGS4_file_to_dataframe(only_groups, LOCA=LOCA):
+    tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA, only_groups=only_groups)
 
     assert tables['LOCA'].loc[2, 'LOCA_ID'] == 'Location_1'
     assert tables['LOCA'].equals(pd.DataFrame(LOCA))
+
+    if only_groups:
+        assert list(tables.keys()) == only_groups
 
 
 def test_AGS4_stream_to_dataframe(LOCA=LOCA):
