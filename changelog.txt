@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Next release (?)
+1.2.0 (Upcoming)
 ----------------
 - Replace bespoke CSV parsing code with CSV module. This allows escaped double
   quotes to be handle correctly (affects Rules 4 & 5).
@@ -9,6 +9,7 @@ Next release (?)
 - Add support for Python 3.14
 - Update pyproject.toml to PEP621 format
 - Address various warnings related to future changes and deprecations in Python
+- Add feature to choose subset of groups/tables to read from file
 
 
 1.1.0 (2025-06-03)

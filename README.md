@@ -93,11 +93,11 @@ We have created an example Jupyter Notebook which imports an AGS file, plots bor
 
 ### Command Line Interface 
 
-A command-line interface (CLI) to access the core functionality of the library
-is available since version 0.2.0. It is automatically installed together with the
-library and can be accessed by typing ```ags4_cli``` in a terminal/shell. If you
-want the CLI to be available globally (i.e. not limited to a single virtual
-environment), then you can install it using ```pipx```.
+An easy-to-use and expressive command-line interface (CLI) to access the core
+functionality of the library is bundled with the library. It can be accessed by
+typing ```ags4_cli``` in a terminal/shell. If you want the CLI to be available
+globally (i.e. not limited to a single virtual environment), then you can
+install it using ```pipx``` or ```uv tool```.
 
 You can do the following operations via the CLI:
 1. Check/validate AGS4 files
@@ -152,6 +152,7 @@ Senanayake et al., (2022). python-ags4: A Python library to read, write, and val
 
 This library has been used to create
 
+- [Windows/Linux/MacOS Command-Line Utility (included with the library)](https://ags-data-format-wg.gitlab.io/ags-python-library/usage/#command-line-interface)
 - Windows Desktop Application - https://gitlab.com/ags-data-format-wg/ags-checker-desktop-app 
 - Web application and API (pyagsapi) - https://github.com/BritishGeologicalSurvey/pyagsapi 
   - Deployed as https://agsapi.bgs.ac.uk/

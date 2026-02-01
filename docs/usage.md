@@ -83,15 +83,15 @@ Tables converted to numeric using the ```AGS4.convert_to_numeric()``` function s
 
 We have created an example Jupyter Notebook which imports an AGS file, plots boreholes on a map and creates a Striplog.
 
-[See here](./notebooks/Plot_locations_and_create_strip_log.ipynb)
+[See here](https://gitlab.com/ags-data-format-wg/ags-python-library/-/tree/main/notebooks)
 
 ### Command Line Interface
 
-A command-line interface (CLI) to access the core functionality of the library
-is available since version 0.2.0. It is automatically installed together with the
-library and can be accessed by typing ```ags4_cli``` in a terminal/shell. If you
-want the CLI to be available globally (i.e. not limited to a single virtual
-environment), then you can install it using ```pipx```.
+An easy-to-use and expressive command-line interface (CLI) to access the core
+functionality of the library is bundled with the library. It can be accessed by
+typing ```ags4_cli``` in a terminal/shell. If you want the CLI to be available
+globally (i.e. not limited to a single virtual environment), then you can
+install it using ```pipx``` or ```uv tool```.
 
 You can do the following operations via the CLI:
 1. Check/validate AGS4 files
@@ -123,7 +123,7 @@ tables, headings = load_test_data()
 gui = show(**tables)
 ```
 
-<img src="./media/pandasgui_screenshot.png" width=800>
+<img src="https://gitlab.com/ags-data-format-wg/ags-python-library/-/blob/main/docs/media/pandasgui_screenshot.png" width=800>
 
 Any edits made in the GUI can be saved and exported back to an AGS4 file as follows:
 
@@ -147,7 +147,9 @@ Senanayake et al., (2022). python-ags4: A Python library to read, write, and val
 
 This library has been used to create
 
+- [Windows/Linux/MacOS Command-Line Utility (included with the library)](https://ags-data-format-wg.gitlab.io/ags-python-library/usage/#command-line-interface)
 - Windows Desktop Application - https://gitlab.com/ags-data-format-wg/ags-checker-desktop-app 
 - Web application and API (pyagsapi) - https://github.com/BritishGeologicalSurvey/pyagsapi 
   - Deployed as https://agsapi.bgs.ac.uk/
 - Excel Add On - https://gitlab.com/RogerChandler/ags-validator-excel-add-in
+- Web application (Digital Geotechnical) - https://dg-ags-validator.ew.r.appspot.com/
