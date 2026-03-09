@@ -557,7 +557,7 @@ def convert_to_text(dataframe, dictionary=None):
         convert to numeric fields to required precision. The values from the
         dictionary will override those already in the UNIT and TYPE rows in the
         dataframe. A standard dictionary can be picked using the one of the
-        following strings '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0'.
+        following strings '4.2', '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0'.
 
     Returns
     -------
@@ -591,7 +591,7 @@ def convert_to_text(dataframe, dictionary=None):
 
     else:
         # Read dictionary file
-        if dictionary in ['4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
+        if dictionary in ['4.2', '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
             # Filepath to the standard dictionary will be picked based on version
             # number if a valid version number is provided. If it is not specified
             # at all, then the filepath will be selected based on the value of
@@ -741,7 +741,7 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         file or StringIO) to be checked.
     standard_AGS4_dict : str
         Path to .ags file with standard AGS4 dictionary or version number
-        (should be one of '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0').
+        (should be one of '4.2', '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0').
     rename_duplicate_headers: bool, default=True
         Rename duplicate headers if found. Neither AGS4 tables nor Pandas
         dataframes allow duplicate headers, therefore a number will be appended
@@ -865,7 +865,7 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         # Dictionary Based Checks
 
         # Pick path to standard dictionary
-        if standard_AGS4_dictionary in [None, '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
+        if standard_AGS4_dictionary in [None, '4.2', '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
             # Filepath to the standard dictionary will be picked based on version
             # number if a valid version number is provided. If it is not specified
             # at all, then the filepath will be selected based on the value of

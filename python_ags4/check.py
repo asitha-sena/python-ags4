@@ -42,7 +42,8 @@ STANDARD_DICT_FILES = {'4.0':     'Standard_dictionary_v4_0_3.ags',
                        '4.0.3':   'Standard_dictionary_v4_0_3.ags',
                        '4.0.4':   'Standard_dictionary_v4_0_4.ags',
                        '4.1':     'Standard_dictionary_v4_1.ags',
-                       '4.1.1':   'Standard_dictionary_v4_1_1.ags'
+                       '4.1.1':   'Standard_dictionary_v4_1_1.ags',
+                       '4.2':     'Standard_dictionary_v4_2.ags'
                        }
 
 # Dictionary version to use if valid version not provided or found in TRAN table
@@ -191,7 +192,7 @@ def pick_standard_dictionary(tables=None, dict_version=None):
         Dictionary of Pandas DataFrames with all AGS4 data in file
     dict_version : str, optional
         String with version number to override TRAN_AGS. Should be one of
-        '4.1.1', 4.1', '4.0.4', 4.0.3', '4.0'.
+        '4.2', 4.1.1', 4.1', '4.0.4', 4.0.3', '4.0'.
 
     Returns
     -------
