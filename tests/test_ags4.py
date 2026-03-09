@@ -251,14 +251,15 @@ def test_excel_to_AGS4_with_numeric_column_with_missing_TYPE():
     assert LLPL_425_from_ags.equals(LLPL_425_from_xlsx)
 
 
-def test_check_file():
-    error_list = AGS4.check_file(TEST_DATA, standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+@pytest.mark.parametrize("dict_version", ['4_2', '4_1_1', '4_1', '4_0_4', '4_0_3'])
+def test_check_file(dict_version):
+    error_list = AGS4.check_file(TEST_DATA, standard_AGS4_dictionary=f'python_ags4/Standard_dictionary_{dict_version}.ags')
     # assert error_list == ['Rule 1\t Line 12:\t Has one or more non-ASCII characters.',
     #                       'Rule 3\t Line 37:\t Consists only of spaces.',
     #                       'Rule 3\t Line 54:\t Does not start with a valid tag (i.e. GROUP, HEADING, TYPE, UNIT, or DATA).']
 
     # File without any errors
-    error_list = AGS4.check_file('tests/test_files/example1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+    error_list = AGS4.check_file('tests/test_files/example1.ags', standard_AGS4_dictionary=f'python_ags4/Standard_dictionary_{dict_version}.ags')
     assert 'Rule' not in error_list.keys()
 
 
