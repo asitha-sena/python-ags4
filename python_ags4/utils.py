@@ -133,7 +133,7 @@ def get_ABBR_table_from_json_file(filepath, filepath_ELRG, version='4.1'):
         Path to JSON file with AGS4 abbreviations list
     filepath_ELRG : str or None
         Path to JSON file with ELRG_CODE list
-    version : {'4.0', '4.1'}
+    version : {'4.0', '4.1', '4.2'}
         Version of standard dictionary.
 
     Returns
@@ -143,7 +143,7 @@ def get_ABBR_table_from_json_file(filepath, filepath_ELRG, version='4.1'):
     '''
 
     # Check version provided by user
-    if version not in ['4.0', '4.1']:
+    if version not in ['4.0', '4.1', '4.2']:
         raise AGS4Error("Invalid version number. Only '4.0' and '4.1' are valid entries.")
 
     # Extract heading "DATA" rows from JSON data with abbreviations list
@@ -163,7 +163,7 @@ def get_ABBR_table_from_json_file(filepath, filepath_ELRG, version='4.1'):
 
     # Extract ELRG_CODE list
     if filepath_ELRG is not None:
-        elrg_codes = read_json(filepath_ELRG).rename(columns={'code': 'ABBR_CODE', 'description': 'ABBR_DESC'})\
+        elrg_codes = read_json(filepath_ELRG).rename(columns={'Code': 'ABBR_CODE', 'code': 'ABBR_CODE', 'description': 'ABBR_DESC'})\
                                     .assign(HEADING='DATA', ABBR_HDNG='ELRG_CODE', ABBR_LIST=version, ABBR_REM='', FILE_FSET='')\
                                     .query("version.str.contains(@version) & status.str.contains('Approved', case=False)")\
                                     .sort_values(by=['ABBR_HDNG', 'ABBR_CODE'])
@@ -191,7 +191,7 @@ def get_TYPE_table_from_json_file(filepath, version='4.1'):
     ----------
     filepath : str
         Path to JSON file
-    version : {'4.0', '4.1'}
+    version : {'4.0', '4.1', '4.2'}
         Version of standard dictionary.
 
     Returns
@@ -201,7 +201,7 @@ def get_TYPE_table_from_json_file(filepath, version='4.1'):
     '''
 
     # Check version provided by user
-    if version not in ['4.0', '4.1']:
+    if version not in ['4.0', '4.1', '4.2']:
         raise AGS4Error("Invalid version number. Only '4.0' and '4.1' are valid entries.")
 
     # Extract heading "DATA" rows from JSON data
@@ -236,7 +236,7 @@ def get_UNIT_table_from_json_file(filepath, version='4.1'):
     ----------
     filepath : str
         Path to JSON file
-    version : {'4.0', '4.1'}
+    version : {'4.0', '4.1', '4.2'}
         Version of standard dictionary.
 
     Returns
@@ -246,7 +246,7 @@ def get_UNIT_table_from_json_file(filepath, version='4.1'):
     '''
 
     # Check version provided by user
-    if version not in ['4.0', '4.1']:
+    if version not in ['4.0', '4.1', '4.2']:
         raise AGS4Error("Invalid version number. Only '4.0' and '4.1' are valid entries.")
 
     # Extract heading "DATA" rows from JSON data
