@@ -166,7 +166,7 @@ def test_convert_to_text(LOCA=LOCA, LLPL=LLPL):
     assert LLPL_txt.equals(pd.DataFrame(LLPL))
 
 
-@pytest.mark.parametrize("dict_version", ['4.1.1', '4.1', '4.0.4', '4.0.3'])
+@pytest.mark.parametrize("dict_version", ['4.2', '4.1.1', '4.1', '4.0.4', '4.0.3'])
 def test_convert_to_text_specifying_dictionary_version(dict_version, LOCA=LOCA):
     tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
     LOCA_num = AGS4.convert_to_numeric(tables['LOCA'])
@@ -289,7 +289,7 @@ def test_check_stream():
         assert 'Rule' not in error_list.keys()
 
 
-@pytest.mark.parametrize("dict_version", ['4.1.1', '4.1', '4.0.4', '4.0.3'])
+@pytest.mark.parametrize("dict_version", ['4.2', '4.1.1', '4.1', '4.0.4', '4.0.3'])
 def test_check_file_with_specified_dictionary_version(dict_version):
     error_list = AGS4.check_file(TEST_DATA, standard_AGS4_dictionary=dict_version)
 
