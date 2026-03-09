@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025  Asitha Senanayake
+# Copyright (C) 2020-2026  Asitha Senanayake
 #
 # This file is part of python_ags4.
 #
