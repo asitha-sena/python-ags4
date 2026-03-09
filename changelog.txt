@@ -1,15 +1,18 @@
 Changelog
 =========
 
-1.2.0 (Upcoming)
+1.2.0 (2026-03-11)
 ----------------
-- Replace bespoke CSV parsing code with CSV module. This allows escaped double
-  quotes to be handle correctly (affects Rules 4 & 5).
-- Raise exception if GROUP lines are missing
+- Add support for Standard dicionary v4.2
 - Add support for Python 3.14
 - Update pyproject.toml to PEP621 format
+- Replace bespoke CSV parsing code with CSV module. This allows escaped double
+  quotes to be handle correctly (affects Rules 4 & 5). (Issue #135)
+- Raise exception if GROUP lines are missing (Issues #133 & #137)
+- Fix SyntaxWarning in Python 3.14 about return statement inside 'finally' block
+  (Issue #139)
+- Add feature to choose subset of groups/tables to read from file (Issue #143)
 - Address various warnings related to future changes and deprecations in Python
-- Add feature to choose subset of groups/tables to read from file
 
 
 1.1.0 (2025-06-03)
