@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.2.0 (2026-03-11)
-----------------
+1.2.0 (2026-03-18)
+------------------
 - Add support for Standard dicionary v4.2
 - Add support for Python 3.14
 - Update pyproject.toml to PEP621 format
