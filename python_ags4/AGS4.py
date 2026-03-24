@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025  Asitha Senanayake
+# Copyright (C) 2020-2026  Asitha Senanayake
 #
 # This file is part of python_ags4.
 #
@@ -64,6 +64,9 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
         function.
     """
 
+    import csv
+    from io import StringIO
+
     if _is_file_like(filepath_or_buffer):
         f = filepath_or_buffer
         f.seek(0)
@@ -87,15 +90,27 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
         # the first column in order to preserve the AGS data format. Other
         # columns in certain groups have a preferred order as well)
 
+        # Initialize variable to track current group
+        group = None
+
         for i, line in enumerate(f, start=1):
             if _is_bytebuffer(line):
                 line = line.decode(encoding)
 
-            temp = line.rstrip().split('","')
-            temp = [item.strip('"') for item in temp]
+            else:
+                # Strip byte-order mark from line, if present
+                line = _remove_byte_order_mark(line, encoding)
 
-            if temp[0] == 'GROUP':
-                group = temp[1]
+            line = list(csv.reader(StringIO(line), quotechar='"'))[0]
+
+            if len(line) == 0:
+                # This indicates a blank line so assume that the current group has ended
+                group = None
+
+                continue
+
+            elif line[0] == 'GROUP':
+                group = line[1]
 
                 # Raise exception if duplicate group is found as previous copy
                 # of that group will be overwritten
@@ -113,12 +128,19 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                 # avoid KeyErrors in case of missing HEADING rows)
                 line_numbers[group] = {'GROUP': i, 'HEADING': '-'}
 
-            elif temp[0] == 'HEADING':
+            elif line[0] == 'HEADING':
+
+                if group is None:
+                    msg = f"HEADER row in Line {i} is not associated with a GROUP. "\
+                        "Please ensure that the GROUP name is defined in the line immediately preceding the HEADER row."
+
+                    logger.error(msg)
+                    raise AGS4Error(msg)
 
                 # Catch HEADER rows with duplicate entries as it will result in
                 # a dictionary with arrays of unequal lengths and cause a
                 # ValueError when trying to convert to a Pandas dataframe
-                if len(temp) != len(set(temp)):
+                if len(line) != len(set(line)):
 
                     if rename_duplicate_headers is False:
                         raise AGS4Error(f"HEADER row in {group} (Line {i}) has duplicate entries")
@@ -128,7 +150,7 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                     # Rename duplicate headers by appending a number
                     item_count = {}
 
-                    for i, item in enumerate(temp):
+                    for i, item in enumerate(line):
                         if item not in item_count:
                             item_count[item] = {'i': i, 'count': 0}
                         else:
@@ -136,7 +158,7 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
                             item_count[item]['count'] += 1
                             count = item_count[item]['count']
 
-                            temp[i] = temp[i]+'_'+str(item_count[item]['count'])
+                            line[i] = line[i]+'_'+str(item_count[item]['count'])
 
                             logger.info(f'Duplicate column {item} found and renamed as {item}_{count}. '
                                         'Automatically renamed columns do not conform to AGS4 Rules 19a and 19b. '
@@ -147,27 +169,27 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
 
                 # Store UNIT, TYPE, and DATA line numbers
                 if get_line_numbers is True:
-                    temp.append('line_number')
+                    line.append('line_number')
 
-                headings[group] = temp
+                headings[group] = line
 
-                for item in temp:
+                for item in line:
                     data[group][item] = []
 
-            elif temp[0] in ['TYPE', 'UNIT', 'DATA']:
+            elif line[0] in ['TYPE', 'UNIT', 'DATA']:
 
                 # Append line number
                 if get_line_numbers is True:
-                    temp.append(i)
+                    line.append(i)
 
                 # Check whether line has the same number of entries as the
                 # number of headings in the group. If not, print error and exit.
-                if len(temp) != len(headings[group]):
+                if len(line) != len(headings[group]):
                     logger.error(f"Line {i} does not have the same number of entries as the HEADING row in {group}.")
                     raise AGS4Error(f"Line {i} does not have the same number of entries as the HEADING row in {group}.")
 
-                for i in range(0, len(temp)):
-                    data[group][headings[group][i]].append(temp[i])
+                for i in range(0, len(line)):
+                    data[group][headings[group][i]].append(line[i])
 
             else:
                 continue
@@ -181,7 +203,8 @@ def AGS4_to_dict(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, r
     return data, headings
 
 
-def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, rename_duplicate_headers=True):
+def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=False, rename_duplicate_headers=True,
+                      only_groups=None):
     """Load all the tables in an AGS4 file to a dictionary of Pandas dataframes.
 
     The output is a dictionary of dataframes with the name of each AGS4 table
@@ -201,6 +224,9 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=Fal
         Rename duplicate headers if found. Neither AGS4 tables nor Pandas
         dataframes allow duplicate headers, therefore a number will be appended
         to duplicates to make them unique.
+    only_groups : list or None (default=None)
+        An optional list of groups to convert instead of converting all the
+        groups in the input file.
 
     Returns
     -------
@@ -241,8 +267,13 @@ def AGS4_to_dataframe(filepath_or_buffer, encoding='utf-8', get_line_numbers=Fal
 
     # Convert dictionary of dictionaries to a dictionary of Pandas dataframes
     tables = {}
-    for key in data:
-        tables[key] = DataFrame(data[key])
+
+    if only_groups:
+        for key in only_groups:
+            tables[key] = DataFrame(data[key])
+    else:
+        for key in data:
+            tables[key] = DataFrame(data[key])
 
     return tables, headings
 
@@ -526,7 +557,7 @@ def convert_to_text(dataframe, dictionary=None):
         convert to numeric fields to required precision. The values from the
         dictionary will override those already in the UNIT and TYPE rows in the
         dataframe. A standard dictionary can be picked using the one of the
-        following strings '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0'.
+        following strings '4.2', '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0'.
 
     Returns
     -------
@@ -560,7 +591,7 @@ def convert_to_text(dataframe, dictionary=None):
 
     else:
         # Read dictionary file
-        if dictionary in ['4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
+        if dictionary in ['4.2', '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
             # Filepath to the standard dictionary will be picked based on version
             # number if a valid version number is provided. If it is not specified
             # at all, then the filepath will be selected based on the value of
@@ -576,6 +607,12 @@ def convert_to_text(dataframe, dictionary=None):
 
         # Format columns and add UNIT/TYPE rows if necessary
         for col in df.columns:
+
+            # Convert data type to 'object' since string values will be added in
+            # UNIT and TYPE rows resulting in a mix of data types in numeric
+            # columns. This raises a FutureWarning as it will not be supported in
+            # future version of Pandas.
+            df[col] = df[col].astype('object')
 
             if col == 'HEADING':
 
@@ -634,6 +671,11 @@ def format_numeric_column(dataframe, column_name, TYPE):
 
     df = dataframe.copy()
     col = column_name
+
+    # Convert data type to 'object' since adding string values to numeric
+    # columns raises a FutureWarning as it will not be supported in future
+    # version of Pandas.
+    df[col] = df[col].astype('object')
 
     try:
         if 'DP' in TYPE:
@@ -699,7 +741,7 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         file or StringIO) to be checked.
     standard_AGS4_dict : str
         Path to .ags file with standard AGS4 dictionary or version number
-        (should be one of '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0').
+        (should be one of '4.2', '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0').
     rename_duplicate_headers: bool, default=True
         Rename duplicate headers if found. Neither AGS4 tables nor Pandas
         dataframes allow duplicate headers, therefore a number will be appended
@@ -823,7 +865,7 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         # Dictionary Based Checks
 
         # Pick path to standard dictionary
-        if standard_AGS4_dictionary in [None, '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
+        if standard_AGS4_dictionary in [None, '4.2', '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']:
             # Filepath to the standard dictionary will be picked based on version
             # number if a valid version number is provided. If it is not specified
             # at all, then the filepath will be selected based on the value of
@@ -869,24 +911,6 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
                                          'Could not complete validation. Please fix listed errors and try again.')
         ags_errors = check.add_error_msg(ags_errors, 'Validator Process Error', '-', '', str(err))
 
-    except UnboundLocalError as err:
-        logger.exception(err)
-
-        # The presence of a byte-order-mark (BOM) in the same row as first
-        # "GROUP" line can cause this exception. This will be caught by line
-        # checks for Rule 1 (since the BOM is not an ASCII character) and Rule 3
-        # (since the BOM precedes the string "GROUP"). The BOM encoding can be
-        # ignored by setting the 'encoding' argument to 'utf-8-sig'.
-        f.seek(0)
-
-        tables, headings, line_numbers = AGS4_to_dataframe(f, encoding='utf-8-sig',
-                                                           get_line_numbers=True, rename_duplicate_headers=rename_duplicate_headers)
-
-        # Add warning to error log
-        msg = 'This file seems to be encoded with a byte-order-mark (BOM). It is highly recommended that the '\
-              'file be saved without BOM encoding to avoid issues with other software.'
-        ags_errors = check.add_error_msg(ags_errors, 'General', '', '', msg)
-
     except Exception as err:
         logger.exception(err)
 
@@ -910,7 +934,7 @@ def check_file(filepath_or_buffer, standard_AGS4_dictionary=None, rename_duplica
         else:
             ags_errors = check.add_error_msg(ags_errors, 'Metadata', 'SHA256 hash', '', sha256_hash.hexdigest())
 
-        return ags_errors
+    return ags_errors
 
 
 # Helper functions/classes #
@@ -1151,6 +1175,22 @@ def _is_bytebuffer(obj):
         return True
 
     return False
+
+
+def _remove_byte_order_mark(string, encoding):
+    """Remove byte-order mark from string.
+    """
+
+    import codecs
+
+    string_without_BOM = string.encode(encoding)\
+                               .strip(codecs.BOM_UTF8)\
+                               .strip(codecs.BOM)\
+                               .strip(codecs.BOM_BE)\
+                               .strip(codecs.BOM_LE)\
+                               .decode(encoding)
+
+    return string_without_BOM
 
 
 class AGS4Error(Exception):
