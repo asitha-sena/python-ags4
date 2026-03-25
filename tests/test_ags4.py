@@ -38,7 +38,7 @@ LLPL = {'HEADING': ['UNIT', 'TYPE', 'DATA', 'DATA'],
 def test_version():
     pyproject = toml.load('pyproject.toml')
 
-    assert __version__ == pyproject['tool']['poetry']['version']
+    assert __version__ == pyproject['project']['version']
 
 
 @pytest.mark.parametrize("test_file", [str(TEST_DATA), TEST_DATA])
@@ -64,11 +64,15 @@ def test_AGS4_bytestream_to_dict(LOCA=LOCA):
     assert tables['LOCA'] == LOCA
 
 
-def test_AGS4_file_to_dataframe(LOCA=LOCA):
-    tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
+@pytest.mark.parametrize("only_groups", [None, ['PROJ', 'TRAN', 'LOCA']])
+def test_AGS4_file_to_dataframe(only_groups, LOCA=LOCA):
+    tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA, only_groups=only_groups)
 
     assert tables['LOCA'].loc[2, 'LOCA_ID'] == 'Location_1'
     assert tables['LOCA'].equals(pd.DataFrame(LOCA))
+
+    if only_groups:
+        assert list(tables.keys()) == only_groups
 
 
 def test_AGS4_stream_to_dataframe(LOCA=LOCA):
@@ -162,7 +166,7 @@ def test_convert_to_text(LOCA=LOCA, LLPL=LLPL):
     assert LLPL_txt.equals(pd.DataFrame(LLPL))
 
 
-@pytest.mark.parametrize("dict_version", ['4.1.1', '4.1', '4.0.4', '4.0.3'])
+@pytest.mark.parametrize("dict_version", ['4.2', '4.1.1', '4.1', '4.0.4', '4.0.3'])
 def test_convert_to_text_specifying_dictionary_version(dict_version, LOCA=LOCA):
     tables, headings = AGS4.AGS4_to_dataframe(TEST_DATA)
     LOCA_num = AGS4.convert_to_numeric(tables['LOCA'])
@@ -247,14 +251,15 @@ def test_excel_to_AGS4_with_numeric_column_with_missing_TYPE():
     assert LLPL_425_from_ags.equals(LLPL_425_from_xlsx)
 
 
-def test_check_file():
-    error_list = AGS4.check_file(TEST_DATA, standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+@pytest.mark.parametrize("dict_version", ['4_2', '4_1_1', '4_1', '4_0_4', '4_0_3'])
+def test_check_file(dict_version):
+    error_list = AGS4.check_file(TEST_DATA, standard_AGS4_dictionary=f'python_ags4/Standard_dictionary_{dict_version}.ags')
     # assert error_list == ['Rule 1\t Line 12:\t Has one or more non-ASCII characters.',
     #                       'Rule 3\t Line 37:\t Consists only of spaces.',
     #                       'Rule 3\t Line 54:\t Does not start with a valid tag (i.e. GROUP, HEADING, TYPE, UNIT, or DATA).']
 
     # File without any errors
-    error_list = AGS4.check_file('tests/test_files/example1.ags', standard_AGS4_dictionary='python_ags4/Standard_dictionary_v4_1.ags')
+    error_list = AGS4.check_file('tests/test_files/example1.ags', standard_AGS4_dictionary=f'python_ags4/Standard_dictionary_{dict_version}.ags')
     assert 'Rule' not in error_list.keys()
 
 
@@ -285,7 +290,7 @@ def test_check_stream():
         assert 'Rule' not in error_list.keys()
 
 
-@pytest.mark.parametrize("dict_version", ['4.1.1', '4.1', '4.0.4', '4.0.3'])
+@pytest.mark.parametrize("dict_version", ['4.2', '4.1.1', '4.1', '4.0.4', '4.0.3'])
 def test_check_file_with_specified_dictionary_version(dict_version):
     error_list = AGS4.check_file(TEST_DATA, standard_AGS4_dictionary=dict_version)
 

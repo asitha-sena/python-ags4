@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025  Asitha Senanayake
+# Copyright (C) 2020-2026  Asitha Senanayake
 #
 # This file is part of python_ags4.
 #
@@ -18,9 +18,21 @@
 # https://github.com/asitha-sena/python-ags4
 # https://gitlab.com/ags-data-format-wg/ags-python-library
 
+import csv
 import logging
+import os
+import re
+import datetime
+from io import StringIO
+from pathlib import Path
 
-from python_ags4.AGS4 import _is_file_like
+import pandas as pd
+from pandas import DataFrame, concat
+from pandas.errors import MergeError
+
+from python_ags4 import __version__
+
+from .AGS4 import AGS4Error, _is_file_like, format_numeric_column
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +42,8 @@ STANDARD_DICT_FILES = {'4.0':     'Standard_dictionary_v4_0_3.ags',
                        '4.0.3':   'Standard_dictionary_v4_0_3.ags',
                        '4.0.4':   'Standard_dictionary_v4_0_4.ags',
                        '4.1':     'Standard_dictionary_v4_1.ags',
-                       '4.1.1':   'Standard_dictionary_v4_1_1.ags'
+                       '4.1.1':   'Standard_dictionary_v4_1_1.ags',
+                       '4.2':     'Standard_dictionary_v4_2.ags'
                        }
 
 # Dictionary version to use if valid version not provided or found in TRAN table
@@ -94,9 +107,6 @@ def combine_DICT_tables(*ags_tables):
         Dataframe with combined DICT tables.
     """
 
-    from pandas import DataFrame, concat
-    from .AGS4 import AGS4Error
-
     # Initialize DataFrame to hold all dictionary entries
     master_DICT = DataFrame()
 
@@ -137,9 +147,6 @@ def fetch_record(record_link, tables):
     -------
     Pandas DataFrame
     """
-
-    from pandas import DataFrame
-    from pandas.errors import MergeError
 
     try:
         # Get name(s) of GROUP and KEY fields
@@ -185,15 +192,13 @@ def pick_standard_dictionary(tables=None, dict_version=None):
         Dictionary of Pandas DataFrames with all AGS4 data in file
     dict_version : str, optional
         String with version number to override TRAN_AGS. Should be one of
-        '4.1.1', 4.1', '4.0.4', 4.0.3', '4.0'.
+        '4.2', 4.1.1', 4.1', '4.0.4', 4.0.3', '4.0'.
 
     Returns
     -------
     str
       File path to standard dictionary
     """
-
-    from pathlib import Path
 
     # Select standard dictionary based on TRAN_AGS
     try:
@@ -247,10 +252,6 @@ def add_meta_data(filepath_or_buffer, standard_dictionary, ags_errors={}, encodi
         Updated Python dictionary.
     """
 
-    import os
-    from python_ags4 import __version__
-    from datetime import datetime
-
     if not _is_file_like(filepath_or_buffer):
         add_error_msg(ags_errors, 'Metadata', 'File Name', '', f'{os.path.basename(filepath_or_buffer)}')
         add_error_msg(ags_errors, 'Metadata', 'File Size', '', f'{int(os.path.getsize(filepath_or_buffer) / 1024)} kB')
@@ -259,7 +260,7 @@ def add_meta_data(filepath_or_buffer, standard_dictionary, ags_errors={}, encodi
     if standard_dictionary is not None:
         add_error_msg(ags_errors, 'Metadata', 'Dictionary', '', f'{os.path.basename(standard_dictionary)}')
 
-    add_error_msg(ags_errors, 'Metadata', 'Time (UTC)', '', f'{datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")}')
+    add_error_msg(ags_errors, 'Metadata', 'Time (UTC)', '', f'{datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")}')
 
     add_error_msg(ags_errors, 'Metadata', 'File encoding', '', encoding)
 
@@ -372,6 +373,9 @@ def rule_1(line, line_number=0, ags_errors={}, encoding='utf-8'):
                 msg = f"Has Non-ASCII character(s) (assuming that file encoding is '{encoding}') and/or a byte-order-mark (BOM)."
                 add_error_msg(ags_errors, 'AGS Format Rule 1', line_number, '', msg)
 
+                fyi_msg = "If a BOM is present, then it is highly recommended that the file be saved without BOM encoding to avoid issues with other software."
+                add_error_msg(ags_errors, 'FYI (Related to Rule 1)', line_number, '', fyi_msg)
+
             else:
                 msg = f"Has Non-ASCII character(s) (assuming that file encoding is '{encoding}')."
                 add_error_msg(ags_errors, 'AGS Format Rule 1', line_number, '', msg)
@@ -427,8 +431,7 @@ def rule_4_2(line, line_number=0, group='', headings=[], ags_errors={}):
     """
 
     if line.strip('"').startswith(('UNIT', 'TYPE', 'DATA')):
-        temp = line.rstrip().split('","')
-        temp = [item.strip('"') for item in temp]
+        temp = list(csv.reader(StringIO(line)))[0]
 
         if len(headings) == 0:
             # Avoid repetitions of same error by adding it only it is not already there
@@ -450,10 +453,8 @@ def rule_5(line, line_number=0, ags_errors={}):
     """AGS Format Rule 5: All fields should be enclosed in double quotes.
     """
 
-    import re
-
     if not line.isspace():
-        if not line.startswith('"') or not line.strip('\r\n').endswith('"'):
+        if not line.startswith('"') or not line.strip('\r\n').endswith('"') or line.strip('\r\n').endswith('","'):
             add_error_msg(ags_errors, 'AGS Format Rule 5', line_number, '', 'Contains fields that are not enclosed in double quotes.')
 
         elif line.strip('"').startswith(('HEADING', 'UNIT', 'TYPE')):
@@ -470,9 +471,13 @@ def rule_5(line, line_number=0, ags_errors={}):
         else:
             # Verify that quotes within data fields are enclosed by a second double quote
 
-            # Remove quotes enclosing data fields
-            temp = re.sub(r'","', ' ', line.strip('\r\n')).strip(r'"')
-            # Remove correct double-double quotes
+            # First split line using csv.reader. Double quotes enclosing each
+            # field and double-double quotes within fields are preseverved by
+            # specifying a quotechar that is different from the default '"'.
+            split_line = list(csv.reader(StringIO(line), quotechar='|'))[0]
+
+            # Reassemble line and remove correct double-double quotes
+            temp = " ".join([x.strip('"') for x in split_line])
             temp = re.sub(r'""', ' ', temp)
 
             # Find orphan double quotes
@@ -532,8 +537,6 @@ def rule_19(line, line_number=0, ags_errors={}):
 def rule_19a(line, line_number=0, group='', ags_errors={}):
     """AGS Format Rule 19a: HEADING names should consist of uppercase letters.
     """
-
-    import re
 
     if line.strip('"').startswith('HEADING'):
         temp = line.rstrip().split('","')
@@ -677,9 +680,6 @@ def rule_8(tables, headings, line_numbers, ags_errors={}):
     and type that are described by the appropriate data field UNIT and data
     field TYPE defined at the start of the GROUP.
     """
-
-    import pandas as pd
-    from python_ags4.AGS4 import format_numeric_column
 
     for group in tables:
         # First make copy of table to avoid unexpected side-effects
@@ -918,8 +918,6 @@ def rule_10a(tables, headings, dictionary, line_numbers, ags_errors={}):
 def rule_10b(tables, headings, dictionary, line_numbers, ags_errors={}):
     """AGS Format Rule 10b: REQUIRED fields in a GROUP must be present and cannot be empty.
     """
-
-    from pandas import DataFrame, concat
 
     for group in tables:
         # Extract REQUIRED fields from dictionary
@@ -1393,8 +1391,6 @@ def rule_20(tables, headings, filepath, ags_errors={}):
     """AGS Format Rule 20: Additional computer files included within a data submission shall be defined in a FILE GROUP.
     """
 
-    import os
-
     try:
         # Load FILE group
         FILE = tables['FILE'].copy()
@@ -1497,8 +1493,6 @@ def is_TRAN_AGS_valid(tables, headings, line_numbers, ags_errors={}):
 def is_ags3(tables, input_file, ags_errors={}):
     """Check if file is likely to be in AGS3 format and issue warning.
     """
-
-    import re
 
     # Check whether dictionary of tables is empty
     if not tables:

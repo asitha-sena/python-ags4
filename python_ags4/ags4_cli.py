@@ -169,7 +169,7 @@ def convert(input_file, output_file, format_columns, dictionary, rename_duplicat
 @click.option('-d', '--dictionary_path', type=click.File('r'), default=None,
               help="Path to AGS4 dictionary file.")
 @click.option('-v', '--dictionary_version',
-              type=click.Choice(['4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']),
+              type=click.Choice(['4.2', '4.1.1', '4.1', '4.0.4', '4.0.3', '4.0']),
               help='Version of standard dictionary to use. (Warning: Overrides version specified in TRAN_AGS '
                    'and custom dictionary specifed by --dictionary_path)')
 @click.option('-e', '--encoding',

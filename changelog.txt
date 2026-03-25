@@ -1,6 +1,20 @@
 Changelog
 =========
 
+1.2.0 (2026-03-18)
+------------------
+- Add support for Standard dicionary v4.2
+- Add support for Python 3.14
+- Update pyproject.toml to PEP621 format
+- Replace bespoke CSV parsing code with CSV module. This allows escaped double
+  quotes to be handle correctly (affects Rules 4 & 5). (Issue #135)
+- Raise exception if GROUP lines are missing (Issues #133 & #137)
+- Fix SyntaxWarning in Python 3.14 about return statement inside 'finally' block
+  (Issue #139)
+- Add feature to choose subset of groups/tables to read from file (Issue #143)
+- Address various warnings related to future changes and deprecations in Python
+
+
 1.1.0 (2025-06-03)
 ------------------
 - Fix minor issues in v4.1 and v4.1.1 standard dictionaries and include latest
@@ -48,7 +62,6 @@ Changelog
 
 0.5.0 (2024-01-27)
 ------------------
-
 - Remove support for Python version 3.7
 - Add support for Pandas version 2.x and drop support for version 1.x.
 - Add functionality to log internal messages
