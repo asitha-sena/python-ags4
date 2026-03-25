@@ -216,6 +216,11 @@ def test_excel_to_AGS4():
     assert 'NEWCOLUMN' not in tables['LOCA'].columns
     assert 'stray_data' not in tables['LOCA'].values
 
+    # Check whether None values in Excel are parsed as is rather than
+    # being converted to NaN
+    assert tables['PROJ'].loc[2, 'PROJ_LOC'] == 'None'
+    assert tables['PROJ'].loc[2, 'PROJ_CLNT'] == 'NA'
+
     # Call function with dictionary file
     AGS4.excel_to_AGS4('tests/test.xlsx', 'tests/test.out', dictionary='tests/DICT.ags')
 

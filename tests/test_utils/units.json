@@ -1,0 +1,1274 @@
+[{
+        "Type": "Length",
+        "Unit": "mm",
+        "Description": "millimetre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Length",
+        "Unit": "cm",
+        "Description": "centimetre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Length",
+        "Unit": "m",
+        "Description": "metre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Length",
+        "Unit": "km",
+        "Description": "kilometre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Length",
+        "Unit": "in",
+        "Description": "inch",
+        "Date": "01/11/1999",
+         "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Length",
+        "Unit": "ft",
+        "Description": "foot",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+   }, {
+        "Type": "Length",
+        "Unit": "yd",
+        "Description": "yard",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Length",
+        "Unit": "mi",
+        "Description": "mile",
+        "Date": "01/11/1999",
+         "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Area",
+        "Unit": "cm2",
+        "Description": "square centimetre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Area",
+        "Unit": "m2",
+        "Description": "square metre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Area",
+        "Unit": "km2",
+        "Description": "square kilometre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Area",
+        "Unit": "mm3",
+        "Description": "cubic millimetre",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Area",
+        "Unit": "hect",
+        "Description": "hectare",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Area",
+        "Unit": "in2",
+        "Description": "square inch",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Area",
+        "Unit": "ft2",
+        "Description": "square foot",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Area",
+        "Unit": "yd2",
+        "Description": "square yard",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Area",
+        "Unit": "mi2",
+        "Description": "square mile",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Area",
+        "Unit": "acre",
+        "Description": "acre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Volume",
+        "Unit": "cm3",
+        "Description": "cubic centimetre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Volume",
+        "Unit": "m3",
+        "Description": "cubic metre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Volume",
+        "Unit": "l",
+        "Description": "litre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Volume",
+        "Unit": "in3",
+        "Description": "cubic inch",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Volume",
+        "Unit": "ft3",
+        "Description": "cubic foot",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Volume",
+        "Unit": "yd3",
+        "Description": "cubic yard",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Volume",
+        "Unit": "gal",
+        "Description": "gallon",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Force",
+        "Unit": "N",
+        "Description": "Newton",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Force",
+        "Unit": "kN",
+        "Description": "kiloNewton",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Force",
+        "Unit": "MN",
+        "Description": "megaNewton",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Force",
+        "Unit": "lbf",
+        "Description": "pounds force",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Force",
+        "Unit": "tonf",
+        "Description": "tons force",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Force",
+        "Unit": "kgf",
+        "Description": "kilograms force",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Mass",
+        "Unit": "g",
+        "Description": "gram",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Mass",
+        "Unit": "kg",
+        "Description": "kilogram",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Mass",
+        "Unit": "Mg",
+        "Description": "megagram (tonne)",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Mass",
+        "Unit": "lb",
+        "Description": "pound",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Mass",
+        "Unit": "t",
+        "Description": "ton",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Mass",
+        "Unit": "kips",
+        "Description": "kilopound",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Pressure",
+        "Unit": "kN/m2",
+        "Description": "kiloNewtons per square metre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Pressure",
+        "Unit": "kPa",
+        "Description": "kiloPascal",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Pressure",
+        "Unit": "MN/m2",
+        "Description": "megaNewtons per square metre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Pressure",
+        "Unit": "MPa",
+        "Description": "megaPascal",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Pressure",
+        "Unit": "GPa",
+        "Description": "gigaPascal",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Pressure",
+        "Unit": "psi",
+        "Description": "pounds per square inch",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Pressure",
+        "Unit": "psf",
+        "Description": "pounds per square foot",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Pressure",
+        "Unit": "ksi",
+        "Description": "kips per square inch",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Pressure",
+        "Unit": "ksf",
+        "Description": "kips per square foot",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Pressure",
+        "Unit": "tsf",
+        "Description": "tons per square foot",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Pressure",
+        "Unit": "kg/cm2",
+        "Description": "kilograms per square centimetre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Pressure",
+        "Unit": "bar",
+        "Description": "bar",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Density",
+        "Unit": "kN/m3",
+        "Description": "kiloNewtons per cubic metre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Density",
+        "Unit": "Mg/m3",
+        "Description": "megagrams per cubic metre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Density",
+        "Unit": "pcf",
+        "Description": "pounds per cubic foot",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Density",
+        "Unit": "g/cm3",
+        "Description": "grams per cubic centimetre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Density",
+        "Unit": "kg/m3",
+        "Description": "kilograms per cubic metre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "s",
+        "Description": "second",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "min",
+        "Description": "minute",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "hr",
+        "Description": "hour",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "day",
+        "Description": "day",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "month",
+        "Description": "month",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "yr",
+        "Description": "year",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "hhmm",
+        "Description": "hours minutes",
+        "Date": "01/11/1999",
+        "Version": "3.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "hhmmss",
+        "Description": "hours minutes seconds",
+        "Date": "01/11/1999",
+        "Version": "3.1",
+       "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "dd/mm/yyyy",
+        "Description": "day month year",
+        "Date": "01/11/1999",
+        "Version": "3.1",
+        "Status": "Approved",
+        "Comments": ""
+   }, {
+        "Type": "Velocity",
+        "Unit": "mm/s",
+        "Description": "millimetres per second",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Velocity",
+        "Unit": "cm/s",
+        "Description": "centimetres per second",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Velocity",
+        "Unit": "m/s",
+        "Description": "metres per second",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Velocity",
+        "Unit": "km/hr",
+        "Description": "kilometres per hour",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Velocity",
+        "Unit": "m/min",
+        "Description": "metres per minute",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Velocity",
+        "Unit": "ft/min",
+        "Description": "feet per minute",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Velocity",
+        "Unit": "mph",
+        "Description": "miles per hour",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Flow",
+        "Unit": "l/s",
+        "Description": "litres per second",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Flow",
+        "Unit": "l/hr",
+        "Description": "litres per hour",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Flow",
+        "Unit": "m3/s",
+        "Description": "cubic metres per second",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Flow",
+        "Unit": "gpm",
+        "Description": "gallons per minute",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Flow",
+        "Unit": "mgd",
+        "Description": "million gallons per day",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Flow",
+        "Unit": "cfs",
+        "Description": "cubic feet per second",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "ug/l",
+        "Description": "micrograms per litre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "mg/l",
+        "Description": "milligrams per litre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "g/l",
+        "Description": "grams per litre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "ug/kg",
+        "Description": "micrograms per kilogram",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "mg/kg",
+        "Description": "milligrams per kilogram",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "ppb",
+        "Description": "parts per billion",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "ppm",
+        "Description": "parts per million",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "%",
+        "Description": "percentage",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "% dry weight",
+        "Description": "percentage of dry weight",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "%vol",
+        "Description": "percentage volume",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "colonies/ml",
+        "Description": "colonies per millilitre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "colonies/l",
+        "Description": "colonies per litre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "CFU/ml",
+        "Description": "colony forming units per millilitre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "CFU/g",
+        "Description": "colony forming units per gram",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "MPN/ml",
+        "Description": "most probable number per millilitre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "MPN/100ml",
+        "Description": "most probable number per 100 millilitres",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "MPN/l",
+        "Description": "most probable number per litre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "m2/MN",
+        "Description": "square metres per megaNewton",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "ft2/t",
+        "Description": "square feet per ton",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "m2/yr",
+        "Description": "square metres per year",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "ft2/yr",
+        "Description": "square feet per year",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "ft2/day",
+        "Description": "square feet per day",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "Nm",
+        "Description": "Newton metre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "deg",
+        "Description": "degree (angle)",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Temperature",
+        "Unit": "DegC",
+        "Description": "degree Celsius",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Temperature",
+        "Unit": "DegF",
+        "Description": "degree Fahrenheit",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "uV",
+        "Description": "microVolt",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "mV",
+        "Description": "milliVolt",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Electrical Resistivity",
+        "Unit": "ohm",
+        "Description": "Ohm",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Electrical Resistivity",
+        "Unit": "ohmcm",
+        "Description": "Ohm centimetre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "uS/cm",
+        "Description": "microSiemens per centimetre",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "kJ/kg",
+        "Description": "kiloJoules per kilogram",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "API",
+        "Description": "American Petroleum Institute",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "counts/s",
+        "Description": "counts per second",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "Yes",
+        "Description": "Yes",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "No",
+        "Description": "No",
+        "Date": "01/11/1999",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "kg/m",
+        "Description": "kilograms per metre",
+        "Date": "01/12/2004",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "ppmv",
+        "Description": "Parts per million volume",
+        "Date": "01/04/2005",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "yyyy-mm-dd",
+        "Description": "year month day",
+        "Date": "31/05/2010",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "Bq/g",
+        "Description": "Becquerel per gram",
+        "Date": "12/06/2017",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "uT",
+        "Description": "micro Tesla",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "nT",
+        "Description": "nano Tesla",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "UNITLESS",
+        "Description": "No unit",
+        "Date": "08/12/2020",
+        "Version": "4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "us",
+        "Description": "microsecond",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "ms",
+        "Description": "millisecond",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "yyyy-mm-ddThh:mm",
+        "Description": "year month day hours minutes",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "hh:mm",
+        "Description": "hours minutes",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "hh:mm:ss",
+        "Description": "hours minutes seconds",
+        "Date": "30/04/2024",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Time",
+        "Unit": "mm:ss",
+        "Description": "minutes seconds",
+        "Date": "30/04/2024",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Time",
+        "Unit": "yyyy-mm-ddThh:mm:ss",
+        "Description": "year month day hours minutes seconds",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Velocity",
+        "Unit": "m/day",
+        "Description": "metres per day",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "mS/cm",
+        "Description": "milliSiemens per centimetre",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "mol/kg",
+        "Description": "moles per kilogram",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "MPa/s",
+        "Description": "mega Pascals per second",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "MPa/m",
+        "Description": "mega Pascals per metre",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": "This was erroneously described as mega Pascals per minute"
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "S/m",
+        "Description": "Siemens per metre",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Volume",
+        "Unit": "ml",
+        "Description": "millilitre",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Velocity",
+        "Unit": "mm/min",
+        "Description": "millimetres per minute",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Concentration",
+        "Unit": "ng/l",
+        "Description": "nanograms per litre",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Pressure",
+        "Unit": "mbar",
+        "Description": "millibars",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Electrical Resistivity",
+        "Unit": "ohm m",
+        "Description": "Ohm metres",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Permeability",
+        "Unit": "mD",
+        "Description": "milli Darcy",
+        "Date": "08/12/2020",
+        "Version": "4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Miscellaneous",
+        "Unit": "rps",
+        "Description": "rotations per second",
+        "Date": "08/12/2020",
+        "Version": "4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }, {
+        "Type": "Permeability",
+        "Unit": "g/cm3",
+        "Description": "grams per cubic centimetre",
+        "Date": "08/12/2020",
+        "Version": "4.1",
+        "Status": "Deprecated",
+        "Comments": ""
+    },{
+        "Type": "Thermal Resistence",
+        "Unit": "W/(K-m)",
+        "Description": "Watts per Kelvin metre",
+        "Date": "08/12/2020",
+        "Version": "4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Thermal Resistence",
+        "Unit": "(K-m)/W",
+        "Description": "Kelvin metres per Watt",
+        "Date": "08/12/2020",
+        "Version": "4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Thermal Resistence",
+        "Unit": "W/(K-cm)",
+        "Description": "Watts per Kelvin centimetre",
+        "Date": "08/12/2020",
+        "Version": "4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Thermal Resistence",
+        "Unit": "(K-cm)/W",
+        "Description": "Kelvin centimetres per Watt",
+        "Date": "08/12/2020",
+        "Version": "4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Thermal Resistence",
+        "Unit": "W/DegC",
+        "Description": "Watts per degree Celsius",
+        "Date": "08/12/2020",
+        "Version": "4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Thermal Resistence",
+        "Unit": "DegC/W",
+        "Description": "Degree Celsius per Watt",
+        "Date": "08/12/2020",
+        "Version": "4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Thermal Resistence",
+        "Unit": "W/K",
+        "Description": "Watts per Kelvin",
+        "Date": "08/12/2020",
+        "Version": "4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Thermal Resistence",
+        "Unit": "K/W",
+        "Description": "Kelvin per Watt",
+        "Date": "08/12/2020",
+        "Version": "4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Flow",
+        "Unit": "%/hr",
+        "Description": "percentage per hour",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Miscellaneous",
+        "Unit": "pH",
+        "Description": "pH Units",
+        "Date": "17/01/2022",
+        "Version": "4.0",
+        "Status": "Declined",
+        "Comments": "Whilst this unit has been in conventional use in AGS 4.0, the committee would prefer the new AGS 4.1 unit definition of 'UNITLESS' be used instead."
+    },{
+        "Type": "Flow",
+        "Unit": "l/min",
+        "Description": "litres per minute",
+        "Date": "30/04/2024",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Velocity",
+        "Unit": "m/hr",
+        "Description": "metres per hour",
+        "Date": "30/04/2024",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Velocity",
+        "Unit": "rpm",
+        "Description": "revolution per minute",
+        "Date": "30/04/2024",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Flow",
+        "Unit": "%/min",
+        "Description": "percentage per minute",
+        "Date": "30/04/2024",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Force",
+        "Unit": "N/s",
+        "Description": "Newton-second",
+        "Date": "08/12/2020",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Frequency",
+        "Unit": "Hz",
+        "Description": "hertz",
+        "Date": "30/04/2024",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Miscellaneous",
+        "Unit": "MJ",
+        "Description": "MegaJoule",
+        "Date": "30/04/2024",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Miscellaneous",
+        "Unit": "MJ/m3",
+        "Description": "MegaJoule per cubic meter",
+        "Date": "30/04/2024",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    },{
+        "Type": "Length",
+        "Unit": "mm2",
+        "Description": "square millimetre",
+        "Date": "25/11/2024",
+        "Version": "4.0,4.1",
+        "Status": "Approved",
+        "Comments": ""
+    }
+]
