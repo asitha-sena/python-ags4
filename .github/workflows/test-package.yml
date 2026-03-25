@@ -39,7 +39,6 @@ jobs:
       run: |
         echo $GITHUB_PATH
         echo $PATH
-        python -m pytest
         python -m pytest -v --ignore=tests/test_batch.py
         python -m doctest README.md
         #python -m pytest -v --nbval notebooks/Plot_locations_and_create_strip_log.ipynb
