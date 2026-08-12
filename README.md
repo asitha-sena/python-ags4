@@ -1,3 +1,5 @@
+
+
 # *This project has been adopted by the AGS Data Format Working Group and moved to https://gitlab.com/ags-data-format-wg/ags-python-library*
 ---
 
@@ -63,7 +65,7 @@ tables, headings = load_test_data()
 * *headings* is a dictionary of lists. Each list has the header names of the corresponding *GROUP*
 
 >>> 
-**Important:** If the above code throws an exception or returns an empty dictionary, it very likely that the input file is not a valid AGS4 file. In such a case, the `AGS4.check_file()` function can be used to validate the file and see whether anything needs to be fixed before trying again. Most users will find it easier to perform this step using the [command line interface](#command-line-interface) as it will provide a formatted error report that is much easier to read than the python dictionary created by directly calling the function.
+**Important:** If the above code throws an exception or returns an empty dictionary, it is very likely that the input file is not a valid AGS4 file. In such a case, the `AGS4.check_file()` function can be used to validate the file and see whether anything needs to be fixed before trying again. Most users will find it easier to perform this step using the [command line interface](#command-line-interface) as it will provide a formatted error report that is much easier to read than the python dictionary created by directly calling the function.
 >>>
 
 All data are imported as text so they cannot be analyzed or plotted immediately. You can use the following code to convert all the numerical data in a DataFrame from text to numeric.
